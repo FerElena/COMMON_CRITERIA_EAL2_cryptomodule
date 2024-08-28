@@ -1,0 +1,8 @@
+ts=$(shell /bin/date "+%d-%m-%Y---%H:%M:%S")
+
+all: testing_common_library
+
+testing_common_library: selftests_main.c crypto/*.c crypto-selftests/*.c file_system/file_system.c file_system/testing_file_system.c library_tracer/*.c memory_tracker/*.c Dynamic_Memory_Manager/*.c
+	@echo "($(ts)) Compiling project..."; \
+	gcc -pthread $^ -g -o $@; \
+	echo "($(ts)) Compilation finished\n";

@@ -1,0 +1,145 @@
+/**
+ * @file AES_CBC.c
+ * @brief File containing all the function definitions of the AES_CBC algorithm.
+ */
+
+/****************************************************************************************************************
+ * Private include files
+ ****************************************************************************************************************/
+#include "AES_CBC.h"
+
+/****************************************************************************************************************
+ * Function definition zone
+ ****************************************************************************************************************/
+
+void CP_XorAesBlock(uint8_t *Block1, uint8_t const *Block2)
+{
+
+  uint32_t i;
+
+  for (i = 0; i < AES_BLOCK_SIZE; i++)
+  {
+    Block1[i] ^= Block2[i];
+  }
+}
+
+void CP_AesCbcInitialize(AesCbcContext *Context, AesContext const *InitializedAesContext, uint8_t const IV[AES_BLOCK_SIZE])
+{
+  // Setup context values
+  Context->Aes = *InitializedAesContext;
+  memcpy(Context->PreviousCipherBlock, IV, sizeof(Context->PreviousCipherBlock));
+}
+
+int CP_AesCbcInitializeWithKey(AesCbcContext *Context, uint8_t const *Key, uint32_t KeySize, uint8_t const IV[AES_BLOCK_SIZE])
+{
+
+  AesContext aes;
+  if (0 != API_CP_AesInitialize(&aes, Key, KeySize))
+  {
+    return -1;
+  }
+
+  // Now set-up AesCbcContext
+  CP_AesCbcInitialize(Context, &aes, IV);
+  return 0;
+}
+
+int CP_AesCbcEncrypt(AesCbcContext *Context, void const *InBuffer, void *OutBuffer, uint32_t Size)
+{
+
+  uint32_t numBlocks = Size / AES_BLOCK_SIZE;
+  uint32_t offset = 0;
+  uint32_t i;
+
+  if (0 != Size % AES_BLOCK_SIZE)
+  {
+    // Size not a multiple of AES block size (16 bytes).
+    return -1;
+  }
+
+  for (i = 0; i < numBlocks; i++)
+  {
+    // XOR on the next block of data onto the previous cipher block
+    CP_XorAesBlock(Context->PreviousCipherBlock, (uint8_t *)InBuffer + offset);
+
+    // Encrypt to make new cipher block
+    API_CP_AesEncryptInPlace(&Context->Aes, Context->PreviousCipherBlock);
+
+    // Output cipher block
+    memcpy((uint8_t *)OutBuffer + offset, Context->PreviousCipherBlock, AES_BLOCK_SIZE);
+
+    offset += AES_BLOCK_SIZE;
+  }
+
+  return 0;
+}
+
+int CP_AesCbcDecrypt(AesCbcContext *Context, void const *InBuffer, void *OutBuffer, uint32_t Size)
+{
+
+  uint32_t numBlocks = Size / AES_BLOCK_SIZE;
+  uint32_t offset = 0;
+  uint32_t i;
+  uint8_t previousCipherBlock[AES_BLOCK_SIZE];
+
+  if (0 != Size % AES_BLOCK_SIZE)
+  {
+    // Size not a multiple of AES block size (16 bytes).
+    return -1;
+  }
+
+  for (i = 0; i < numBlocks; i++)
+  {
+    // Copy previous cipher block and place current one in context
+    memcpy(previousCipherBlock, Context->PreviousCipherBlock, AES_BLOCK_SIZE);
+    memcpy(Context->PreviousCipherBlock, (uint8_t *)InBuffer + offset, AES_BLOCK_SIZE);
+
+    // Decrypt cipher block
+    API_CP_AesDecrypt(&Context->Aes, Context->PreviousCipherBlock, (uint8_t *)OutBuffer + offset);
+
+    // XOR on previous cipher block
+    CP_XorAesBlock((uint8_t *)OutBuffer + offset, previousCipherBlock);
+
+    offset += AES_BLOCK_SIZE;
+  }
+
+  return 0;
+}
+
+/*
+ * Encrypt *len bytes of data
+ */
+void API_CP_AESCBC_encrypt(unsigned char *plaintext, int *len, unsigned char *key,unsigned int AES_KEY_SIZE, unsigned char *iv, unsigned char *ciphertext)
+{
+  if (*len % AES_BLOCK_SIZE != 0)
+  {
+    CP_addPaddingAes(plaintext, len , ciphertext);
+  }
+  AesCbcContext AES_ctx;
+  CP_AesCbcInitializeWithKey(&AES_ctx, key, AES_KEY_SIZE, iv);
+  CP_AesCbcEncrypt(&AES_ctx, plaintext, ciphertext, *len);
+}
+  
+/*
+ * Decrypt *len bytes of ciphertext
+ */
+void API_CP_AESCBC_decrypt(unsigned char *ciphertext, int *len, unsigned char *key,unsigned int AES_KEY_SIZE, unsigned char *iv, unsigned char *plaintext)
+{
+  AesCbcContext AES_ctx;
+  CP_AesCbcInitializeWithKey(&AES_ctx, key, AES_KEY_SIZE, iv);
+  CP_AesCbcDecrypt(&AES_ctx, ciphertext, plaintext, *len);
+}
+
+/*
+ * Padding to a multiple of the AES block size
+ */
+void CP_addPaddingAes(unsigned char *message, int *length, unsigned char *padded_message)
+{
+  int PadNumber = AES_BLOCK_SIZE - (*length % AES_BLOCK_SIZE);
+  *length = *length + PadNumber;
+  memcpy(padded_message, message, (*length - PadNumber));
+  for (int i = 0; i < PadNumber; i++)
+  {
+    padded_message[(*length - PadNumber) + i] = PadNumber;
+  }
+}
