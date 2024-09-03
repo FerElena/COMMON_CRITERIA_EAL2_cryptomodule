@@ -38,9 +38,6 @@
  * The purpose of this function is to verify the HMAC-SHA256 signature received by the
  * library and verify if it is correct or not. Then returns the result of the verification
  *
- * @tsfi{HMAC}
- * @sfr{FCS_COP.1.1}
- * @methodOfUse{This function is invoked by the crypto.c}
  *
  * @param msg Message we want to verify
  * @param key Key used to sign the message

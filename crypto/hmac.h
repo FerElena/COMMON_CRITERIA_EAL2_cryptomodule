@@ -43,9 +43,6 @@ extern unsigned char sha_buf[SHA256_HASH_SIZE];
 /**
  * @brief This function returns the HMAC-SHA256 hash of a given message with a given key
  * 
- * @tsfi{LGOT, SHA, HMAC}
- * @sfr{FCS_COP.1.1, FDP_ACF.1.1, FAU_GEN.1.1, FAU_GEN.1.2, FAU_STG.1.1, FTA_TSE.1.1, FDP_ITC.2.1, FDP_ITC.2.2, FDP_ITC.2.3, FDP_ITC.2.4, FDP_ITC.2.5, FTA_SSL.4.1}
- * @methodOfUse{This function is invoked by the mac.c}
  * 
  * @param key HMAC key
  * @param keylen HMAC key lenght
@@ -60,9 +57,6 @@ unsigned char *API_CP_hmac_sha256(unsigned char *key, int keylen, unsigned char 
 /**
  * @brief This function concatenates key k and message m, then returns a SHA256 hash of the concatenation.
  * 
- * @tsfi{LGOT, SHA, HMAC}
- * @sfr{FCS_COP.1.1, FDP_ACF.1.1, FAU_GEN.1.1, FAU_GEN.1.2, FAU_STG.1.1, FTA_TSE.1.1, FDP_ITC.2.1, FDP_ITC.2.2, FDP_ITC.2.3, FDP_ITC.2.4, FDP_ITC.2.5, FTA_SSL.4.1}
- * @methodOfUse{This function is invoked by the API_CP_hmac_sha256 function}
  * 
  * @param k Key
  * @param keylen Lenght of the key

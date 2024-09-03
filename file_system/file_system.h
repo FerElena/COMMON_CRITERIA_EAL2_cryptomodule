@@ -177,7 +177,6 @@ typedef struct
  * correct position in sorted array, and places all smaller elements to the left
  * of the pivot and all greater elements to the right of the pivot.
  *
- * @methodOfUse{This function is invoked by the FS_quicksort function}
  *
  * @param arr Array of FileAllocation structs that needs to be partitioned.
  * @param low Starting index of the partition range.
@@ -193,7 +192,6 @@ int FS_partition(FileAllocation arr[], int low, int high);
  * This function sorts the elements of the `arr` array in-place using the quicksort algorithm.
  * The sorting is done based on the offset value of each FileAllocation struct.
  *
- * @methodOfUse{This function is invoked by the API_FS_create_file_data function and recursively}
  *
  * @param arr Array of FileAllocation structs that needs to be sorted.
  * @param low Starting index for the sort range.
@@ -209,7 +207,6 @@ void FS_quicksort(FileAllocation arr[], int low, int high);
  * operation, it is important to being used every single time an operation which modifies the file_system_metadata is made
  * else consecuent operations will result in error. it also actualices the global variable with the metadata.
  *
- * @methodOfUse{This function is invoked by the file system functions}
  *
  * @param metadata_file File system metadata filename
  */
@@ -224,8 +221,6 @@ int FS_checkdatasave(unsigned int IsCSP,uint8_t Metadata_update);
  * init mode is used only for testing purposes, as the file_system will be given with the cryptolibrary already
  * created in most cases. If used on Load_Mode, the system will load metadata in the RAM, and open file descriptors
  * so operations on the can be made.
- *
- * @methodOfUse{This function is invoked by the persistence_library.c and API.c}
  *
  * @param mode Initialization mode (0 or 1)
  * @return The result of the operation
@@ -244,7 +239,6 @@ int API_FS_setup_cipher(uint8_t mode,uint8_t *fs_Key,uint8_t *fs_iv);
  * the file exists, it will return the index of the file in the metadata structure, if it does not, it will
  * return -3
  *
- * @methodOfUse{This function is invoked by the API_FS_create_file_data, API_FS_delete_file, API_FS_read_file_data, API_FS_update_file_data, and the persistence_library.c and API.c}
  *
  * @param filename Filename to search
  * @param filename_length Filename length
@@ -301,7 +295,6 @@ int API_FS_delete_file(unsigned char *filename , size_t filename_length);
  * the data on a pointer to a global buffer of data which is reutilized
  * 
  *
- * @methodOfUse{This function is invoked by the persistence_library.c and API.c}
  *
  * @param filename Filename
  * @param filename_length length of the name of the filename
@@ -324,7 +317,6 @@ int find_space_for_data(size_t data_size,unsigned int exclude_index);
  * data of the file, in the system, in that case the algorithm will search for a bigger space avaible in the 
  * file system
  *
- * @methodOfUse{This function is invoked by the persistence_library.c and API.c}
  *
  * @param filename Filename
  * @param data New data
@@ -339,7 +331,6 @@ int API_FS_update_file_data(unsigned char *filename, size_t filename_length,unsi
  * a cryptooficer sends a zeroization packets, it zeroizes completly the system, and a new initialization
  * will be needed in order for the system to work again.
  *
- * @methodOfUse{This function is invoked by the persistence_library.c and API.c}
  *
  * @return Result of the operation
  */
@@ -349,7 +340,6 @@ int API_FS_zeroize_file_system();
  * @brief Write traces into the traces filename in the file system
  * The purpose of this function is to write the system traces into the traces file.
  *
- * @methodOfUse{This function is invoked by the log_manager.c}
  *
  * @param filename Traces file
  * @param buffer Buffer where is the information to be written
@@ -369,7 +359,6 @@ int API_FS_write_buffer_to_file(unsigned char *filename,size_t filename_length, 
  * @brief read a size of the file_system, and stores it in a buffer, buffer must be correct size, or there will be a seg fault, not recomended for CSP
  * 
  *
- * @methodOfUse{This function is invoked by the log_manager.c}
  *
  * @param filename Traces file
  * @param buffer Buffer where is the information to be read

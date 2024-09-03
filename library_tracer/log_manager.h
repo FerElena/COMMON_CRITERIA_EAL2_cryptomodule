@@ -55,8 +55,6 @@ extern unsigned char concatenated_string[MAX_STRING];
  * 
  * This function opens and creates the trace file used to register every log
  * 
- * @sfr{FAU_STG.1.1}
- * @methodOfUse{This function is invoked by the checkinit_library.c} 
  * 
  */
 int API_MT_startTraceFile();
@@ -67,8 +65,6 @@ int API_MT_startTraceFile();
  * This function is used to record the library activity and operations into the logfile, so later an administrator can review
  * every step followed to a desired point (a data breach, an error, an attack...)
  * 
- * @sfr{FAU_GEN.1.1, FAU_GEN.1.2, FAU_STG.1.1}
- * @methodOfUse{This function is invoked everytime the library requires to trace some library or client operations}
  * 
  * @param str Extra information that must be included into the log (e.g logcode, id...)
  * @param ... 
@@ -86,8 +82,6 @@ void *WriteTrace();
  * @brief Get the Time object
  * Get the current computer time in the following format: (year-month-day hours-minutes-seconds)
  * 
- * @sfr{FAU_GEN.1.1, FAU_GEN.1.2, FAU_STG.1.1}
- * @methodOfUse{This function is invoked by the API_MT_traceWrite function}
  * 
  * @param aux The buffer where the time is stored
  */

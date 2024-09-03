@@ -81,9 +81,6 @@ int MM_compare_hash(unsigned char arr1[], unsigned char arr2[]);
  * 
  * The purpose of this function is to hash a memory address
  * 
- * @tsfi{SHA}
- * @sfr{FCS_COP.1.1}
- * @methodOfUse{This function is invoked by the MM_create_hash_tree_node, API_MM_freeMem and API_MM_reallocMem functions} 
  * 
  * @param address Address to be hashed
  * @param out Struct where the hash is stored
@@ -95,9 +92,6 @@ void MM_hash_address(void *address, unsigned char out[32]);
  * 
  * The purpose of this function is to create a new hash-tree node to store information about the cryptographic library
  * 
- * @tsfi{SHA}
- * @sfr{FCS_COP.1.1, FRU_RSA.1.1}
- * @methodOfUse{This function is invoked by the API_MM_allocateMem and API_MM_reallocMem functions} 
  * 
  * @param size New node size
  * 
@@ -146,8 +140,6 @@ void MM_transplant(node *from_node, node *to_node);
  * 
  * The purpose of this function is to delete a node from the hash-tree and reorganizate the rest of the nodes
  * 
- * @sfr{FDP_RIP.1.1}
- * @methodOfUse{This function is invoked by the API_MM_freeMem function} 
  * 
  * @param node_to_delete Node to delete from the hash-tree
  */
@@ -158,7 +150,6 @@ void MM_delete_node(node *node_to_delete);
  * 
  * The purpose of this function is, with a hash value, search the correspondant hash-tree node
  * 
- * @methodOfUse{This function is invoked by the API_MM_freeMem function. Also it is called recursively} 
  * 
  * @param current_node Hash-tree current node
  * @param hash Hash to search
@@ -170,9 +161,6 @@ node *MM_find_node_by_hash(node *current_node, unsigned char hash[]);
 /**
  * @brief Allocates a specific memory block.
  * After allocating the memory block, its information is stored in a storaged block that is added to the list.
- * 
- * @sfr{FRU_RSA.1.1}
- * @methodOfUse{This function is invoked everytime the library requires memory for SSPs}
  * 
  * @param size Size in bytes of the required memory block
  * @return The address of the required memory block
@@ -189,8 +177,6 @@ void *API_MM_allocateMem(size_t size);
  * Before freeing , all the data is zeroize.
  * Do nothing if the item is not found.
  * 
- * @sfr{FDP_RIP.1.1}
- * @methodOfUse{This function is invoked everytime the library requires deallocate memory with SSPs}
  * 
  * @param ptr Address of the memory block to remove
  * @return The result of the task (0 if all goes good, other value means an error)
@@ -205,8 +191,6 @@ int API_MM_freeMem(void *ptr);
  *
  * Frees the previous memory block and add the new one in the same storage block
  * 
- * @sfr{FDP_RIP.1.1, FRU_RSA.1.1}
- * @methodOfUse{This function is invoked by the handler.c}
  * 
  * @param ptr Address of the memory block to edit
  * @param new_size Size in bytes to edit
@@ -220,9 +204,6 @@ void *API_MM_reallocMem(void *ptr, size_t new_size);
 /**
  * @brief Zeroizes every block allocated in the library
  * 
- * @tsfi{MOZE}
- * @sfr{FDP_RIP.1.1, FRU_RSA.1.1, FAU_GEN.1.1, FAU_GEN.1.2, FAU_STG.1.1}
- * @methodOfUse{This function is invoked by the API_MM_zeroizeEntireModule function}
  */
 
 void zeroize_tree(node *current_node);
@@ -230,9 +211,6 @@ void zeroize_tree(node *current_node);
  * @brief Removes all the storage blocks in the list
  * Zeroises and frees all the stored memroy blocks. 
  * 
- * @tsfi{MOZE}
- * @sfr{FMT_SMF.1.1, FRU_RSA.1.1, FDP_RIP.1.1, FDP_ACF.1.1, FAU_GEN.1.1, FAU_GEN.1.2, FAU_STG.1.1}
- * @methodOfUse{This function is invoked by the handler.c}
  * 
  * @param id Identifier for the client that requires the ntPacket function. If the ID is 9999, there is no user, is the module zeroization for attacks
  * @return The result of the zeroization, 1 completed, 0 failed

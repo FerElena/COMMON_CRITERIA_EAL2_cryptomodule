@@ -111,9 +111,6 @@ typedef struct
  * 
  * The purpose of this function is to initialize the the SHA256_STRUCT structure in order to begin the SHA256
  * 
- * @tsfi{SHA}
- * @sfr{FCS_COP.1.1}
- * @methodOfUse{This function is invoked by the sha256 function} 
  *
  * @param sha256_struct Characteristic structure of the SHA256
  */
@@ -124,9 +121,6 @@ void CP_sha256_init(SHA256_STRUCT *sha256_struct);
  * 
  * The purpose of this function is to introduce our message into the 512bits chunk. If the chunk is completed, it is send to be computed.
  * 
- * @tsfi{SHA}
- * @sfr{FCS_COP.1.1}
- * @methodOfUse{This function is invoked by the sha256 function} 
  *
  * @param sha256_struct Characteristic structure of the SHA256
  * @param data Message to hash
@@ -139,9 +133,6 @@ void CP_sha256_update(SHA256_STRUCT *sha256_struct, const SHA256_BYTE data[], si
  * 
  * The purpose of this function is to compute the necessary operations of the SHA256 algorithm of a 512bits chunk
  * 
- * @tsfi{SHA}
- * @sfr{FCS_COP.1.1}
- * @methodOfUse{This function is invoked by the sha256 function} 
  *
  * @param sha256_struct Characteristic structure of the SHA256
  * @param data Portion of message to hash
@@ -152,10 +143,7 @@ void CP_sha256_computation(SHA256_STRUCT *sha256_struct, const SHA256_BYTE data[
  * @brief Processes the final chunk of 512 bits and calculates the final hash
  * 
  * The purpose of this function is to process the final chunk of 512bits by padding and adding the message lenght. Finally, it calculates the final hash.
- * 
- * @tsfi{SHA}
- * @sfr{FCS_COP.1.1}
- * @methodOfUse{This function is invoked by the CP_sha256_update and CP_sha256_final functions} 
+ *  
  *
  * @param sha256_struct Characteristic structure of the SHA256
  * @param hash SHA256 message hash of 256-bit

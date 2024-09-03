@@ -44,10 +44,6 @@
  * This function starts every cryptographic function selftest and the integrity hash verification selftest.
  * If it is passed, the library starts to accept clients.
  * 
- * @tsfi{LGOT, CMAC, HMAC, ECDSA, SHA, TESLA, SFTFUN}
- * @sfr{FCS_COP.1.1, FDP_ACF.1.1, FAU_GEN.1.1, FAU_GEN.1.2, FAU_STG.1.1, FPT_TST.1.1, FPT_TST.1.2, FPT_TST.1.3,
- *      FTA_TSE.1.1, FDP_ITC.2.1, FDP_ITC.2.2, FDP_ITC.2.3, FDP_ITC.2.4, FDP_ITC.2.5, FTA_SSL.4.1}
- * @methodOfUse{This function is invoked by handler.c and the API.c}
  * 
  * @param id Identifier for the client that requires the ntPacket function
  * @param path Init library path
@@ -61,10 +57,6 @@ void API_SFT_initSelfTests();
  * This function starts the integrity hash verification selftest making a new hash and matching 
  * it with the existing hash in the path designed.
  * 
- * @tsfi{SHA, SFTFUN}
- * @sfr{FCS_COP.1.1, FDP_ACF.1.1, FAU_GEN.1.1, FAU_GEN.1.2, FAU_STG.1.1, FPT_TST.1.1, FPT_TST.1.2, FPT_TST.1.3,
- *      FTA_TSE.1.1, FDP_ITC.2.1, FDP_ITC.2.2, FDP_ITC.2.3, FDP_ITC.2.4, FDP_ITC.2.5, FTA_SSL.4.1}
- * @methodOfUse{This function is invoked by the API_SFT_initSelfTests function}
  * 
  * @param id id Identifier for the client that requires the ntPacket function
  * @param path Init library path

@@ -21,9 +21,6 @@
 /**
  * @brief This function compares the result of the HMAC algorithm with the test vectors given by NIST, with the expected result, if equal, returns 1, otherwise 0.
  * 
- * @tsfi{LGOT, SHA, HMAC, SFTFUN}
- * @sfr{FCS_COP.1.1, FPT_TST.1.1, FPT_TST.1.2, FDP_ACF.1.1, FAU_GEN.1.1, FAU_GEN.1.2, FAU_STG.1.1, FTA_TSE.1.1, FDP_ITC.2.1, FDP_ITC.2.2, FDP_ITC.2.3, FDP_ITC.2.4, FDP_ITC.2.5, FTA_SSL.4.1}
- * @methodOfUse{This function is invoked by the API_SFT_HMACTest function}
  * 
  * @param key Key used to perform the HMAC algorithm given by NIST
  * @param lenKey Length of the key
@@ -39,9 +36,6 @@ int SFT_HMAC_Compare(unsigned char *key, int lenKey, unsigned char *msg, int len
 /**
  * @brief The function initiates the HMAC test verifiying all the hardcoded NIST test-vectors, if a single vector fails, the test fails
  * 
- * @tsfi{LGOT,SHA, HMAC, SFTFUN}
- * @sfr{FCS_COP.1.1, FPT_TST.1.1, FPT_TST.1.2, FDP_ACF.1.1, FAU_GEN.1.1, FAU_GEN.1.2, FAU_STG.1.1, FTA_TSE.1.1, FDP_ITC.2.1, FDP_ITC.2.2, FDP_ITC.2.3, FDP_ITC.2.4, FDP_ITC.2.5, FTA_SSL.4.1}
- * @methodOfUse{This function is invoked by the selftests.c}
  * 
  * @return Returns 1 if the test is passed, 0 if not
 */
