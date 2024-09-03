@@ -106,14 +106,13 @@ int CP_AesCbcDecrypt(AesCbcContext *Context, void const *InBuffer, void *OutBuff
   return 0;
 }
 
-void CP_addPaddingAes(unsigned char *message, int *length, unsigned char *padded_message)
+void CP_addPaddingAes(unsigned char *message, size_t *length, unsigned char *padded_message)
 {
   int PadNumber = AES_BLOCK_SIZE - (*length % AES_BLOCK_SIZE);
   *length = *length + PadNumber;
-  memcpy(padded_message, message, (*length - PadNumber));
   for (int i = 0; i < PadNumber; i++)
-  {
-    padded_message[(*length - PadNumber) + i] = PadNumber;
+  {  
+    message[(*length - PadNumber) + i] = PadNumber;
   }
 }
 

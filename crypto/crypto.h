@@ -39,17 +39,13 @@ typedef enum type_CRC{
  */
 #define HASH_SIZE 32
 
-/**
- * @brief Copernicus Page Length
- * 
- */
-#define COPERNICUS_PAGE_LENGTH 32
-
 
 /* Function declaration zone ........................................ */
 
 
 int API_CP_verify_HMAC_SHA256(unsigned char *msg, unsigned char *key, unsigned char *sign, size_t length_msg, size_t length_key, size_t length_sign , uint8_t *result);
+
+int API_CP_hmac_sha256(unsigned char* msg, unsigned char* key, size_t datalen, size_t length_key , unsigned char *result);
 
 int API_CP_verify_ECDSA256(unsigned char *key,unsigned char *msg, unsigned char *sign , size_t length_pukey , size_t length_msg , size_t length_sign , uint8_t *result);
 
@@ -57,8 +53,9 @@ int API_CP_sha256(unsigned char *msg, size_t length_msg,unsigned char *sha_out);
 
 int API_CP_crc(unsigned char *msg,size_t lenght_msg,CRC type_crc , unsigned int *CRC_out);
 
-void API_CP_AESCBC_encrypt(unsigned char *plaintext, int *len, unsigned char *key,unsigned int AES_KEY_SIZE, unsigned char *iv, unsigned char *ciphertext);
+//the size of the AES_CBC plaintext buffer must be a multiple of 16 bytes, even if the message is not
+int API_CP_AESCBC_encrypt(unsigned char *plaintext, size_t *len, unsigned char *key,unsigned int AES_KEY_SIZE, unsigned char *iv, unsigned char *ciphertext);
 
-void API_CP_AESCBC_decrypt(unsigned char *ciphertext, int *len, unsigned char *key,unsigned int AES_KEY_SIZE, unsigned char *iv, unsigned char *plaintext);
+int API_CP_AESCBC_decrypt(unsigned char *ciphertext, size_t *len, unsigned char *key,unsigned int AES_KEY_SIZE, unsigned char *iv, unsigned char *plaintext);
 
 #endif

@@ -25,6 +25,11 @@ int API_CP_verify_HMAC_SHA256(unsigned char *msg, unsigned char *key, unsigned c
 	*result = API_verify_HMAC(msg, key, sign, length_msg, length_key, length_sign);
 	return 1; // Success
 }
+int API_CP_hmac_sha256(unsigned char* msg, unsigned char* key, size_t datalen, size_t length_key , unsigned char *result){
+
+	result = API_hmac_sha256(key, length_key, msg, datalen);
+	return 1;
+}
 /*
 * Verify the ECDSA P-256 sign sent by the receiver and give the result
 */
@@ -64,23 +69,27 @@ int API_CP_crc(unsigned char *msg,size_t lenght_msg,CRC type_crc , unsigned int 
 	return 1; //Success
 }
 
-void API_CP_AESCBC_encrypt(unsigned char *plaintext, int *len, unsigned char *key,unsigned int AES_KEY_SIZE, unsigned char *iv, unsigned char *ciphertext)
+int API_CP_AESCBC_encrypt(unsigned char *plaintext, size_t *len, unsigned char *key,unsigned int AES_KEY_SIZE, unsigned char *iv, unsigned char *ciphertext)
 {
   if (*len % AES_BLOCK_SIZE != 0)
   {
-    CP_addPaddingAes(plaintext, len , ciphertext);
+    CP_addPaddingAes(plaintext, len , plaintext);
   }
   AesCbcContext AES_ctx;
   CP_AesCbcInitializeWithKey(&AES_ctx, key, AES_KEY_SIZE, iv);
   CP_AesCbcEncrypt(&AES_ctx, plaintext, ciphertext, *len);
+  
+  return 1;
 }
   
 
-void API_CP_AESCBC_decrypt(unsigned char *ciphertext, int *len, unsigned char *key,unsigned int AES_KEY_SIZE, unsigned char *iv, unsigned char *plaintext)
+int API_CP_AESCBC_decrypt(unsigned char *ciphertext, size_t *len, unsigned char *key,unsigned int AES_KEY_SIZE, unsigned char *iv, unsigned char *plaintext)
 {
   AesCbcContext AES_ctx;
   CP_AesCbcInitializeWithKey(&AES_ctx, key, AES_KEY_SIZE, iv);
   CP_AesCbcDecrypt(&AES_ctx, ciphertext, plaintext, *len);
+
+  return 1;
 }
 
 

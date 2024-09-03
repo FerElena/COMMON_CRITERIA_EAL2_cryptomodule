@@ -28,7 +28,7 @@ unsigned char sha_buf[SHA256_HASH_SIZE];
  /**************************************************************************************************************** 
   * Function definition zone 
   ****************************************************************************************************************/
-unsigned char *API_CP_hmac_sha256(unsigned char *key, int keylen, unsigned char *data, int datalen)
+unsigned char *API_hmac_sha256(unsigned char *key, int keylen, unsigned char *data, int datalen)
 {
     int i;
 
@@ -84,7 +84,7 @@ int API_verify_HMAC(unsigned char *msg, unsigned char *key, unsigned char *sign,
 		return rc;
 	}
 	unsigned char *out ;
-	out = API_CP_hmac_sha256(key, length_key, msg, length_msg);
+	out = API_hmac_sha256(key, length_key, msg, length_msg);
 	if (memcmp(sign, out, length_sign) != 0)// Match the HMAC signatures
 		return MAC_NOT_VERIFIED;
 	else

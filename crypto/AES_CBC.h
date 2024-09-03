@@ -59,11 +59,7 @@ int CP_AesCbcEncrypt(AesCbcContext* Context, void const* InBuffer, void* OutBuff
 
 int CP_AesCbcDecrypt(AesCbcContext* Context, void const* InBuffer, void* OutBuffer, uint32_t Size);
 
-void API_CP_AESCBC_encrypt(unsigned char *plaintext, int *len, unsigned char *key,unsigned int AES_KEY_SIZE, unsigned char *iv, unsigned char *ciphertext);
-
-void API_CP_AESCBC_decrypt(unsigned char *ciphertext, int *len, unsigned char *key,unsigned int AES_KEY_SIZE, unsigned char *iv, unsigned char *plaintext);
-
-void CP_addPaddingAes(unsigned char *message, int *length, unsigned char *padded_message);
+void CP_addPaddingAes(unsigned char *message, size_t *length, unsigned char *padded_message);
 
 
 #endif 

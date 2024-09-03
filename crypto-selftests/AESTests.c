@@ -6227,7 +6227,7 @@ int SFT_AESCBC_256_encryptCompareMC(unsigned char *plaintext, int *len, unsigned
 		
 	for (int j = 0; j < 1000; j++)
 	{
-		API_CP_AESCBC_encrypt(plaintexts[j], len, key,AES_KEY_SIZE_256, ivs[j],ciphertexts[j]);
+		API_CP_AESCBC_encrypt(plaintexts[j], (size_t*)len, key,AES_KEY_SIZE_256, ivs[j],ciphertexts[j]);
 		if(j==0){
 			memcpy(tmp,ciphertexts[j],16);
 			memcpy(plaintexts[j+1], ivs[j], 16);
@@ -6265,9 +6265,9 @@ int SFT_AESCBC_256_decryptCompareMC(unsigned char *ciphertext, int *len, unsigne
 	for (int j = 0; j <  1000; j++)
 	{	
 		if(j==0)
-		API_CP_AESCBC_decrypt(ciphertext, len, key,AES_KEY_SIZE_256, ivs[j],plaintexts[j]);
+		API_CP_AESCBC_decrypt(ciphertext, (size_t*)len, key,AES_KEY_SIZE_256, ivs[j],plaintexts[j]);
 		else
-		API_CP_AESCBC_decrypt(ciphertexts[j], len, key,AES_KEY_SIZE_256, ivs[j],plaintexts[j]);
+		API_CP_AESCBC_decrypt(ciphertexts[j], (size_t*)len, key,AES_KEY_SIZE_256, ivs[j],plaintexts[j]);
 		if(j==0){
 			memcpy(tmp,ciphertexts[j],16);
 			memcpy(ciphertexts[j+1],ivs[j],16);
@@ -32410,7 +32410,7 @@ int API_SFT_AESTests(){
 int SFT_AESCBC_256_encryptCompare(unsigned char *plaintext, int *len, unsigned char* expected_output, int lenExpected, unsigned char *key, unsigned char* iv){
 
 	unsigned char ciphertext[512];
-	API_CP_AESCBC_encrypt(plaintext,len,key,AES_KEY_SIZE_256,iv,ciphertext);
+	API_CP_AESCBC_encrypt(plaintext,(size_t*)len,key,AES_KEY_SIZE_256,iv,ciphertext);
 	if(memcmp(ciphertext, expected_output, lenExpected) == 0){
 		return 1;
 	}
@@ -32419,7 +32419,7 @@ int SFT_AESCBC_256_encryptCompare(unsigned char *plaintext, int *len, unsigned c
 
 int SFT_AESCBC_256_decryptCompare(unsigned char *ciphertext, int *len, unsigned char* expected_output, int lenExpected, unsigned char *key, unsigned char* iv){
 	unsigned char plaintext[512];
-	API_CP_AESCBC_decrypt(ciphertext, len, key,AES_KEY_SIZE_256,iv,plaintext);
+	API_CP_AESCBC_decrypt(ciphertext,(size_t*) len, key,AES_KEY_SIZE_256,iv,plaintext);
 	if(memcmp(plaintext, expected_output, lenExpected) == 0){
 		return 1;
 	}

@@ -58,10 +58,9 @@ extern unsigned char sha_buf[SHA256_HASH_SIZE];
  * @param keylen HMAC key lenght
  * @param data Message to be hashed
  * @param datalen Message lenght
- * @param trunc HMAC-SHA256 hash size required
  * @return Returns the generated HMAC-SHA256 hash
  */
-unsigned char *API_CP_hmac_sha256(unsigned char *key, int keylen, unsigned char *data, int datalen);
+unsigned char *API_hmac_sha256(unsigned char *key, int keylen, unsigned char *data, int datalen);
 
 
 /**
