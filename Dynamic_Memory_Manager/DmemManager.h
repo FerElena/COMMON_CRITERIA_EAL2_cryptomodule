@@ -16,7 +16,7 @@
 
 /* Private include files ............................................ */
 
-#include "../crypto/sha256.h"
+#include "../crypto/SHA256.h"
 
 /* Type definitions ................................................. */
 

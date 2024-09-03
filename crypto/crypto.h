@@ -9,8 +9,8 @@
 
 /* Private include files ............................................ */
 
-#include "sha256.h"
-#include "mac_verify.h"
+#include "SHA256.h"
+#include "HMAC_SHA256.h"
 #include "ECDSA_256.h"
 #include "CRC_Galileo.h"
 #include "AES_CORE.h"
