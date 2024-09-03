@@ -1,5 +1,4 @@
-#include "DmemManager.h"
-
+#include "DmemmanagerTest.h"
 
 void test_MM_compare_hash() {
     unsigned char hash1[32] = {0};

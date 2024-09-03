@@ -106,33 +106,6 @@ int CP_AesCbcDecrypt(AesCbcContext *Context, void const *InBuffer, void *OutBuff
   return 0;
 }
 
-/*
- * Encrypt *len bytes of data
- */
-void API_CP_AESCBC_encrypt(unsigned char *plaintext, int *len, unsigned char *key,unsigned int AES_KEY_SIZE, unsigned char *iv, unsigned char *ciphertext)
-{
-  if (*len % AES_BLOCK_SIZE != 0)
-  {
-    CP_addPaddingAes(plaintext, len , ciphertext);
-  }
-  AesCbcContext AES_ctx;
-  CP_AesCbcInitializeWithKey(&AES_ctx, key, AES_KEY_SIZE, iv);
-  CP_AesCbcEncrypt(&AES_ctx, plaintext, ciphertext, *len);
-}
-  
-/*
- * Decrypt *len bytes of ciphertext
- */
-void API_CP_AESCBC_decrypt(unsigned char *ciphertext, int *len, unsigned char *key,unsigned int AES_KEY_SIZE, unsigned char *iv, unsigned char *plaintext)
-{
-  AesCbcContext AES_ctx;
-  CP_AesCbcInitializeWithKey(&AES_ctx, key, AES_KEY_SIZE, iv);
-  CP_AesCbcDecrypt(&AES_ctx, ciphertext, plaintext, *len);
-}
-
-/*
- * Padding to a multiple of the AES block size
- */
 void CP_addPaddingAes(unsigned char *message, int *length, unsigned char *padded_message)
 {
   int PadNumber = AES_BLOCK_SIZE - (*length % AES_BLOCK_SIZE);
@@ -143,3 +116,4 @@ void CP_addPaddingAes(unsigned char *message, int *length, unsigned char *padded
     padded_message[(*length - PadNumber) + i] = PadNumber;
   }
 }
+

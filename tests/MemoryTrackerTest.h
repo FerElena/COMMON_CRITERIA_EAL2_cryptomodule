@@ -1,7 +1,7 @@
 #ifndef MEMORYRACKERTEST_H
 #define MEMORYRACKERTEST_H
 
-#include "MemoryTracker.h"
+#include "../memory_tracker/MemoryTracker.h"
 
 void MemoryTracker_tests();
 

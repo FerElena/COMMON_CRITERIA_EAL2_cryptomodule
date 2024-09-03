@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include "crypto-selftests/selftests.h"
-#include "file_system/testing_file_system.h"
-#include "memory_tracker/MemoryTrackerTest.h"
-#include "Dynamic_Memory_Manager/DmemmanagerTest.h"
+#include "tests/testing_file_system.h"
+#include "tests/MemoryTrackerTest.h"
+#include "tests/DmemmanagerTest.h"
 #include "crypto/AES_OFB.h"
 #include "file_system/file_system.h"
 #include "library_tracer/log_manager.h"

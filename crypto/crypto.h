@@ -13,6 +13,7 @@
 #include "mac_verify.h"
 #include "ECDSA_256.h"
 #include "CRC_Galileo.h"
+#include "AES_CORE.h"
 #include "AES_CBC.h"
 
 #include "../library_tracer/log_manager.h"

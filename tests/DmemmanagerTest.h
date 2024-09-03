@@ -4,8 +4,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <string.h>
 
-#include "DmemManager.h"
+#include "../Dynamic_Memory_Manager/DmemManager.h"
 
 void test_MM_compare_hash();
 

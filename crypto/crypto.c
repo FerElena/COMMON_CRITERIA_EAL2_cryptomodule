@@ -64,7 +64,25 @@ int API_CP_crc(unsigned char *msg,size_t lenght_msg,CRC type_crc , unsigned int 
 	return 1; //Success
 }
 
-// COPERNICUS FUNCTIONS DOES NOT HAVE PADDING IMPLEMENTED YET!
+void API_CP_AESCBC_encrypt(unsigned char *plaintext, int *len, unsigned char *key,unsigned int AES_KEY_SIZE, unsigned char *iv, unsigned char *ciphertext)
+{
+  if (*len % AES_BLOCK_SIZE != 0)
+  {
+    CP_addPaddingAes(plaintext, len , ciphertext);
+  }
+  AesCbcContext AES_ctx;
+  CP_AesCbcInitializeWithKey(&AES_ctx, key, AES_KEY_SIZE, iv);
+  CP_AesCbcEncrypt(&AES_ctx, plaintext, ciphertext, *len);
+}
+  
+
+void API_CP_AESCBC_decrypt(unsigned char *ciphertext, int *len, unsigned char *key,unsigned int AES_KEY_SIZE, unsigned char *iv, unsigned char *plaintext)
+{
+  AesCbcContext AES_ctx;
+  CP_AesCbcInitializeWithKey(&AES_ctx, key, AES_KEY_SIZE, iv);
+  CP_AesCbcDecrypt(&AES_ctx, ciphertext, plaintext, *len);
+}
+
 
 
 
