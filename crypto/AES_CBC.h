@@ -61,5 +61,7 @@ int CP_AesCbcDecrypt(AesCbcContext* Context, void const* InBuffer, void* OutBuff
 
 void CP_addPaddingAes(unsigned char *message, size_t *length, unsigned char *padded_message);
 
+int CP_getPaddingLength(const unsigned char *padded_message, size_t length);
+
 
 #endif 

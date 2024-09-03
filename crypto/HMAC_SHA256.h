@@ -45,7 +45,7 @@ extern unsigned char k[HMAC_SHA256_BLOCK_SIZE];
 extern unsigned char k_ipad[HMAC_SHA256_BLOCK_SIZE];
 extern unsigned char k_opad[HMAC_SHA256_BLOCK_SIZE];
 
-extern unsigned char buf[HMAC_SHA256_BLOCK_SIZE + SHA256_HASH_SIZE];
+extern unsigned char buf[HMAC_SHA256_BLOCK_SIZE + SHA256_HASH_SIZE]; // overflow en este buffer!
 extern unsigned char sha_buf[SHA256_HASH_SIZE];
 
 /* Function declaration zone ........................................ */

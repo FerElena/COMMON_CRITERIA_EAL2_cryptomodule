@@ -25,9 +25,9 @@ int API_CP_verify_HMAC_SHA256(unsigned char *msg, unsigned char *key, unsigned c
 	*result = API_verify_HMAC(msg, key, sign, length_msg, length_key, length_sign);
 	return 1; // Success
 }
-int API_CP_hmac_sha256(unsigned char* msg, unsigned char* key, size_t datalen, size_t length_key , unsigned char *result){
+int API_CP_hmac_sha256(unsigned char* msg, unsigned char* key, size_t datalen, size_t length_key , unsigned char **result){
 
-	result = API_hmac_sha256(key, length_key, msg, datalen);
+	*result = API_hmac_sha256(key, length_key, msg, datalen);
 	return 1;
 }
 /*
@@ -88,6 +88,11 @@ int API_CP_AESCBC_decrypt(unsigned char *ciphertext, size_t *len, unsigned char 
   AesCbcContext AES_ctx;
   CP_AesCbcInitializeWithKey(&AES_ctx, key, AES_KEY_SIZE, iv);
   CP_AesCbcDecrypt(&AES_ctx, ciphertext, plaintext, *len);
+
+  int padding = CP_getPaddingLength(plaintext,*len);
+  
+  if(padding != -1)
+  	*len -= padding;
 
   return 1;
 }

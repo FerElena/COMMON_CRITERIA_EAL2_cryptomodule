@@ -21,7 +21,7 @@ unsigned char k[HMAC_SHA256_BLOCK_SIZE];
 unsigned char k_ipad[HMAC_SHA256_BLOCK_SIZE];
 unsigned char k_opad[HMAC_SHA256_BLOCK_SIZE];
 
-unsigned char buf[HMAC_SHA256_BLOCK_SIZE + SHA256_HASH_SIZE];
+unsigned char buf[HMAC_SHA256_BLOCK_SIZE + SHA256_HASH_SIZE]; // overflow aquí al escribir en un tamaño más grande que este mensaje!
 unsigned char sha_buf[SHA256_HASH_SIZE];
 
 
@@ -54,7 +54,7 @@ unsigned char *API_hmac_sha256(unsigned char *key, int keylen, unsigned char *da
         k_opad[i] ^= k[i];
     }
 
-    CP_H_sha256(k_ipad, HMAC_SHA256_BLOCK_SIZE, data, datalen, ihash);
+    CP_H_sha256(k_ipad, HMAC_SHA256_BLOCK_SIZE, data, datalen, ihash); // overflow en tamaño
     CP_H_sha256(k_opad, HMAC_SHA256_BLOCK_SIZE, ihash, SHA256_HASH_SIZE, ohash );
 
     return ohash;
@@ -65,7 +65,7 @@ static void CP_H_sha256(unsigned char *k, int keylen, unsigned char *m, int mlen
     // We concatenate 'k' and 'm' and save the concatenated message in 'buf'
     int buflen = keylen + mlen;
     memcpy(buf, k, keylen);
-    memcpy(buf + keylen, m, mlen);
+    memcpy(buf + keylen, m, mlen); // overflow en este memcpy
 
     // We save in 'out' the SHA256 hash of 'buf'
     API_sha256(buf, buflen,sha_buf);

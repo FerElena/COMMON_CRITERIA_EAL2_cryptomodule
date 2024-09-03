@@ -111,8 +111,26 @@ void CP_addPaddingAes(unsigned char *message, size_t *length, unsigned char *pad
   int PadNumber = AES_BLOCK_SIZE - (*length % AES_BLOCK_SIZE);
   *length = *length + PadNumber;
   for (int i = 0; i < PadNumber; i++)
-  {  
+  {
     message[(*length - PadNumber) + i] = PadNumber;
   }
 }
 
+int CP_getPaddingLength(const unsigned char *padded_message, size_t length) {
+    if (length == 0) {
+        return -1; // No hay mensaje para revisar
+    }
+    unsigned char lastByte = padded_message[length - 1]; // Obtiene el último byte, que indica el padding
+    if (lastByte > AES_BLOCK_SIZE || lastByte == 0) {
+        return -1; // Padding no válido, ya que no puede ser mayor que el tamaño de bloque ni cero
+    }
+
+    // Verifica que todos los bytes de padding son iguales al último byte
+    for (int i = 0; i < lastByte; i++) {
+        if (padded_message[length - 1 - i] != lastByte) {
+            return -1; // Padding no válido si algún byte no coincide
+        }
+    }
+
+    return lastByte; // Retorna la longitud del padding, que es el valor del último byte
+}

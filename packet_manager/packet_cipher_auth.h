@@ -49,4 +49,6 @@ estructura del paquete cifrado, el texto y la firma están cifrados por el AES-C
  ****************************************************************************************************************/
 
 
-int API_PCA_sign_encrypt_packet(unsigned char *data_in, size_t data_in_length, unsigned char *key_AES, unsigned char *key_HMAC, unsigned char *out_data, size_t *out_data_length);
+int API_PCA_sign_encrypt_packet(unsigned char *data_in, size_t data_in_length, unsigned char *key_AES, unsigned char *key_HMAC, unsigned char **out_data, size_t *out_data_length);
+
+int API_PCA_decrypt_verify_packet(unsigned char *data_in, size_t data_in_length, unsigned char *key_AES, unsigned char *key_HMAC, unsigned char **out_data ,unsigned char *verify);
