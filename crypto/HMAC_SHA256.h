@@ -45,7 +45,6 @@ extern unsigned char k[HMAC_SHA256_BLOCK_SIZE];
 extern unsigned char k_ipad[HMAC_SHA256_BLOCK_SIZE];
 extern unsigned char k_opad[HMAC_SHA256_BLOCK_SIZE];
 
-extern unsigned char buf[HMAC_SHA256_BLOCK_SIZE + SHA256_HASH_SIZE]; // overflow en este buffer!
 extern unsigned char sha_buf[SHA256_HASH_SIZE];
 
 /* Function declaration zone ........................................ */
@@ -97,5 +96,7 @@ static void CP_H_sha256(unsigned char *k, int keylen, unsigned char *m, int mlen
  * @error{ ERROR 2, The parameter sign or length_sign is incorrect NULL or zero }
  */
 int API_verify_HMAC(unsigned char* msg, unsigned char* key, unsigned char* sign, size_t length_msg, size_t length_key, size_t length_sign);
+
+static void sha256_HMAC(unsigned char *key,size_t key_length,unsigned char *msg, int length_msg ,unsigned char *out);
 
 #endif // _HMAC_H_

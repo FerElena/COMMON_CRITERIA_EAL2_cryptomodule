@@ -6254,20 +6254,22 @@ int SFT_AESCBC_256_encryptCompareMC(unsigned char *plaintext, int *len, unsigned
 int SFT_AESCBC_256_decryptCompareMC(unsigned char *ciphertext, int *len, unsigned char* expected_output, int lenExpected, unsigned char *key, unsigned char *iv){
 
 	int verified;
-    unsigned char ciphertexts[1001][16];
+    	unsigned char ciphertexts[1001][16];
 	unsigned char plaintexts[1001][16];
-    unsigned char ivs[1001][16];
+    	unsigned char ivs[1001][16];
 
 	memcpy(ciphertexts[0],ciphertext,16);
 	memcpy(ivs[0],iv,16);
 	unsigned char tmp[16];
 
+	size_t len_size_t = (size_t)(*len);
+
 	for (int j = 0; j <  1000; j++)
 	{	
 		if(j==0)
-		API_CP_AESCBC_decrypt(ciphertext, (size_t*)len, key,AES_KEY_SIZE_256, ivs[j],plaintexts[j]);
+		API_CP_AESCBC_decrypt(ciphertext, &len_size_t, key,AES_KEY_SIZE_256, ivs[j],plaintexts[j]);
 		else
-		API_CP_AESCBC_decrypt(ciphertexts[j], (size_t*)len, key,AES_KEY_SIZE_256, ivs[j],plaintexts[j]);
+		API_CP_AESCBC_decrypt(ciphertexts[j], &len_size_t, key,AES_KEY_SIZE_256, ivs[j],plaintexts[j]);
 		if(j==0){
 			memcpy(tmp,ciphertexts[j],16);
 			memcpy(ciphertexts[j+1],ivs[j],16);
@@ -6279,11 +6281,13 @@ int SFT_AESCBC_256_decryptCompareMC(unsigned char *ciphertext, int *len, unsigne
 		}
 		
 		*len = 16;
+		len_size_t = (size_t)(*len);
 	}
 	if(memcmp(plaintexts[999], expected_output, 16)!=0){
 		verified = 0;
 	}
     else{
+	fflush(stdout);
     	verified = 1;
     }
     return verified;
@@ -32407,21 +32411,47 @@ int API_SFT_AESTests(){
     return verified;
 }
 
-int SFT_AESCBC_256_encryptCompare(unsigned char *plaintext, int *len, unsigned char* expected_output, int lenExpected, unsigned char *key, unsigned char* iv){
+/*int SFT_AESCBC_256_encryptCompare(unsigned char *plaintext, int *len, unsigned char* expected_output, int lenExpected, unsigned char *key, unsigned char* iv){
 
 	unsigned char ciphertext[512];
-	API_CP_AESCBC_encrypt(plaintext,(size_t*)len,key,AES_KEY_SIZE_256,iv,ciphertext);
+	API_CP_AESCBC_encrypt(plaintext,len,key,AES_KEY_SIZE_256,iv,ciphertext);
 	if(memcmp(ciphertext, expected_output, lenExpected) == 0){
 		return 1;
 	}
 	return 0;
+}*/
+
+int SFT_AESCBC_256_encryptCompare(unsigned char *plaintext, int *len, unsigned char* expected_output, int lenExpected, unsigned char *key, unsigned char* iv){
+    unsigned char ciphertext[512];
+    size_t len_size_t = (size_t)(*len);  // Convertir el valor de int a size_t
+    API_CP_AESCBC_encrypt(plaintext, &len_size_t, key, AES_KEY_SIZE_256, iv, ciphertext);
+    if(memcmp(ciphertext, expected_output, lenExpected) == 0){
+        return 1;
+    }
+    return 0;
 }
 
-int SFT_AESCBC_256_decryptCompare(unsigned char *ciphertext, int *len, unsigned char* expected_output, int lenExpected, unsigned char *key, unsigned char* iv){
+/*int SFT_AESCBC_256_decryptCompare(unsigned char *ciphertext, int *len, unsigned char* expected_output, int lenExpected, unsigned char *key, unsigned char* iv){
 	unsigned char plaintext[512];
-	API_CP_AESCBC_decrypt(ciphertext,(size_t*) len, key,AES_KEY_SIZE_256,iv,plaintext);
+	API_CP_AESCBC_decrypt(ciphertext,len, key,AES_KEY_SIZE_256,iv,plaintext);
 	if(memcmp(plaintext, expected_output, lenExpected) == 0){
 		return 1;
 	}
 	return 0;
+}*/
+
+int SFT_AESCBC_256_decryptCompare(unsigned char *ciphertext, int *len, unsigned char* expected_output, int lenExpected, unsigned char *key, unsigned char* iv) {
+    unsigned char plaintext[512];
+    
+    // Convertir el valor de *len de int a size_t
+    size_t len_size_t = (size_t)(*len);
+    
+    // Pasar el puntero a size_t a la función de desencriptación
+    API_CP_AESCBC_decrypt(ciphertext, &len_size_t, key, AES_KEY_SIZE_256, iv, plaintext);
+    
+    // Comparar el resultado desencriptado con el valor esperado
+    if (memcmp(plaintext, expected_output, lenExpected) == 0) {
+        return 1;
+    }
+    return 0;
 }

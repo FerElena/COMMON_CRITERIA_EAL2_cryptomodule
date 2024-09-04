@@ -10,13 +10,13 @@
 
 int main(){
     system("clear");
-    /*printf("prueba inicio selftests\n");
+    printf("prueba inicio selftests\n");
     API_SFT_initSelfTests();
     FS_testing();
     MemoryTracker_tests();
-    Test_DmemManager();*/
+    Test_DmemManager();
 
-    unsigned char data_in[400001] = "This is a test message for enfdsfsdfsdfsdfsdfsdfcryption"; // Mensaje de prueba, a partir de tamaño 1024 me falla no se porque
+    unsigned char data_in[30001] = "This is a test message for enfdsfsdfsdfsdfsdfsdfcryption"; // Mensaje de prueba, a partir de tamaño 1024 me falla no se porque
     size_t data_in_length = sizeof(data_in);
     
     unsigned char key_AES[32] = {0};  // Clave AES de 256 bits
