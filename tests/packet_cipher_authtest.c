@@ -25,13 +25,13 @@ int test_encrypt_decrypt(unsigned char *plaintext, size_t plaintext_length, unsi
 
     // Descifrar y verificar el mensaje, el valor de la firma se guarda en `verify`
     int result2 = API_PCA_decrypt_verify_packet(aux_test_buff, ciphertext_length, key_AES, key_HMAC, &decrypted_plaintext,&plaintext_length_aux, &verify);
-    if (result1 != NOT_ALLOCATED_MEMORY && result1 != ALLOCATED_MEMORY) {
+    if (result2 != NOT_ALLOCATED_MEMORY && result2 != ALLOCATED_MEMORY) {
         printf("Fallo en la función de descifrado y verificación\n");
         return 0;
     }
-    memcpy(aux_test_buff,decrypted_plaintext,plaintext_length_aux);
+    memcpy(aux_test_buff,decrypted_plaintext + 32,plaintext_length_aux);
     if(result2 == ALLOCATED_MEMORY)
-        API_MM_freeMem(ciphertext);
+        API_MM_freeMem(decrypted_plaintext);
 
     // Verificar que el valor de `verify` sea correcto (1 para éxito)
     if (verify != 1) {

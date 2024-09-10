@@ -111,7 +111,7 @@ int API_PCA_decrypt_verify_packet(unsigned char *data_in, size_t data_in_length,
 	int result2 = API_CP_verify_HMAC_SHA256(out_buffer_pointer + HMAC_SHA256_sign_size, key_HMAC, out_buffer_pointer, data_in_len_aux - HMAC_SHA256_sign_size, HMAC_SHA256_key_size, HMAC_SHA256_sign_size, verify);
 
 	// Asignación del puntero al inicio de los datos útiles en el buffer de salida.
-	*out_data = out_buffer_pointer + 32;
+	*out_data = out_buffer_pointer;
 	*out_data_length = data_in_len_aux;
 
 	return allocated_memory;  // Retorno de éxito.
