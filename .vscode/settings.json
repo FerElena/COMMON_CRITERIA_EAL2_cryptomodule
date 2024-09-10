@@ -2,6 +2,7 @@
 	"files.associations": {
 		"hmac_sha256.h": "c",
 		"sha256.h": "c",
-		"functional": "c"
+		"functional": "c",
+		"memorytrackertest.h": "c"
 	}
 }
