@@ -75,18 +75,14 @@ int API_CP_AESCBC_encrypt(unsigned char *plaintext, size_t *len, unsigned char *
 
 	CP_addPaddingAes(plaintext, len, plaintext);
 
-	AesCbcContext AES_ctx;
-	CP_AesCbcInitializeWithKey(&AES_ctx, key, AES_KEY_SIZE, iv);
-	CP_AesCbcEncrypt(&AES_ctx, plaintext, ciphertext, *len);
+	API_AESCBC_encrypt(plaintext, len, key, AES_KEY_SIZE, iv, ciphertext);
 
 	return 1;
 }
 
 int API_CP_AESCBC_decrypt(unsigned char *ciphertext, size_t *len, unsigned char *key, unsigned int AES_KEY_SIZE, unsigned char *iv, unsigned char *plaintext)
 {
-	AesCbcContext AES_ctx;
-	CP_AesCbcInitializeWithKey(&AES_ctx, key, AES_KEY_SIZE, iv);
-	CP_AesCbcDecrypt(&AES_ctx, ciphertext, plaintext, *len);
+	API_AESCBC_decrypt(ciphertext, len,key,AES_KEY_SIZE,iv, plaintext);
 
 	int padding = CP_getPaddingLength(plaintext, *len);
 

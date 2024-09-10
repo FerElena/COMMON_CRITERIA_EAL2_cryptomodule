@@ -106,6 +106,26 @@ int CP_AesCbcDecrypt(AesCbcContext *Context, void const *InBuffer, void *OutBuff
   return 0;
 }
 
+int API_AESCBC_encrypt(unsigned char *plaintext, size_t *len, unsigned char *key, unsigned int AES_KEY_SIZE, unsigned char *iv, unsigned char *ciphertext)
+{
+
+	AesCbcContext AES_ctx;
+	CP_AesCbcInitializeWithKey(&AES_ctx, key, AES_KEY_SIZE, iv);
+	CP_AesCbcEncrypt(&AES_ctx, plaintext, ciphertext, *len);
+
+	return 1;
+}
+
+int API_AESCBC_decrypt(unsigned char *ciphertext, size_t *len, unsigned char *key, unsigned int AES_KEY_SIZE, unsigned char *iv, unsigned char *plaintext)
+{
+	AesCbcContext AES_ctx;
+	CP_AesCbcInitializeWithKey(&AES_ctx, key, AES_KEY_SIZE, iv);
+	CP_AesCbcDecrypt(&AES_ctx, ciphertext, plaintext, *len);
+
+	return 1;
+}
+
+
 // Función que añade padding PKCS#7 para AES
 void CP_addPaddingAes(unsigned char *message, size_t *length, unsigned char *padded_message)
 {
