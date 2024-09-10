@@ -82,7 +82,7 @@ int API_CP_AESCBC_encrypt(unsigned char *plaintext, size_t *len, unsigned char *
 
 int API_CP_AESCBC_decrypt(unsigned char *ciphertext, size_t *len, unsigned char *key, unsigned int AES_KEY_SIZE, unsigned char *iv, unsigned char *plaintext)
 {
-	API_AESCBC_decrypt(ciphertext, len,key,AES_KEY_SIZE,iv, plaintext);
+	API_AESCBC_decrypt(ciphertext, len, key, AES_KEY_SIZE, iv, plaintext);
 
 	int padding = CP_getPaddingLength(plaintext, *len);
 

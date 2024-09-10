@@ -81,7 +81,7 @@ int API_PCA_sign_encrypt_packet(unsigned char *data_in, size_t data_in_length, u
  * @param data_in_length Length of the encrypted data packet.
  * @param key_AES Pointer to the AES key.
  * @param key_HMAC Pointer to the HMAC key.
- * @param out_data Pointer to the output buffer that will contain the decrypted data.
+ * @param out_data Pointer to the output buffer that will contain the sign + the decrypted data, in order to access decrypted data, +32 the pointer.
  * @param out_data_length  Pointer to a size_t that will be set to the length of the plain data.
  * @param verify Pointer to the buffer where the result of the HMAC verification will be stored.
  * 
