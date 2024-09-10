@@ -106,15 +106,28 @@ int CP_AesCbcDecrypt(AesCbcContext *Context, void const *InBuffer, void *OutBuff
   return 0;
 }
 
+// Función que añade padding PKCS#7 para AES
 void CP_addPaddingAes(unsigned char *message, size_t *length, unsigned char *padded_message)
 {
-  int PadNumber = AES_BLOCK_SIZE - (*length % AES_BLOCK_SIZE);
-  *length = *length + PadNumber;
-  for (int i = 0; i < PadNumber; i++)
-  {
-    message[(*length - PadNumber) + i] = PadNumber;
-  }
+    // Cálculo de cuántos bytes de padding se necesitan
+    // AES_BLOCK_SIZE es el tamaño de bloque de AES, usualmente 16 bytes
+    // El padding es la cantidad de bytes necesarios para completar un bloque
+    int PadNumber = AES_BLOCK_SIZE - (*length % AES_BLOCK_SIZE);
+
+    // Actualiza la longitud del mensaje original con la nueva longitud (incluyendo el padding)
+    *length = *length + PadNumber;
+
+    // Añade el padding al mensaje
+    // Se hace un bucle para rellenar con el valor de PadNumber (PKCS#7 padding)
+    // PKCS#7 dice que cada byte añadido debe ser igual al número de bytes de padding
+    for (int i = 0; i < PadNumber; i++)
+    {
+        // Inserta el valor de PadNumber en las posiciones finales del mensaje
+        // (*length - PadNumber) es el índice donde empieza el padding
+        message[(*length - PadNumber) + i] = PadNumber;
+    }
 }
+
 
 int CP_getPaddingLength(const unsigned char *padded_message, size_t length) {
     if (length == 0) {

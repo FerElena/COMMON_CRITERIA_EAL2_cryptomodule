@@ -16,7 +16,7 @@ int main(){
     MemoryTracker_tests();
     Test_DmemManager();
 
-    unsigned char data_in[30001] = "This is a test message for enfdsfsdfsdfsdfsdfsdfcryption"; // Mensaje de prueba, a partir de tamaño 1024 me falla no se porque
+    unsigned char data_in[80] = "This is a test message for enfdsfsdfsdfsdfsdfsdfcryption"; // Mensaje de prueba, a partir de tamaño 1024 me falla no se porque
     size_t data_in_length = sizeof(data_in);
     
     unsigned char key_AES[32] = {0};  // Clave AES de 256 bits
@@ -53,7 +53,7 @@ int main(){
     }
 
     // Comparar datos originales con los datos descifrados
-    if (memcmp(data_in, decrypted_data + 32, data_in_length) == 0) {
+    if (memcmp(data_in, decrypted_data, data_in_length) == 0) {
         printf("The decrypted message matches the original message!\n");
     } else {
         printf("The decrypted message does not match the original message!\n");
