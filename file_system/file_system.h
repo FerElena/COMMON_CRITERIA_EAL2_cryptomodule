@@ -306,6 +306,30 @@ int API_FS_delete_file(unsigned char *filename , size_t filename_length);
  */
 int API_FS_read_file_data(unsigned char *filename,size_t filename_length,unsigned char **buffer_out,unsigned int *data_length );
 
+/**
+ * @brief Rename a file in the filesystem.
+ * 
+ * The purpose of this function is to rename an existing file in the filesystem by replacing its current name 
+ * with a new name. The function performs validation on the input arguments, ensuring that the filenames are 
+ * valid and that the filesystem is in an active state. It also handles thread safety with a mutex and performs 
+ * a secure save of metadata if the file contains Critical Security Parameters (CSP). If the file does not exist 
+ * or if there is an error in the renaming process, it returns an appropriate error code.
+ * 
+ * @methodOfUse{This function is invoked by file system management modules to rename files in the system.}
+ * 
+ * @param old_filename The current name of the file.
+ * @param old_filename_length The length of the current filename.
+ * @param new_filename The new name for the file.
+ * @param new_filename_length The length of the new filename.
+ * @return Result of the operation.
+ * 
+ * @errors
+ * @error{ ERROR 1, Returns INCORRECT_ARGUMENT_ERROR if the provided arguments are incorrect.}
+ * @error{ ERROR 2, Returns NO_FILESYSTEM_FILES if the filesystem is not initialized or is closed.}
+ * @error{ ERROR 3, Returns NOT_EXISTANT_FILENAME if the file to be renamed does not exist.}
+ * @error{ ERROR 4, Returns FILESYSTEM_ERROR if an error occurs while saving metadata.}
+ * @error{ ERROR 5, Returns FILESYSTEM_OK if the rename operation was successful.}
+ */
 int API_FS_rename_file(unsigned char *old_filename , size_t old_filename_length , unsigned char *new_filename , size_t new_filename_length);
 
 int find_space_for_data(size_t data_size,unsigned int exclude_index);
