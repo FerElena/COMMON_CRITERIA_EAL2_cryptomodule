@@ -12,95 +12,86 @@
  * Function definition zone
  ****************************************************************************************************************/
 
-
-
-//YET TO IMPLEMENT: PARAMETER CHECKING, TRACES, ERROR HANDLING
-
+// YET TO IMPLEMENT: PARAMETER CHECKING, TRACES, ERROR HANDLING
 
 /*
-* Verify the HMAC-SHA256 message sent by the receiver and give the result.
-*/
-int API_CP_verify_HMAC_SHA256(unsigned char *msg, unsigned char *key, unsigned char *sign, size_t length_msg, size_t length_key, size_t length_sign , uint8_t *result)
+ * Verify the HMAC-SHA256 message sent by the receiver and give the result.
+ */
+int API_CP_verify_HMAC_SHA256(unsigned char *msg, unsigned char *key, unsigned char *sign, size_t length_msg, size_t length_key, size_t length_sign, uint8_t *result)
 {
 	*result = API_verify_HMAC(msg, key, sign, length_msg, length_key, length_sign);
 	return 1; // Success
 }
-int API_CP_hmac_sha256(unsigned char* msg, unsigned char* key, size_t datalen, size_t length_key , unsigned char **result){
+int API_CP_hmac_sha256(unsigned char *msg, unsigned char *key, size_t datalen, size_t length_key, unsigned char **result)
+{
 
 	*result = API_hmac_sha256(key, length_key, msg, datalen);
 	return 1;
 }
 /*
-* Verify the ECDSA P-256 sign sent by the receiver and give the result
-*/
-int API_CP_verify_ECDSA256(unsigned char *key,unsigned char *msg, unsigned char *sign , size_t length_pukey , size_t length_msg , size_t length_sign , uint8_t *result){
-		unsigned char hash[32];
-		API_sha256(msg,length_msg,hash);
-		*result = ecdsa_verify(key,hash,sign);
+ * Verify the ECDSA P-256 sign sent by the receiver and give the result
+ */
+int API_CP_verify_ECDSA256(unsigned char *key, unsigned char *msg, unsigned char *sign, size_t length_pukey, size_t length_msg, size_t length_sign, uint8_t *result)
+{
+	unsigned char hash[32];
+	API_sha256(msg, length_msg, hash);
+	*result = ecdsa_verify(key, hash, sign);
 
-		return 1;  //Success
+	return 1; // Success
 }
 /*
-* Generates the SHA hash for the message with the SHA mode indicated
-*/
-int API_CP_sha256(unsigned char *msg, size_t length_msg,unsigned char *sha_out)
-{ 
-	API_sha256(msg,length_msg,sha_out);
-	return 1; //Success
+ * Generates the SHA hash for the message with the SHA mode indicated
+ */
+int API_CP_sha256(unsigned char *msg, size_t length_msg, unsigned char *sha_out)
+{
+	API_sha256(msg, length_msg, sha_out);
+	return 1; // Success
 }
 /*
-* Cyclic redundancy check functions
-*/
-int API_CP_crc(unsigned char *msg,size_t lenght_msg,CRC type_crc , unsigned int *CRC_out){
-	switch(type_crc){
-		case crc16:
-			*CRC_out = crc_16(msg,lenght_msg);
-			break;
-		case crc24:
-			*CRC_out = crc_24(msg,lenght_msg);
-			break;
-		case crc32:
-			*CRC_out = crc_32(msg,lenght_msg);
-			break;
-		default:
-			break;
-			//error
+ * Cyclic redundancy check functions
+ */
+int API_CP_crc(unsigned char *msg, size_t lenght_msg, CRC type_crc, unsigned int *CRC_out)
+{
+	switch (type_crc)
+	{
+	case crc16:
+		*CRC_out = crc_16(msg, lenght_msg);
+		break;
+	case crc24:
+		*CRC_out = crc_24(msg, lenght_msg);
+		break;
+	case crc32:
+		*CRC_out = crc_32(msg, lenght_msg);
+		break;
+	default:
+		break;
+		// error
 	}
-	return 1; //Success
+	return 1; // Success
 }
 
-int API_CP_AESCBC_encrypt(unsigned char *plaintext, size_t *len, unsigned char *key,unsigned int AES_KEY_SIZE, unsigned char *iv, unsigned char *ciphertext)
+int API_CP_AESCBC_encrypt(unsigned char *plaintext, size_t *len, unsigned char *key, unsigned int AES_KEY_SIZE, unsigned char *iv, unsigned char *ciphertext)
 {
-  if (*len % AES_BLOCK_SIZE != 0)
-  {
-    CP_addPaddingAes(plaintext, len , plaintext);
-  }
-  AesCbcContext AES_ctx;
-  CP_AesCbcInitializeWithKey(&AES_ctx, key, AES_KEY_SIZE, iv);
-  CP_AesCbcEncrypt(&AES_ctx, plaintext, ciphertext, *len);
-  
-  return 1;
-}
-  
 
-int API_CP_AESCBC_decrypt(unsigned char *ciphertext, size_t *len, unsigned char *key,unsigned int AES_KEY_SIZE, unsigned char *iv, unsigned char *plaintext)
+	CP_addPaddingAes(plaintext, len, plaintext);
+
+	AesCbcContext AES_ctx;
+	CP_AesCbcInitializeWithKey(&AES_ctx, key, AES_KEY_SIZE, iv);
+	CP_AesCbcEncrypt(&AES_ctx, plaintext, ciphertext, *len);
+
+	return 1;
+}
+
+int API_CP_AESCBC_decrypt(unsigned char *ciphertext, size_t *len, unsigned char *key, unsigned int AES_KEY_SIZE, unsigned char *iv, unsigned char *plaintext)
 {
-  AesCbcContext AES_ctx;
-  CP_AesCbcInitializeWithKey(&AES_ctx, key, AES_KEY_SIZE, iv);
-  CP_AesCbcDecrypt(&AES_ctx, ciphertext, plaintext, *len);
+	AesCbcContext AES_ctx;
+	CP_AesCbcInitializeWithKey(&AES_ctx, key, AES_KEY_SIZE, iv);
+	CP_AesCbcDecrypt(&AES_ctx, ciphertext, plaintext, *len);
 
-  int padding = CP_getPaddingLength(plaintext,*len);
-  
-  if(padding != -1)
-  	*len -= padding;
+	int padding = CP_getPaddingLength(plaintext, *len);
 
-  return 1;
+	if (padding != -1)
+		*len -= padding;
+
+	return 1;
 }
-
-
-
-
-
-
-
-

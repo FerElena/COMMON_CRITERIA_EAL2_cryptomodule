@@ -40,11 +40,9 @@ int API_PCA_sign_encrypt_packet(unsigned char *data_in, size_t data_in_length, u
 	padding = 16 - (aux_buffer_length % 16);
 
 	// Ajuste de los tamaños de buffer con el padding calculado.
-	if (padding != 16)
-	{
-		aux_buffer_length += padding;
-		out_buffer_length += padding;
-	}
+	aux_buffer_length += padding;
+	out_buffer_length += padding;
+	
 
 	// Generación de la firma HMAC.
 	int result1 = API_CP_hmac_sha256(data_in, key_HMAC, data_in_len_aux, HMAC_SHA256_key_size, &sign_out);
@@ -56,7 +54,6 @@ int API_PCA_sign_encrypt_packet(unsigned char *data_in, size_t data_in_length, u
 		aux_buffer_pointer = API_MM_allocateMem(aux_buffer_length); // Asignar memoria para el buffer auxiliar.
 		allocated_memory = ALLOCATED_MEMORY;
 	}
-	
 	// Copia de la firma y los datos en el buffer auxiliar.
 	memcpy(aux_buffer_pointer, sign_out, HMAC_SHA256_sign_size);
 	memcpy(aux_buffer_pointer + HMAC_SHA256_sign_size, data_in, data_in_len_aux);
