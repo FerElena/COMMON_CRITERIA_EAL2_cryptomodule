@@ -86,7 +86,7 @@ int API_PCA_sign_encrypt_packet(unsigned char *data_in, size_t data_in_length, u
 }
 
 // Función para descifrar un paquete de datos y verificar su firma.
-int API_PCA_decrypt_verify_packet(unsigned char *data_in, size_t data_in_length, unsigned char *key_AES, unsigned char *key_HMAC, unsigned char **out_data, unsigned char *verify)
+int API_PCA_decrypt_verify_packet(unsigned char *data_in, size_t data_in_length, unsigned char *key_AES, unsigned char *key_HMAC, unsigned char **out_data, size_t *out_data_length, unsigned char *verify)
 {
 	unsigned char *out_buffer_pointer;  // Puntero al buffer de salida.
 	unsigned char allocated_memory = NOT_ALLOCATED_MEMORY;  // Bandera para la gestión de memoria.
@@ -112,6 +112,7 @@ int API_PCA_decrypt_verify_packet(unsigned char *data_in, size_t data_in_length,
 
 	// Asignación del puntero al inicio de los datos útiles en el buffer de salida.
 	*out_data = out_buffer_pointer + 32;
+	*out_data_length = data_in_len_aux;
 
 	return allocated_memory;  // Retorno de éxito.
 }

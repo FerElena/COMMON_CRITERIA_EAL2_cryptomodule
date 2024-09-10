@@ -3,6 +3,7 @@
 		"hmac_sha256.h": "c",
 		"sha256.h": "c",
 		"functional": "c",
-		"memorytrackertest.h": "c"
+		"memorytrackertest.h": "c",
+		"random_number.h": "c"
 	}
 }

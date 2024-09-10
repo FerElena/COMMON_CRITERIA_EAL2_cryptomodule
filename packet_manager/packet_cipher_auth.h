@@ -82,10 +82,11 @@ int API_PCA_sign_encrypt_packet(unsigned char *data_in, size_t data_in_length, u
  * @param key_AES Pointer to the AES key.
  * @param key_HMAC Pointer to the HMAC key.
  * @param out_data Pointer to the output buffer that will contain the decrypted data.
+ * @param out_data_length  Pointer to a size_t that will be set to the length of the plain data.
  * @param verify Pointer to the buffer where the result of the HMAC verification will be stored.
  * 
  * @return Returns  1 on NOT ALLOCATED MEMORY, 2 on ALLOCATED_MEMORY, potentially different values on failure to indicate the type of error.
  */
-int API_PCA_decrypt_verify_packet(unsigned char *data_in, size_t data_in_length, unsigned char *key_AES, unsigned char *key_HMAC, unsigned char **out_data ,unsigned char *verify);
+int API_PCA_decrypt_verify_packet(unsigned char *data_in, size_t data_in_length, unsigned char *key_AES, unsigned char *key_HMAC, unsigned char **out_data, size_t *out_data_length ,unsigned char *verify);
 
 #endif
