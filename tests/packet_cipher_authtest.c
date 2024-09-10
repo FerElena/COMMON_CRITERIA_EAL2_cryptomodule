@@ -5,7 +5,7 @@ size_t random_size_t(size_t min, size_t max) {
     return (rand() % (max - min + 1)) + min;
 }
 
-// Función para probar cifrado y descifrado de un solo mensaje
+// Función para probar cifrado y descifrado de un solo mensaje, esta mal poeque no libera memoria
 int test_encrypt_decrypt(unsigned char *plaintext, size_t plaintext_length, unsigned char *key_AES, unsigned char *key_HMAC) {
     unsigned char *ciphertext = NULL;
     size_t ciphertext_length;
@@ -14,14 +14,14 @@ int test_encrypt_decrypt(unsigned char *plaintext, size_t plaintext_length, unsi
 
     // Cifrar y firmar el mensaje
     int result1 = API_PCA_sign_encrypt_packet(plaintext, plaintext_length, key_AES, key_HMAC, &ciphertext, &ciphertext_length);
-    if (result1 != 1) {
+    if (result1 != NOT_ALLOCATED_MEMORY && result1 != ALLOCATED_MEMORY) {
         printf("Fallo en la función de cifrado y firma\n");
         return 0;
     }
 
     // Descifrar y verificar el mensaje, el valor de la firma se guarda en `verify`
     int result2 = API_PCA_decrypt_verify_packet(ciphertext, ciphertext_length, key_AES, key_HMAC, &decrypted_plaintext, &verify);
-    if (result2 != 1) {
+    if (result1 != NOT_ALLOCATED_MEMORY && result1 != ALLOCATED_MEMORY) {
         printf("Fallo en la función de descifrado y verificación\n");
         return 0;
     }

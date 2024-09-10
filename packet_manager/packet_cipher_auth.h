@@ -26,9 +26,9 @@
 #define data_buffer_sign_encrypt_length 262144 //256 kilobytes of static memory so it is not necesary to allocate memory all time CSP
 
 
-#define ALLOCATED_MEMORY 1
+#define NOT_ALLOCATED_MEMORY 1
 
-#define NOT_ALLOCATED_MEMORY 0
+#define ALLOCATED_MEMORY 2
 
 /*
 estructura del paquete cifrado, el texto y la firma están cifrados por el AES-CBC-256
@@ -55,7 +55,7 @@ estructura del paquete cifrado, el texto y la firma están cifrados por el AES-C
  * This function first calculates the HMAC-SHA256 signature of the input data,
  * appends the data to the signature, and then encrypts the combined data using
  * AES CBC encryption. The function handles padding and dynamically allocates
- * memory if the default buffer is not large enough.
+ * memory if the default buffer is not large enough (IMPORTANT FREE MEMORY IF MEMORY HAVE BEEN ALLOCATED).
  *
  * @param data_in Pointer to the input data.
  * @param data_in_length Length of the input data.
@@ -64,7 +64,7 @@ estructura del paquete cifrado, el texto y la firma están cifrados por el AES-C
  * @param out_data Pointer to the output buffer that will contain the encrypted data.
  * @param out_data_length Pointer to a size_t that will be set to the length of the encrypted data.
  * 
- * @return Returns 1 on success, potentially different values on failure to indicate the type of error.
+ * @return Returns 1 on NOT ALLOCATED MEMORY, 2 on ALLOCATED_MEMORY, potentially different values on failure to indicate the type of error.
  */
 int API_PCA_sign_encrypt_packet(unsigned char *data_in, size_t data_in_length, unsigned char *key_AES, unsigned char *key_HMAC, unsigned char **out_data, size_t *out_data_length);
 
@@ -75,7 +75,7 @@ int API_PCA_sign_encrypt_packet(unsigned char *data_in, size_t data_in_length, u
  * API_PCA_sign_encrypt_packet function. It first decrypts the data using AES CBC,
  * then verifies the HMAC-SHA256 signature of the decrypted data. The function
  * dynamically allocates memory if the input data length exceeds the size of the
- * default buffer.
+ * default buffer (IMPORTANT FREE MEMORY IF MEMORY HAVE BEEN ALLOCATED).
  *
  * @param data_in Pointer to the encrypted data packet.
  * @param data_in_length Length of the encrypted data packet.
@@ -84,7 +84,7 @@ int API_PCA_sign_encrypt_packet(unsigned char *data_in, size_t data_in_length, u
  * @param out_data Pointer to the output buffer that will contain the decrypted data.
  * @param verify Pointer to the buffer where the result of the HMAC verification will be stored.
  * 
- * @return Returns 1 on success, potentially different values on failure to indicate the type of error.
+ * @return Returns  1 on NOT ALLOCATED MEMORY, 2 on ALLOCATED_MEMORY, potentially different values on failure to indicate the type of error.
  */
 int API_PCA_decrypt_verify_packet(unsigned char *data_in, size_t data_in_length, unsigned char *key_AES, unsigned char *key_HMAC, unsigned char **out_data ,unsigned char *verify);
 

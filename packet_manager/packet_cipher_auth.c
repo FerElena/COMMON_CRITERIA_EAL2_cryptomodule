@@ -82,7 +82,7 @@ int API_PCA_sign_encrypt_packet(unsigned char *data_in, size_t data_in_length, u
 	if (allocated_memory)
 		API_MM_freeMem(aux_buffer_pointer);
 
-	return 1;  // Retorno de éxito.
+	return allocated_memory;  // Retorno de éxito.
 }
 
 // Función para descifrar un paquete de datos y verificar su firma.
@@ -113,5 +113,5 @@ int API_PCA_decrypt_verify_packet(unsigned char *data_in, size_t data_in_length,
 	// Asignación del puntero al inicio de los datos útiles en el buffer de salida.
 	*out_data = out_buffer_pointer + 32;
 
-	return 1;  // Retorno de éxito.
+	return allocated_memory;  // Retorno de éxito.
 }
