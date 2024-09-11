@@ -23,7 +23,7 @@ int main(){
     FS_testing();
     MemoryTracker_tests();
     Test_DmemManager();
-    run_tests_packets(200);
+    run_tests_packets(100000);
 
     return 0;
 }

@@ -274,6 +274,28 @@ int API_FS_exists_file(unsigned char *filename, size_t filename_length);
 int API_FS_create_file_data(unsigned char *filename, size_t filename_length, unsigned char *data, size_t data_size, uint8_t isCSP);
 
 /**
+ * @brief Securely zeroize a file
+ * The purpose of this function is to securely erase a file by overwriting its contents multiple times using
+ * Schneier's patterns to make data recovery more difficult. If the file is marked as CSP (Critical Security Parameters),
+ * an integrity check is performed before zeroization. The function handles encrypted CSP files by decrypting them before 
+ * checking the integrity, and then proceeds to overwrite the data six times with specific patterns.
+ *
+ * @methodOfUse{This function is invoked by persistence_library.c and API.c}
+ *
+ * @param filename Filename of the file to zeroize
+ * @param filename_length Length of the filename
+ * @return Result of the zeroization process
+ *
+ * @errors
+ * @error{ ERROR 1, Returns INCORRECT_ARGUMENT_ERROR if the filename is NULL or too long}
+ * @error{ ERROR 2, Returns NO_FILESYSTEM_FILES if the filesystem is not initialized or closed}
+ * @error{ ERROR 3, Returns FILESYSTEM_ERROR if there is an issue reading or writing the file}
+ * @error{ ERROR 4, Returns CORRUPTED_DATA if the file's integrity check fails before zeroization}
+ */
+
+int API_FS_zeroize_file(unsigned char *filename,size_t filename_length);
+
+/**
  * @brief Delete and zeroize a file system block
  * The purpose of this function is to zeroize a file system block to avoid data breach, and then delete it from the metadata block,
  * it also actualices the metadata accordingly to the result of the operation.
