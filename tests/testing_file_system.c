@@ -4,7 +4,8 @@
 
 //gcc testing_file_system.c file_system.c ../crypto/CRC_Galileo.c -o pruebas_filesystem     // compiling comand
 
-//tamaño bloque metadatos : 1360536
+//tamaño bloque metadatos : 1440536
+#define METADATA_SIZE 1440536
 
 #define CIPHER_MODE 1
 
@@ -62,7 +63,7 @@ void FS_testing(){
     fseek(f,0,SEEK_END);
     size_t size = ftell(f);
 
-    if(size != ((40 * 1024 * 1024) + 1360536)){ //size of metadatablock + sizeof data 
+    if(size != ((40 * 1024 * 1024) + METADATA_SIZE)){ //size of metadatablock + sizeof data 
         failed_test[4]++;
         correct_test = 0;
     }
@@ -277,7 +278,7 @@ void FS_testing(){
 
     //writing of file2 to test corruption detection before delete
     FILE *fd = fopen(file_system_rpath, "rb+");
-    fseek(fd,1360521 + 100,SEEK_SET); //size of metadata block + offset of file2
+    fseek(fd,METADATA_SIZE + 100,SEEK_SET); //size of metadata block + offset of file2
     unsigned char buffercorrompe[] = "este texto está corrompiendo el fichero";
     fwrite(buffercorrompe,sizeof(buffercorrompe),1,fd);
     fclose(fd); // secure writing in the file
@@ -290,7 +291,7 @@ void FS_testing(){
     //testing if zeroization was correct after delete the file: 
     unsigned char delete_buffer_test[100];
     fd = fopen(file_system_rpath, "rb+");
-    fseek(fd,1360536 + 100,SEEK_SET); //size of metadata block + offset of file2
+    fseek(fd,METADATA_SIZE + 100,SEEK_SET); //size of metadata block + offset of file2
     fread(delete_buffer_test,100,1,fd);
     fclose(fd);
 
@@ -367,7 +368,7 @@ void FS_testing(){
     //testing detection of data corruption
 
     fd = fopen(file_system_rpath, "rb+");
-    fseek(fd,1360536 + 100,SEEK_SET); //size of metadata block + current offset of file29
+    fseek(fd,METADATA_SIZE + 100,SEEK_SET); //size of metadata block + current offset of file29
     fwrite(buffercorrompe,sizeof(buffercorrompe),1,fd);
     fclose(fd); // secure writing in the file
 
@@ -463,7 +464,7 @@ void FS_testing(){
     //testing data corruption before update : 
 
     fd = fopen(file_system_rpath, "rb+");
-    fseek(fd,1360536 + 300,SEEK_SET); //size of metadata block + current offset of file4
+    fseek(fd,METADATA_SIZE + 300,SEEK_SET); //size of metadata block + current offset of file4
     fwrite(buffercorrompe,sizeof(buffercorrompe),1,fd);
     fclose(fd); // secure writing in the file
 
@@ -492,7 +493,7 @@ void FS_testing(){
 
     unsigned char delete_buffer_test2[76];
     fd = fopen(file_system_rpath, "rb+");
-    fseek(fd,1360536 + 280,SEEK_SET); //size of metadata block + current offset of filename4
+    fseek(fd,METADATA_SIZE + 280,SEEK_SET); //size of metadata block + current offset of filename4
     fread(delete_buffer_test2,76,1,fd);
     fclose(fd);
 

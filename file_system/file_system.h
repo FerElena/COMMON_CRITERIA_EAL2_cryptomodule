@@ -141,13 +141,13 @@ extern unsigned char FS_cipher_IV[AES_BLOCK_SIZE];
  */
 typedef struct
 {
-    unsigned char filename[MAX_FILENAME_LENGTH]; /**< Name of the file, it is supposed to be a string of max 50 size*/
-    size_t filename_length;                      /**< Parameter size */
-    uint8_t isCSP;                               /** parameter to determine if is CSP*/
-    uint32_t CRC_32_checksum;                    /** <checksum for file integrity> */
-    size_t size;                                 /**< Size of the data associated with the filename*/
-    unsigned int offset;                         /**< Position in the file system, where the data related with the filename starts*/
-
+    uint8_t IV[16];                             /**< File -IV in case it is CSP, and setup cipher on */
+    unsigned int offset;                        /**< Position in the file system, where the data related with the filename starts */
+    uint32_t CRC_32_checksum;                   /**< Checksum for file integrity */
+    size_t size;                                /**< Size of the data associated with the filename */
+    size_t filename_length;                     /**< Parameter size */
+    uint8_t isCSP;                              /**< Parameter to determine if it is CSP */
+    unsigned char filename[MAX_FILENAME_LENGTH]; /**< Name of the file, supposed to be a string of max 50 size */
 } FileAllocation;
 
 /**
@@ -163,8 +163,8 @@ typedef struct
     FILE *FS_data_descriptor;                      /**< File with the stored data of all the file system*/
     unsigned char file_system_rpath[512];         /** relative path to the file storing all the data in the OS*/
     uint8_t filesystem_state;                     /** parameter to indicate if the filesystem is open or close */
-    uint16_t filesystem_calls;
-    uint8_t cipher_mode;
+    uint16_t filesystem_calls;                    /** number of stdin calls to fflush stdin */
+    uint8_t cipher_mode;                          /** current mode of the file_system, should only be setup once */
 } File_System;
 
 
