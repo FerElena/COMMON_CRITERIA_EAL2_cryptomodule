@@ -1,5 +1,9 @@
 #include "DmemmanagerTest.h"
 
+#define GREEN "\x1B[32m"
+#define RED "\x1B[31m"
+#define RESET "\x1B[0m"
+
 void test_MM_compare_hash() {
     unsigned char hash1[32] = {0};
     unsigned char hash2[32] = {1};
@@ -8,9 +12,9 @@ void test_MM_compare_hash() {
     hash2[0] = 1; // Make sure hash2 is different at the first byte
 
     printf("\n\nTesting MM_compare_hash:\n");
-    printf("  Result when arrays are equal: %s\n", MM_compare_hash(hash1, hash1) == 2 ? "Passed" : "Failed");
-    printf("  Result when arr1 < arr2: %s\n", MM_compare_hash(hash1, hash2) == 1 ? "Passed" : "Failed");
-    printf("  Result when arr1 > arr2: %s\n", MM_compare_hash(hash2, hash1) == 0 ? "Passed" : "Failed");
+    printf("  Result when arrays are equal: %s%s%s\n", MM_compare_hash(hash1, hash1) == 2 ? GREEN : RED, MM_compare_hash(hash1, hash1) == 2 ? "Passed" : "Failed", RESET);
+    printf("  Result when arr1 < arr2: %s%s%s\n", MM_compare_hash(hash1, hash2) == 1 ? GREEN : RED, MM_compare_hash(hash1, hash2) == 1 ? "Passed" : "Failed", RESET);
+    printf("  Result when arr1 > arr2: %s%s%s\n", MM_compare_hash(hash2, hash1) == 0 ? GREEN : RED, MM_compare_hash(hash2, hash1) == 0 ? "Passed" : "Failed", RESET);
 }
 
 void test_MM_hash_address() {
@@ -33,11 +37,11 @@ void test_MM_create_hash_tree_node() {
     node *newNode = MM_create_hash_tree_node(size);
 
     printf("Testing MM_create_hash_tree_node:\n");
-    printf("  Node creation: %s\n", newNode != NULL ? "Passed" : "Failed");
+    printf("  Node creation: %s%s%s\n", newNode != NULL ? GREEN : RED, newNode != NULL ? "Passed" : "Failed", RESET);
     if (newNode) {
-        printf("  Memory allocation for node: %s\n", newNode->ptr != NULL ? "Passed" : "Failed");
-        printf("  Node size initialization: %s\n", newNode->size == size ? "Passed" : "Failed");
-        printf("  Node structure initialization: %s\n", (newNode->left == NULL && newNode->right == NULL && newNode->father == NULL) ? "Passed" : "Failed");
+        printf("  Memory allocation for node: %s%s%s\n", newNode->ptr != NULL ? GREEN : RED, newNode->ptr != NULL ? "Passed" : "Failed", RESET);
+        printf("  Node size initialization: %s%s%s\n", newNode->size == size ? GREEN : RED, newNode->size == size ? "Passed" : "Failed", RESET);
+        printf("  Node structure initialization: %s%s%s\n", (newNode->left == NULL && newNode->right == NULL && newNode->father == NULL) ? GREEN : RED, (newNode->left == NULL && newNode->right == NULL && newNode->father == NULL) ? "Passed" : "Failed", RESET);
 
         free(newNode->ptr);
         free(newNode);
@@ -52,8 +56,8 @@ void test_MM_insert_node() {
     MM_insert_node(ROOT, root); // Insert root node first
     MM_insert_node(ROOT, child); // Now insert child
 
-    printf("  Root check: %s\n", ROOT == root ? "Passed" : "Failed");
-    printf("  Child insertion check: %s\n", (root->left == child || root->right == child) ? "Passed" : "Failed");
+    printf("  Root check: %s%s%s\n", ROOT == root ? GREEN : RED, ROOT == root ? "Passed" : "Failed", RESET);
+    printf("  Child insertion check: %s%s%s\n", (root->left == child || root->right == child) ? GREEN : RED, (root->left == child || root->right == child) ? "Passed" : "Failed", RESET);
 
     free(root->ptr);
     free(root);
@@ -68,8 +72,7 @@ void test_MM_delete_node() {
     MM_insert_node(ROOT, root);
     MM_delete_node(root);
 
-    printf("  Node deletion check: %s\n", ROOT == NULL ? "Passed" : "Failed");
-    // Note: MM_delete_node should also zeroize and free the node's memory, which should be checked here if possible.
+    printf("  Node deletion check: %s%s%s\n", ROOT == NULL ? GREEN : RED, ROOT == NULL ? "Passed" : "Failed", RESET);
 }
 
 void test_MM_find_node_by_hash() {
@@ -82,11 +85,11 @@ void test_MM_find_node_by_hash() {
     MM_insert_node(ROOT, n1); // Insert node into the tree
     node *found = MM_find_node_by_hash(ROOT, hash);
 
-    printf("  Finding existing node by hash: %s\n", found == n1 ? "Passed" : "Failed");
+    printf("  Finding existing node by hash: %s%s%s\n", found == n1 ? GREEN : RED, found == n1 ? "Passed" : "Failed", RESET);
 
     unsigned char wrong_hash[32] = {0}; // A hash that does not correspond to any node
     node *not_found = MM_find_node_by_hash(ROOT, wrong_hash);
-    printf("  Finding non-existing node by hash: %s\n", not_found == NULL ? "Passed" : "Failed");
+    printf("  Finding non-existing node by hash: %s%s%s\n", not_found == NULL ? GREEN : RED, not_found == NULL ? "Passed" : "Failed", RESET);
 
     free(n1->ptr);
     free(n1);
@@ -97,10 +100,10 @@ void test_API_MM_allocateMem() {
     ROOT = NULL; // Reset ROOT for the test
 
     void *mem = API_MM_allocateMem(128); // Allocate memory
-    printf("  Allocating 128 bytes: %s\n", mem != NULL ? "Passed" : "Failed");
+    printf("  Allocating 128 bytes: %s%s%s\n", mem != NULL ? GREEN : RED, mem != NULL ? "Passed" : "Failed", RESET);
 
     void *zero_mem = API_MM_allocateMem(0); // Allocate zero bytes
-    printf("  Allocating 0 bytes: %s\n", zero_mem == NULL ? "Passed" : "Failed");
+    printf("  Allocating 0 bytes: %s%s%s\n", zero_mem == NULL ? GREEN : RED, zero_mem == NULL ? "Passed" : "Failed", RESET);
     
     if (mem) {
         free(((node *)ROOT)->ptr);
@@ -114,10 +117,10 @@ void test_API_MM_freeMem() {
 
     void *mem = API_MM_allocateMem(64);
     int result = API_MM_freeMem(mem); // Free the allocated memory
-    printf("  Freeing allocated memory: %s\n", result == SUCCESS ? "Passed" : "Failed");
+    printf("  Freeing allocated memory: %s%s%s\n", result == SUCCESS ? GREEN : RED, result == SUCCESS ? "Passed" : "Failed", RESET);
 
     void *null_result = API_MM_freeMem(NULL); // Try to free NULL pointer
-    printf("  Freeing NULL pointer: %s\n", null_result == NULL ? "Passed" : "Failed");
+    printf("  Freeing NULL pointer: %s%s%s\n", null_result == NULL ? GREEN : RED, null_result == NULL ? "Passed" : "Failed", RESET);
 }
 
 void test_API_MM_realloc() {
@@ -126,16 +129,16 @@ void test_API_MM_realloc() {
 
     void *mem = API_MM_allocateMem(32);
     void *realloced_mem = API_MM_reallocMem(mem, 64); // Reallocate to larger size
-    printf("  Reallocating to larger size: %s\n", realloced_mem != NULL ? "Passed" : "Failed");
+    printf("  Reallocating to larger size: %s%s%s\n", realloced_mem != NULL ? GREEN : RED, realloced_mem != NULL ? "Passed" : "Failed", RESET);
 
     void *smaller_mem = API_MM_reallocMem(realloced_mem, 16); // Reallocate to smaller size
-    printf("  Reallocating to smaller size: %s\n", smaller_mem != NULL ? "Passed" : "Failed");
+    printf("  Reallocating to smaller size: %s%s%s\n", smaller_mem != NULL ? GREEN : RED, smaller_mem != NULL ? "Passed" : "Failed", RESET);
 
     void *null_realloc = API_MM_reallocMem(NULL, 128); // Reallocate NULL pointer
-    printf("  Reallocating NULL pointer: %s\n", null_realloc != NULL ? "Passed" : "Failed");
+    printf("  Reallocating NULL pointer: %s%s%s\n", null_realloc != NULL ? GREEN : RED, null_realloc != NULL ? "Passed" : "Failed", RESET);
 
     void *zero_size_realloc = API_MM_reallocMem(smaller_mem, 0); // Reallocate to zero size
-    printf("  Reallocating to zero size (should free memory): %s\n", zero_size_realloc == NULL ? "Passed" : "Failed");
+    printf("  Reallocating to zero size (should free memory): %s%s%s\n", zero_size_realloc == NULL ? GREEN : RED, zero_size_realloc == NULL ? "Passed" : "Failed", RESET);
 
     if (null_realloc) {
         free(((node *)ROOT)->ptr);
@@ -198,5 +201,3 @@ void Test_DmemManager(){
     test_API_MM_realloc();
     test_zeroize_tree();
 }
-
-
