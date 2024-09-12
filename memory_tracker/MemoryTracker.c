@@ -1,15 +1,14 @@
 /*
-este código está pensado para un caso de uso en el que la función add_tracker(eficiente, busqueda de complejidad O 1) 
-es usada al principio de la ejecución de un programa con todas las estructuras de datos de las cuales hay que llevar un tracking 
-dado que son CSP o PSP en nuestro contexto. Primero este debe ser inicializado con initialice_tracker, las 
+este código está pensado para un caso de uso en el que la función add_tracker(eficiente, busqueda de complejidad O 1)
+es usada al principio de la ejecución de un programa con todas las estructuras de datos de las cuales hay que llevar un tracking
+dado que son CSP o PSP en nuestro contexto. Primero este debe ser inicializado con initialice_tracker, las
 funciones de update y remove tracker son mas costosas(busqueda de complejidad O n), y están pensadas para ser utilizadas en casos
 más excepcionales, la función de verify se debe usar durante toda la ejecución del programa en contextos anteriores a la
 utilización de una de las estructuras de datos Trackeadas. la función de zeroize zeroiza todos los CSPs, y solo se debe
-usar bajo situaciones extremas, ya que esto zeroizara con el patrón de Schneier toda la memoria trackeada como CSP. 
+usar bajo situaciones extremas, ya que esto zeroizara con el patrón de Schneier toda la memoria trackeada como CSP.
 para checkear integridad utilizamos CRC-32 ya que es una función muy rápida, y para este caso no es necesario usar una
 función certificada
 */
-
 
 #include "MemoryTracker.h"
 #include "../crypto/CRC_Galileo.h"
@@ -37,7 +36,7 @@ void initialize_trackers()
     pthread_mutex_unlock(&mutex);           // Unlock the mutex.
 }
 
-// Fetch a free tracker from the list, low level funcion.
+// Fetch a free tracker from the list, low level function.
 MemoryTracker *get_free_tracker()
 {
     if (Free_Tracker_List == NULL) // if no more free Trackers
@@ -50,7 +49,7 @@ MemoryTracker *get_free_tracker()
     return tracker;
 }
 
-// Return a tracker to the free list, low level function
+// Return a tracker to the free list, low level function.
 void return_tracker(MemoryTracker *tracker)
 {
     tracker->next = Free_Tracker_List; // Insert it back into the free list.
@@ -60,8 +59,8 @@ void return_tracker(MemoryTracker *tracker)
 // Add a new memory allocation to be tracked.
 int add_tracker(void *ptr, size_t size, uint8_t isCSP)
 {
-    if (ptr == NULL || size > SIZE_MAX || size < 0 || isCSP > 1 || isCSP < 0)// if invalid input parsameters
-    {                                                   
+    if (ptr == NULL || size > SIZE_MAX || size < 0 || isCSP > 1 || isCSP < 0) // if invalid input parameters
+    {
         printf("invalid parameters on add_tracker \n"); // in the future substitute for a TraceWrite
         return INVALID_INPUT_MT;
     }
@@ -71,7 +70,8 @@ int add_tracker(void *ptr, size_t size, uint8_t isCSP)
     if (tracker == NULL)
     {
         printf("No more free trackers available\n"); // add a TraceWrite in future
-        return NO_MORE_TRACKERS;                     // Indicate no more Trackers
+        pthread_mutex_unlock(&mutex);
+        return NO_MORE_TRACKERS; // Indicate no more Trackers
     }
     // Initialize the tracker with the memory block's info.
     tracker->ptr = ptr;
@@ -79,14 +79,23 @@ int add_tracker(void *ptr, size_t size, uint8_t isCSP)
     tracker->checksum = crc_32(ptr, size); // Calculate the CRC_32 for the memory block.
     tracker->IsCSP = isCSP;
 
+    // Lock the memory to prevent swapping.
+    if (mlock(ptr, size) != 0)
+    {
+        perror("mlock failed");
+        return_tracker(tracker); // Return tracker to the free list
+        pthread_mutex_unlock(&mutex);
+        return MEMORY_LOCK_FAIL; // Indicate failure
+    }
+
     // Add the tracker to the used list.
     tracker->next = Used_Trackers_List;
     Used_Trackers_List = tracker;
     pthread_mutex_unlock(&mutex);
-    return (tracker - trackers); // Return the tracker's index as a success indicator, if positive, is succesfull
+    return (tracker - trackers); // Return the tracker's index as a success indicator, if positive, is successful
 }
 
-// Verify the memory block's integrity using its checksum,no need locks as its read only function
+// Verify the memory block's integrity using its checksum, no need locks as it's a read-only function.
 int verify_integrity(MemoryTracker *tracker)
 {
     if (tracker == NULL)
@@ -99,7 +108,7 @@ int verify_integrity(MemoryTracker *tracker)
     return current_checksum == tracker->checksum;                        // Return whether the checksums match (if correct, MT_OK, if not MT_FAIL)
 }
 
-// Update a tracker with a new memory block and size, u need save the tracker index to use this function, not supposed to be used often
+// Update a tracker with a new memory block and size, you need to save the tracker index to use this function, not supposed to be used often
 int update_tracker(MemoryTracker *tracker, void *new_ptr, size_t new_size)
 {
     if (tracker == NULL || new_ptr == NULL || new_size < 0 || new_size > SIZE_MAX)
@@ -109,14 +118,31 @@ int update_tracker(MemoryTracker *tracker, void *new_ptr, size_t new_size)
     }
 
     pthread_mutex_lock(&mutex);
-    tracker->ptr = new_ptr;                        // Update the memory pointer.
-    tracker->size = new_size;                      // Update the size.
+
+    // Unlock old memory if it's locked.
+    if (munlock(tracker->ptr, tracker->size) != 0)
+    {
+        perror("munlock failed");
+    }
+
+    // Update the memory pointer and size.
+    tracker->ptr = new_ptr;
+    tracker->size = new_size;
     tracker->checksum = crc_32(new_ptr, new_size); // Recalculate the checksum.
+
+    // Lock the new memory.
+    if (mlock(new_ptr, new_size) != 0)
+    {
+        perror("mlock failed");
+        pthread_mutex_unlock(&mutex);
+        return MEMORY_LOCK_FAIL; // Indicate failure
+    }
+
     pthread_mutex_unlock(&mutex);
     return MT_OK;
 }
 
-// Remove a tracker from used list, zeroizing its memory if it is a CSP
+// Remove a tracker from used list, zeroizing its memory if it is a CSP.
 int remove_tracker(void *ptr)
 {
     pthread_mutex_lock(&mutex);
@@ -143,13 +169,19 @@ int remove_tracker(void *ptr)
         return MEMORYVIOLATION_BEFORE_DELETE;             // Indicate failure.
     }
 
-    // Clear memory if CSP, using secure scheme of Schneier Patron
+    // Clear memory if CSP, using secure scheme of Schneier Patron.
     if (toRemove->IsCSP)
     {
         for (int i = 0; i < 6; i++)
         {
             memset(toRemove->ptr, Schneier_patterns[i], toRemove->size);
         }
+    }
+
+    // Unlock memory before freeing it.
+    if (munlock(toRemove->ptr, toRemove->size) != 0)
+    {
+        perror("munlock failed");
     }
 
     // Remove the tracker from the used list.
@@ -177,14 +209,18 @@ void zeroize_and_free_all()
             }
         }
 
+        // Unlock memory before freeing it.
+        if (munlock(current->ptr, current->size) != 0)
+        {
+            perror("munlock failed");
+        }
+
         toFree = current;
         current = current->next; // advance in Used Trackers linked list
-        return_tracker(toFree); // Return each tracker to the free list.
+        return_tracker(toFree);  // Return each tracker to the free list.
     }
 
     Used_Trackers_List = NULL; // Clear the used list.
     pthread_mutex_unlock(&mutex);
     printf("ALL CSP TRACKED MEMORY ZEROIZED!\n"); // TRACE IN FUTURE
 }
-
-

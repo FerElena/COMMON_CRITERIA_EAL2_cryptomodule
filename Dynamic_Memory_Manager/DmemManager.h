@@ -13,6 +13,7 @@
 #include <string.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <sys/mman.h>  // For mlock() and munlock()
 
 /* Private include files ............................................ */
 
