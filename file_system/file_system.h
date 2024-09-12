@@ -27,6 +27,7 @@
 #include "../crypto/CRC_Galileo.h"
 #include "../crypto/AES_OFB.h"
 #include "../crypto/AES_CORE.h"
+#include "../prng/random_number.h"
 
 /* Global variables definition ...................................... */
 
@@ -130,7 +131,6 @@
 extern unsigned char data_buffer[MAX_FILE_DATA]; // CSP
 
 extern unsigned char FS_cipher_key[32];
-extern unsigned char FS_cipher_IV[AES_BLOCK_SIZE];
 
 /* Type definitions ................................................. */
 
@@ -231,7 +231,7 @@ int FS_checkdatasave(unsigned int IsCSP,uint8_t Metadata_update);
  */
 int API_FS_initiate_file_system(unsigned int mode , unsigned char *filesystem_route , size_t filesystem_route_length);
 
-int API_FS_setup_cipher(uint8_t mode,uint8_t *fs_Key,uint8_t *fs_iv);
+int API_FS_setup_cipher(uint8_t mode,uint8_t *fs_Key);
 
 /**
  * @brief Checks if the filename exists
