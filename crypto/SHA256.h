@@ -107,49 +107,69 @@ typedef struct
 /* Function declaration zone ........................................ */
 
 /**
- * @brief Initializes the SHA256_STRUCT structure
- * 
- * The purpose of this function is to initialize the the SHA256_STRUCT structure in order to begin the SHA256
- * 
+ * @brief Initializes the SHA-256 context.
  *
- * @param sha256_struct Characteristic structure of the SHA256
+ * This function sets the initial hash values for the SHA-256 algorithm and resets the
+ * data length and bit length fields in the provided SHA256_STRUCT. The initial hash values
+ * are derived from the first 32 bits of the fractional parts of the square roots of the first
+ * eight prime numbers.
+ *
+ * @param sha256_struct [out] Pointer to a SHA256_STRUCT that will be initialized.
  */
+
 void CP_sha256_init(SHA256_STRUCT *sha256_struct);
 
 /**
- * @brief Splits the message into 512 bits chunk and computes it if necessary
- * 
- * The purpose of this function is to introduce our message into the 512bits chunk. If the chunk is completed, it is send to be computed.
- * 
+ * @brief Updates the SHA-256 context with new data.
  *
- * @param sha256_struct Characteristic structure of the SHA256
- * @param data Message to hash
- * @param len Message length
+ * This function takes new data and adds it to the SHA-256 context. If a 512-bit chunk is
+ * completed, it is processed using the SHA-256 computation function. The function manages
+ * the data buffer and keeps track of the length of the data and bit length.
+ *
+ * @param sha256_struct [in, out] Pointer to a SHA256_STRUCT that holds the current state of the hash computation.
+ * @param data [in] Pointer to the data to be added to the hash.
+ * @param len [in] The length of the data to be added, in bytes.
  */
+
 void CP_sha256_update(SHA256_STRUCT *sha256_struct, const SHA256_BYTE data[], size_t len);
 
 /**
- * @brief Computes the SHA256 algorithm
- * 
- * The purpose of this function is to compute the necessary operations of the SHA256 algorithm of a 512bits chunk
- * 
+ * @brief Computes the SHA-256 hash for a given 512-bit chunk of data.
  *
- * @param sha256_struct Characteristic structure of the SHA256
- * @param data Portion of message to hash
+ * This function processes a 512-bit chunk of data using the SHA-256 algorithm and updates the
+ * intermediate hash values stored in the provided SHA256_STRUCT. The chunk is expanded into
+ * 64 words, and the hash computation is performed in 64 rounds as specified by the SHA-256
+ * algorithm.
+ *
+ * @param sha256_struct [in, out] Pointer to a SHA256_STRUCT that holds the current state of the hash computation.
+ * @param data [in] Pointer to the 512-bit chunk of data to be processed.
  */
+
 void CP_sha256_computation(SHA256_STRUCT *sha256_struct, const SHA256_BYTE data[]);
 
 /**
- * @brief Processes the final chunk of 512 bits and calculates the final hash
- * 
- * The purpose of this function is to process the final chunk of 512bits by padding and adding the message lenght. Finally, it calculates the final hash.
- *  
+ * @brief Finalizes the SHA-256 hash computation and produces the final hash value.
  *
- * @param sha256_struct Characteristic structure of the SHA256
- * @param hash SHA256 message hash of 256-bit
+ * This function pads any remaining data in the buffer, appends the length of the original
+ * message in bits, and performs the final hash computation. It then copies the resulting
+ * hash value into the provided output array, ensuring that the byte order is correct.
+ *
+ * @param sha256_struct [in, out] Pointer to a SHA256_STRUCT that holds the current state of the hash computation.
+ * @param hash [out] Pointer to an array where the final SHA-256 hash value will be stored.
  */
+
 void CP_sha256_final(SHA256_STRUCT *sha256_struct, SHA256_BYTE hash[]);
 
+/**
+ * @brief Computes the SHA-256 hash of a message.
+ *
+ * This function initializes the SHA-256 context, processes the provided message, and
+ * finalizes the hash computation. The result is stored in the output array.
+ *
+ * @param msg [in] Pointer to the message data to be hashed.
+ * @param length_msg [in] The length of the message data, in bytes.
+ * @param out [out] Pointer to an array where the final SHA-256 hash value will be stored.
+ */
 
 void API_sha256(unsigned char *node,int lenght_node , unsigned char *out);
 

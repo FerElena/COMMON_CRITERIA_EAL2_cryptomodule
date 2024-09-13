@@ -12,10 +12,6 @@
  * used to accelerate the calculation of CRC checksums.
  */
 
-static const unsigned int crc32tab[256];
-static const unsigned int crc24tab[256];
-static const uint16_t crc16tab[256];
-
 
 /**
  * @brief Precomputed CRC32 table.
@@ -29,8 +25,7 @@ static const uint16_t crc16tab[256];
  * of the CRC algorithm.
  */
 
-unsigned int crc_32(const unsigned char *buf, size_t len);
-
+static const unsigned int crc32tab[256];
 /**
  * @brief Precomputed CRC24 table.
  *
@@ -42,8 +37,7 @@ unsigned int crc_32(const unsigned char *buf, size_t len);
  * @note Each entry represents the result of a single-byte XOR operation followed by 8 iterations
  * of the CRC algorithm.
  */
-
-unsigned int crc_24(const unsigned char *buf, size_t len);
+static const unsigned int crc24tab[256];
 
 /**
  * @brief Precomputed CRC16 table.
@@ -53,6 +47,41 @@ unsigned int crc_24(const unsigned char *buf, size_t len);
  * 
  * @note Each entry in the table represents the result of a CRC operation on a single byte
  * of data.
+ */
+static const uint16_t crc16tab[256];
+
+/**
+ * @brief Computes the CRC-32 checksum of a buffer.
+ *
+ * This function calculates the CRC-32 checksum of the given buffer using a predefined lookup table.
+ *
+ * @param buf Pointer to the input buffer.
+ * @param len Length of the input buffer in bytes.
+ * @return The CRC-32 checksum value.
+ */
+
+unsigned int crc_32(const unsigned char *buf, size_t len);
+
+/**
+ * @brief Computes the CRC-24 checksum of a buffer.
+ *
+ * This function calculates the CRC-24 checksum of the given buffer using a predefined lookup table.
+ *
+ * @param buf Pointer to the input buffer.
+ * @param len Length of the input buffer in bytes.
+ * @return The CRC-24 checksum value.
+ */
+
+unsigned int crc_24(const unsigned char *buf, size_t len);
+
+/**
+ * @brief Computes the CRC-16 checksum of a buffer.
+ *
+ * This function calculates the CRC-16 checksum of the given buffer using a predefined lookup table.
+ *
+ * @param buf Pointer to the input buffer.
+ * @param len Length of the input buffer in bytes.
+ * @return The CRC-16 checksum value.
  */
 
 uint16_t crc_16(const unsigned char  *buf, size_t len);
