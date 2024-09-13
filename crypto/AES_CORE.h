@@ -103,7 +103,6 @@ int API_CP_AesInitialize (AesContext* Context, void const* Key, uint32_t KeySize
 /**
  * @brief Performs an AES encryption of one block (128 bits) with an AES context
  * 
- * @sfr{FCS_COP.1.1}
  * @methodOfUse{This function is invoked by the API_CP_AesEncryptInPlace function}
  * 
  * @param Context AES context
@@ -115,7 +114,6 @@ void CP_AesEncrypt(AesContext const* Context, uint8_t const Input [AES_BLOCK_SIZ
 /**
  * @brief Performs an AES decryption of one block (128 bits) with an AES context
  * 
- * @sfr{FCS_COP.1.1}
  * @methodOfUse{This function is invoked by the CP_AesCbcDecrypt function}
  * 
  * @param Context AES context
@@ -127,7 +125,6 @@ void API_CP_AesDecrypt(AesContext const* Context, uint8_t const Input [AES_BLOCK
 /**
  * @brief Performs an AES encryption of one block (128 bits) with an AES context in the same memory block
  * 
- * @sfr{FCS_COP.1.1}
  * @methodOfUse{This function is invoked by the CP_AesCbcEncrypt function}
  * 
  * @param Context AES context

@@ -16,7 +16,7 @@
 
 
 
-int main(){
+int main(){  
     system("clear");
     printf("prueba inicio selftests\n");
     API_SFT_initSelfTests();

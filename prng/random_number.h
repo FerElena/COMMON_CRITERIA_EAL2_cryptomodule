@@ -12,4 +12,19 @@
 #define ERROR_SECURE_RANDOM_FAILED -1
 #define ERROR_RANDOM_GENERATION_FAILED -2
 
+/**
+ * @brief Fills a buffer with random bytes, attempting to use secure sources.
+ *
+ * This function first tries to fill the buffer using `/dev/random`. If that fails,
+ * it attempts to use `/dev/urandom` as a fallback. If both of these fail, it will
+ * generate pseudo-random bytes using `rand()` as a last resort, though this is less secure.
+ *
+ * @param buffer Pointer to the buffer that will be filled with random bytes.
+ * @param size Size of the buffer, i.e., the number of random bytes to generate.
+ *
+ * @return int Returns `RANDOM_OK` if `/dev/random` was successfully used.
+ * Returns `ERROR_SECURE_RANDOM_FAILED` if `/dev/urandom` was used instead.
+ * Returns `ERROR_RANDOM_GENERATION_FAILED` if neither secure source was available
+ * and pseudo-random data was generated.
+ */
 int fill_buffer_with_random_bytes(unsigned char *buffer, size_t size);
