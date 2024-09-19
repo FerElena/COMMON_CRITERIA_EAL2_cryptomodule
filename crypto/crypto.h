@@ -27,12 +27,6 @@ typedef enum type_CRC{
 }CRC;
 
 /**
- * @brief Segmentation fault code
- *
- * Error code sent when a crypto function fails
- */
-#define SEGMENTATION_FAULT -1
-/**
  * @brief Hash size number
  *
  * SHA-256 Hash digest size

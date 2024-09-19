@@ -105,7 +105,10 @@ int verify_integrity(MemoryTracker *tracker)
     }
 
     unsigned int current_checksum = crc_32(tracker->ptr, tracker->size); // Recalculate the current checksum.
-    return current_checksum == tracker->checksum;                        // Return whether the checksums match (if correct, MT_OK, if not MT_FAIL)
+    if(current_checksum == tracker->checksum)                        // Return whether the checksums match (if correct, MT_OK, if not MT_FAIL)
+        return MT_OK;
+    else
+        return MEMORYVIOLATION;
 }
 
 // Update a tracker with a new memory block and size, you need to save the tracker index to use this function, not supposed to be used often

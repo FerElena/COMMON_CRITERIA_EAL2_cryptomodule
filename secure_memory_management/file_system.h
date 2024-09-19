@@ -78,53 +78,53 @@
 /**
  * @brief File system operation generic error code
  */
-#define FILESYSTEM_ERROR 0
+#define FILESYSTEM_ERROR -1000
 
 /**
  * @brief File system operation correct code
  */
-#define FILESYSTEM_OK 1
+#define FILESYSTEM_OK 1001
 
 /**
  * @brief No file system files exists error code
  */
-#define NO_FILESYSTEM_FILES -1
+#define NO_FILESYSTEM_FILES -1001
 
 /**
  * @brief Incorrect file system mode error code
  */
-#define INCORRECT_MODE -2
+#define INCORRECT_MODE -1002
 
 /**
  * @brief No filename error code
  */
-#define NOT_EXISTANT_FILENAME -3
+#define NOT_EXISTANT_FILENAME -1003
 
 /**
  * @brief Max filenames in file system error code
  */
-#define MAX_FILENAMES_REACHED -4
+#define MAX_FILENAMES_REACHED -1004
 
 /**
  * @brief Incorrect arguments error code
  */
-#define INCORRECT_ARGUMENT_ERROR -5
+#define INCORRECT_ARGUMENT_ERROR -1005
 
 /**
  * @brief Filename creation error code
  */
-#define CREATE_FILENAME_ERROR -6
+#define CREATE_FILENAME_ERROR -1006
 
 /**
  * @brief Max size reached in file system error code
  */
-#define MAX_SIZE_REACHED -7
+#define MAX_SIZE_REACHED -1007
 
 /**
  * @brief Data modification without prior authorization
  * 
  */
-#define CORRUPTED_DATA -8
+#define CORRUPTED_DATA -1008
 
 // buffer to get the data out of the file
 

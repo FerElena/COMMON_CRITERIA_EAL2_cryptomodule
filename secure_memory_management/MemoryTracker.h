@@ -19,12 +19,16 @@
  * It also includes secure zeroization techniques to prevent sensitive data recovery.
  */
 
-#define MT_OK 1
-#define MT_FAIL 0
-#define INVALID_INPUT_MT -1
-#define NO_MORE_TRACKERS -2
-#define MEMORYVIOLATION_BEFORE_DELETE -3
-#define MEMORY_LOCK_FAIL -4
+#define MT_FAIL -1100
+
+#define MT_OK 1101
+
+#define INVALID_INPUT_MT -1101
+
+#define NO_MORE_TRACKERS -1102
+#define MEMORYVIOLATION_BEFORE_DELETE -1103
+#define MEMORYVIOLATION -1104
+#define MEMORY_LOCK_FAIL -1105
 
 // Schneier patrons for secure zeroization making it harder for data recovery
 static const unsigned char Schneier_patterns[6] = {0x00, 0xFF, 0xAA, 0x55, 0xAA, 0x55};

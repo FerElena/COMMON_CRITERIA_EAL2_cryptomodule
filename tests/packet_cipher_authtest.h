@@ -3,7 +3,7 @@
 #include <time.h>
 #include <string.h>
 
-#include "../packet_manager/packet_cipher_auth.h"
+#include "../cryptomodule_core/packet_cipher_auth.h"
 #include "../prng/random_number.h"
 #include "../secure_memory_management/DmemManager.h"
 

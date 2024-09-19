@@ -27,14 +27,14 @@
  * 
  * Code sent when a selftest is passed
  */
-#define TEST_PASSED 1
+#define TEST_PASSED 1600
 
 /**
  * @brief Test failed code
  * 
  * Code sent when a selftest does not passed
  */
-#define TEST_FAILED 0
+#define TEST_FAILED -1600
 
 /* Function declaration zone ........................................ */
 

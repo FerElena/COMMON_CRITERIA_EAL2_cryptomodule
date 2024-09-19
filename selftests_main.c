@@ -3,7 +3,6 @@
 #include <time.h>
 #include <string.h>
 
-
 #include "crypto-selftests/selftests.h"
 #include "tests/testing_file_system.h"
 #include "tests/MemoryTrackerTest.h"
@@ -12,11 +11,11 @@
 #include "crypto/AES_OFB.h"
 #include "secure_memory_management/file_system.h"
 #include "library_tracer/log_manager.h"
-#include "packet_manager/packet_cipher_auth.h"
+#include "cryptomodule_core/packet_cipher_auth.h"
 
 
 
-int main(){  
+int main(){   
     system("clear");
     printf("prueba inicio selftests\n");
     API_SFT_initSelfTests();

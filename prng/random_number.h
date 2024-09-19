@@ -11,9 +11,9 @@
 #include <sys/types.h>
 #include <errno.h>
 
-#define RANDOM_OK 1
-#define PSEUDORANDOM_OK 2
-#define ERROR_RANDOM_GENERATION_FAILED -2
+#define RANDOM_OK 1400
+#define PSEUDORANDOM_OK 1401
+#define ERROR_RANDOM_GENERATION_FAILED -1401
 
 /**
  * @brief Fills a buffer with random bytes, attempting to use secure sources.

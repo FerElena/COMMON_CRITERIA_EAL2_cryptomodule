@@ -30,7 +30,7 @@ void test_verify_integrity_success()
     int index = add_tracker(data, sizeof(data), 0);
     MemoryTracker *tracker = &trackers[index];
     int result = verify_integrity(tracker);
-    printf("Test Verify Integrity (Success): %s%s%s\n", result == 1 ? GREEN : RED, result == 1 ? "Passed" : "Failed", RESET);
+    printf("Test Verify Integrity (Success): %s%s%s\n", result == MT_OK ? GREEN : RED, result == MT_OK ? "Passed" : "Failed", RESET);
 }
 
 void test_verify_integrity_failure()
@@ -40,7 +40,7 @@ void test_verify_integrity_failure()
     MemoryTracker *tracker = &trackers[index];
     data[0] = 'X'; // Corrupt the data
     int result = verify_integrity(tracker);
-    printf("Test Verify Integrity (Failure): %s%s%s\n", result == 0 ? GREEN : RED, result == 0 ? "Passed" : "Failed", RESET);
+    printf("Test Verify Integrity (Failure): %s%s%s\n", result == MEMORYVIOLATION ? GREEN : RED, result == MEMORYVIOLATION ? "Passed" : "Failed", RESET);
 }
 
 void test_update_tracker_success()

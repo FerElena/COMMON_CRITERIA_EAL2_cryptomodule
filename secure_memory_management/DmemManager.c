@@ -171,7 +171,7 @@ void *API_MM_allocateMem(size_t size) {
 
 // Frees memory and removes its corresponding node from the tree.
 int API_MM_freeMem(void *ptr) {
-    if (!ptr) return 0;  // Return 0 if pointer is NULL.
+    if (!ptr) return ERROR_NULL_POINTER;  // Return 0 if pointer is NULL.
 
     unsigned char hash[HASH_BLOCK_SIZE];
     MM_hash_address(ptr, hash);  // Hash the pointer.
@@ -180,7 +180,7 @@ int API_MM_freeMem(void *ptr) {
     if (!node_to_delete) return 0;  // Return 0 if node not found.
 
     MM_delete_node(node_to_delete);  // Delete the node and free its memory.
-    return 1;  // Return success.
+    return SUCCESSMM;  // Return success.
 }
 
 // Reallocates memory, potentially moving it to a new block if needed.

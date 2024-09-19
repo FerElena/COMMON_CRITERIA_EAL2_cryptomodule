@@ -25,10 +25,10 @@
 
 /* Type definitions ................................................. */
 
-#define SUCCESSMM 0
-#define ERROR_NULL_POINTER -1
-#define ERROR_MEMORY_ALLOCATION_FAILED -2
-#define ERROR_HASH_COLLISION -3
+#define SUCCESSMM 1200
+#define ERROR_NULL_POINTER -1201
+#define ERROR_MEMORY_ALLOCATION_FAILED -1202
+#define ERROR_HASH_COLLISION -1203
 
 /**
  * @brief Structure for a node in the memory hash-tree.
