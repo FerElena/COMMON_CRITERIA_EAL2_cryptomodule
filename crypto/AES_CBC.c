@@ -8,6 +8,8 @@
  ****************************************************************************************************************/
 #include "AES_CBC.h"
 
+AesCbcContext AES_CBC_ctx; //auxiliar ctx to store derives key, CSP!
+
 /****************************************************************************************************************
  * Function definition zone
  ****************************************************************************************************************/
@@ -108,19 +110,16 @@ int CP_AesCbcDecrypt(AesCbcContext *Context, void const *InBuffer, void *OutBuff
 
 int API_AESCBC_encrypt(unsigned char *plaintext, size_t *len, unsigned char *key, unsigned int AES_KEY_SIZE, unsigned char *iv, unsigned char *ciphertext)
 {
-
-	AesCbcContext AES_ctx;
-	CP_AesCbcInitializeWithKey(&AES_ctx, key, AES_KEY_SIZE, iv);
-	CP_AesCbcEncrypt(&AES_ctx, plaintext, ciphertext, *len);
+	CP_AesCbcInitializeWithKey(&AES_CBC_ctx, key, AES_KEY_SIZE, iv);
+	CP_AesCbcEncrypt(&AES_CBC_ctx, plaintext, ciphertext, *len);
 
 	return 1;
 }
 
 int API_AESCBC_decrypt(unsigned char *ciphertext, size_t *len, unsigned char *key, unsigned int AES_KEY_SIZE, unsigned char *iv, unsigned char *plaintext)
 {
-	AesCbcContext AES_ctx;
-	CP_AesCbcInitializeWithKey(&AES_ctx, key, AES_KEY_SIZE, iv);
-	CP_AesCbcDecrypt(&AES_ctx, ciphertext, plaintext, *len);
+	CP_AesCbcInitializeWithKey(&AES_CBC_ctx, key, AES_KEY_SIZE, iv);
+	CP_AesCbcDecrypt(&AES_CBC_ctx, ciphertext, plaintext, *len);
 
 	return 1;
 }

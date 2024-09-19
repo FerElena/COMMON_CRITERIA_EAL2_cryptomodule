@@ -19,7 +19,6 @@
 
 #include "AES_CORE.h"
 
-
 /* Type definitions ................................................. */
 
 /**
@@ -30,6 +29,7 @@ typedef struct AesCbcContext {
     uint8_t         PreviousCipherBlock [AES_BLOCK_SIZE]; /*Previous AES cipher block*/
 } AesCbcContext;
 
+extern AesCbcContext AES_CBC_ctx; //auxiliar ctx to store derives key, CSP!
 
 /* Macros............................................................ */
 

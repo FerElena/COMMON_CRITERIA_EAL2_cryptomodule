@@ -6,6 +6,10 @@
 
 #include "AES_CORE.h"
 
+extern uint8_t AESOFB_outputBlock[AES_BLOCK_SIZE]; //Buffer to store momentary output block, CSP
+extern uint8_t AESOFB_ivEnc[AES_BLOCK_SIZE];       // Buffer to store encrypted IV, CSP
+extern AesContext AESOFB_CTX;                      // AES AESOFB_CTX to store the derived AES-256 key
+
 /**
  * @brief AES-OFB (Output Feedback) encryption/decryption function.
  *

@@ -11,8 +11,8 @@
 /****************************************************************************************************************
  * Global variables definition
  ****************************************************************************************************************/
-unsigned char data_buffer_sed[data_buffer_sign_encrypt_length]; // 256 kilobytes of static memory to avoid memory allocation every time CSP is used
-unsigned char data_buffer_sed_aux[data_buffer_sign_encrypt_length];
+unsigned char PCA_data_buffer_sed[data_buffer_sign_encrypt_length]; // 256 kilobytes of static memory to avoid memory allocation every time CSP is used
+unsigned char PCA_data_buffer_sed_aux[data_buffer_sign_encrypt_length];
 
 /****************************************************************************************************************
  * Function definition zone
@@ -30,8 +30,8 @@ int API_PCA_sign_encrypt_packet(unsigned char *data_in, size_t data_in_length, u
 
 	// Initialize variables and temporary buffer pointers.
 	data_in_len_aux = data_in_length;
-	out_buffer_pointer = data_buffer_sed;
-	aux_buffer_pointer = data_buffer_sed_aux;
+	out_buffer_pointer = PCA_data_buffer_sed;
+	aux_buffer_pointer = PCA_data_buffer_sed_aux;
 	aux_buffer_length = data_in_len_aux + HMAC_SHA256_sign_size; // Aux buffer size, includes signature size.
 	out_buffer_length = aux_buffer_length + 24;		     // Output buffer length, includes extra space for IV and length.
 
@@ -92,7 +92,7 @@ int API_PCA_decrypt_verify_packet(unsigned char *data_in, size_t data_in_length,
 	data_in_len_aux = data_in_length - 24;
 
 	// Use default buffer or allocate memory if necessary.
-	out_buffer_pointer = data_buffer_sed;
+	out_buffer_pointer = PCA_data_buffer_sed;
 	if (data_in_length > data_buffer_sign_encrypt_length)
 	{
 		out_buffer_pointer = API_MM_allocateMem(data_in_length); // Allocate memory for the output buffer.
