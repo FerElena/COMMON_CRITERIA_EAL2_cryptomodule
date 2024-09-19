@@ -27,4 +27,4 @@ int main(){
  
     printf("tamaño bloque metadatos = %ld \n",sizeof(File_System));   
     return 0;  
-}
+}  

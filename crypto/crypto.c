@@ -28,14 +28,22 @@ int API_CP_hmac_sha256(unsigned char *msg, unsigned char *key, size_t datalen, s
 	*result = API_hmac_sha256(key, length_key, msg, datalen);
 	return 1;
 }
+
+int API_CP_ECDSA256_sign(unsigned char p_privateKey[ECC_BYTES], unsigned char *msg, size_t msg_length, unsigned char p_signature[ECC_BYTES * 2])
+{
+	unsigned char hash[32];
+	API_sha256(msg, msg_length, hash);
+	ecdsa_sign(p_privateKey, hash, p_signature);
+	return 1;
+}
 /*
  * Verify the ECDSA P-256 sign sent by the receiver and give the result
  */
-int API_CP_verify_ECDSA256(unsigned char *key, unsigned char *msg, unsigned char *sign, size_t length_pukey, size_t length_msg, size_t length_sign, uint8_t *result)
+int API_CP_verify_ECDSA256(unsigned char *pubkey, unsigned char *msg, unsigned char *sign, size_t length_pukey, size_t msg_length, size_t length_sign, uint8_t *result)
 {
 	unsigned char hash[32];
-	API_sha256(msg, length_msg, hash);
-	*result = ecdsa_verify(key, hash, sign);
+	API_sha256(msg, msg_length, hash);
+	*result = ecdsa_verify(pubkey, hash, sign);
 
 	return 1; // Success
 }

@@ -1308,9 +1308,7 @@ void API_CP_compress_signature(uint8_t* ECDSA_sign, unsigned char* r, unsigned c
 void CP_decompress_signature(unsigned char* ECDSA_sign, unsigned char* r, unsigned char* s, int sign_len){
 	if (sign_len>100){
 		memcpy(r, ECDSA_sign, sign_len/2);
-		r[131]='\0';
 		memcpy(s, ECDSA_sign + (sign_len/2), sign_len/2);
-		s[131]='\0';
 	}else{
 	memcpy(r, ECDSA_sign, sign_len/2);
     memcpy(s, ECDSA_sign + sign_len/2, sign_len/2);
