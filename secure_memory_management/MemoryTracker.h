@@ -10,6 +10,14 @@
 #include <assert.h>
 #include <sys/mman.h>  // Para mlock() y munlock()
 
+/**
+ * @file memorytracker.h
+ * @brief Memory tracking system for secure allocation and deallocation of memory.
+ *
+ * This file provides the declarations and functionality for tracking memory allocations, 
+ * verifying memory integrity, and securely deallocating memory blocks that contain Critical Security Parameters (CSP).
+ * It also includes secure zeroization techniques to prevent sensitive data recovery.
+ */
 
 #define MT_OK 1
 #define MT_FAIL 0
@@ -26,7 +34,14 @@ static const unsigned char Schneier_patterns[6] = {0x00, 0xFF, 0xAA, 0x55, 0xAA,
 #define CSP 1            // Flag to clear memory on deletion.
 #define PSP 0            // Flag to preserve memory on deletion.
 
-// Struct to track memory allocations.
+/**
+ * @struct MemoryTracker
+ * @brief Structure to track memory allocations and associated metadata.
+ *
+ * The MemoryTracker struct keeps track of individual memory blocks, 
+ * including their size, a pointer to the memory, and a checksum for integrity verification.
+ */
+
 typedef struct MemoryTracker
 {
     void *ptr;                  // Pointer to the allocated memory block.
@@ -36,12 +51,12 @@ typedef struct MemoryTracker
     uint8_t IsCSP;              // Flag to indicate if memory should be cleared on deletion.
 } MemoryTracker;
 
-extern MemoryTracker trackers[MAX_TRACKERS];
+extern MemoryTracker trackers[MAX_TRACKERS]; // Array of all memory tracker
 
-extern MemoryTracker *Free_Tracker_List;
-extern MemoryTracker *Used_Trackers_List;
+extern MemoryTracker *Free_Tracker_List; // Linked list of available memory trackers
+extern MemoryTracker *Used_Trackers_List; // Linked list of used memory trackers
 
-extern pthread_mutex_t mutex;
+extern pthread_mutex_t mutex; // Mutex to ensure thread safety during memory operations
 
 /**
  * @brief Initializes the memory tracker system by linking all trackers in a free list.

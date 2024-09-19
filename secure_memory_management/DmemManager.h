@@ -1,6 +1,10 @@
 /**
  * @file DmemManager.h
  * @brief File containing all the functions for the management of dynamic memory used in the project.
+ *
+ * This file provides declarations for the dynamic memory management system. It includes functions for
+ * allocating, freeing, reallocating memory, and managing a hash-tree structure to securely track memory blocks.
+ * Additionally, secure memory zeroization and hash comparisons are provided.
  */
 
 #ifndef MEMANAGER_H
@@ -27,8 +31,13 @@
 #define ERROR_HASH_COLLISION -3
 
 /**
- * @brief Hash-tree node struct
+ * @brief Structure for a node in the memory hash-tree.
+ *
+ * The `node` struct is used to represent each block of memory in the hash-tree.
+ * Each node holds the memory block information, a SHA-256 hash, and pointers to its
+ * left, right, and parent nodes in the tree.
  */
+
 typedef struct Node {
     void *ptr; /**< Hash-tree node pointer */
     size_t size; /**< Hash-tree node size */
@@ -42,13 +51,15 @@ static const unsigned char Schneier_patternsDM[6] = {0x00, 0xFF, 0xAA, 0x55, 0xA
 
 
 /* External variables definition .................................... */
-
 /**
- * @brief Hash-tree root
+ * @brief Root of the hash-tree.
+ *
+ * The `ROOT` variable represents the root node of the hash-tree, used for managing the dynamically allocated memory blocks.
  */
+
 extern node *ROOT;
 
-/* Global variables definition ...................................... */
+/* Global constants definition ...................................... */
 
 /**
  * @brief True boolean value

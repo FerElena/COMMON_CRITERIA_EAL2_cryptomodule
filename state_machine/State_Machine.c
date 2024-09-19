@@ -1,5 +1,117 @@
 #include "State_Machine.h"
 
-void State_Change(State){
-	
+int State_Change(State next_state){
+    switch (current_state) {
+        // When the system is off
+        case STATE_OFF:
+            switch (next_state) {
+                case STATE_ON:
+                    current_state = STATE_ON;
+                    return STATE_CHANGE_SUCCESS;  // Successful transition to ON
+                case STATE_SOFTERROR:
+                    current_state = STATE_SOFTERROR;
+                    return STATE_CHANGE_SOFTERROR;  // Transition to soft error
+                default:
+                    current_state = STATE_ERROR;
+                    return STATE_CHANGE_ERROR;  // Any other transition is an error
+            }
+        
+        // When the system is on
+        case STATE_ON:
+            switch (next_state) {
+                case STATE_SELF_TEST:
+                    current_state = STATE_SELF_TEST;
+                    return STATE_CHANGE_SUCCESS;  // Successful transition to SELF-TEST
+                case STATE_SOFTERROR:
+                    current_state = STATE_SOFTERROR;
+                    return STATE_CHANGE_SOFTERROR;  // Transition to soft error
+                default:
+                    current_state = STATE_ERROR;
+                    return STATE_CHANGE_ERROR;  // Invalid transition, go to error state
+            }
+        
+        // During the self-test
+        case STATE_SELF_TEST:
+            switch (next_state) {
+                case STATE_INITIALIZATION:
+                    current_state = STATE_INITIALIZATION;
+                    return STATE_CHANGE_SUCCESS;  // Successful transition to INITIALIZATION
+                case STATE_OPERATIONAL:
+                    current_state = STATE_OPERATIONAL;
+                    return STATE_CHANGE_SUCCESS;  // Direct transition to OPERATIONAL allowed
+                case STATE_SOFTERROR:
+                    current_state = STATE_SOFTERROR;
+                    return STATE_CHANGE_SOFTERROR;  // Transition to soft error
+                default:
+                    current_state = STATE_ERROR;
+                    return STATE_CHANGE_ERROR;  // Invalid transition, go to error state
+            }
+        
+        // During operational state
+        case STATE_OPERATIONAL:
+            switch (next_state) {
+                case STATE_CRYPTOGRAPHIC:
+                    current_state = STATE_CRYPTOGRAPHIC;
+                    return STATE_CHANGE_SUCCESS;  // Successful transition to CRYPTOGRAPHIC
+                case STATE_CSP:
+                    current_state = STATE_CSP;
+                    return STATE_CHANGE_SUCCESS;  // Successful transition to CSP
+                case STATE_SELF_TEST:
+                    current_state = STATE_SELF_TEST;
+                    return STATE_CHANGE_SUCCESS;  // Re-enter SELF-TEST
+                case STATE_OFF:
+                    current_state = STATE_OFF;
+                    return STATE_CHANGE_SUCCESS;  // Transition to OFF
+                case STATE_SOFTERROR:
+                    current_state = STATE_SOFTERROR;
+                    return STATE_CHANGE_SOFTERROR;  // Transition to soft error
+                default:
+                    current_state = STATE_ERROR;
+                    return STATE_CHANGE_ERROR;  // Invalid transition, go to error state
+            }
+        
+        // During cryptographic operations
+        case STATE_CRYPTOGRAPHIC:
+            switch (next_state) {
+                case STATE_OPERATIONAL:
+                    current_state = STATE_OPERATIONAL;
+                    return STATE_CHANGE_SUCCESS;  // Successful transition to OPERATIONAL
+                case STATE_CSP:
+                    current_state = STATE_CSP;
+                    return STATE_CHANGE_SUCCESS;  // Transition to CSP
+                case STATE_SOFTERROR:
+                    current_state = STATE_SOFTERROR;
+                    return STATE_CHANGE_SOFTERROR;  // Transition to soft error
+                default:
+                    current_state = STATE_ERROR;
+                    return STATE_CHANGE_ERROR;  // Invalid transition, go to error state
+            }
+        
+        // During CSP handling
+        case STATE_CSP:
+            switch (next_state) {
+                case STATE_OPERATIONAL:
+                    current_state = STATE_OPERATIONAL;
+                    return STATE_CHANGE_SUCCESS;  // Transition back to OPERATIONAL
+                case STATE_CRYPTOGRAPHIC:
+                    current_state = STATE_CRYPTOGRAPHIC;
+                    return STATE_CHANGE_SUCCESS;  // Transition to CRYPTOGRAPHIC
+                case STATE_SOFTERROR:
+                    current_state = STATE_SOFTERROR;
+                    return STATE_CHANGE_SOFTERROR;  // Transition to soft error
+                default:
+                    current_state = STATE_ERROR;
+                    return STATE_CHANGE_ERROR;  // Invalid transition, go to error state
+            }
+        
+        // During a soft error
+        case STATE_SOFTERROR:
+            current_state = STATE_SOFTERROR;
+            return STATE_CHANGE_SOFTERROR;  // Remain in soft error state
+
+        // Default case for invalid states
+        default:
+            current_state = STATE_ERROR;
+            return STATE_CHANGE_ERROR;  // Invalid state, enter hard error
+    }
 }
