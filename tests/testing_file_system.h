@@ -3,11 +3,11 @@
 
 #include <stdint.h>
 
-#include "../file_system/file_system.h"
+#include "../secure_memory_management/file_system.h"
 #include "../crypto/CRC_Galileo.h"
 
 
-#define file_system_rpath "file_system/filesystem_data" //filesystem path 
+#define file_system_rpath "filesystem_data" //filesystem path 
 
 void print_test_Result(uint8_t result[],unsigned char test_name[]);
 

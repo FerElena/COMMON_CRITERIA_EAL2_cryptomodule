@@ -17,7 +17,7 @@
 
 /* Private include files ............................................ */
 
-#include "../file_system/file_system.h"
+#include "../secure_memory_management/file_system.h"
 
 /* Global variables definition ...................................... */
 

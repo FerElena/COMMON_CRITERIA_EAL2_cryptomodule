@@ -10,7 +10,7 @@
 #include "tests/DmemmanagerTest.h"
 #include "tests/packet_cipher_authtest.h"
 #include "crypto/AES_OFB.h"
-#include "file_system/file_system.h"
+#include "secure_memory_management/file_system.h"
 #include "library_tracer/log_manager.h"
 #include "packet_manager/packet_cipher_auth.h"
 
@@ -22,7 +22,7 @@ int main(){
     API_SFT_initSelfTests();
     FS_testing();
     MemoryTracker_tests();
-    Test_DmemManager();
+    Test_DmemManager();  
     run_tests_packets(100000);
  
     printf("tamaño bloque metadatos = %ld \n",sizeof(File_System));   

@@ -17,7 +17,7 @@
 #include "ECDSA256Tests.h"
 #include "AESTests.h"
 
-#include "../file_system/file_system.h"
+#include "../secure_memory_management/file_system.h"
 #include "../library_tracer/log_manager.h"
 
 /* Global variables definition ...................................... */

@@ -11,7 +11,7 @@
 #include <string.h>
 
 #include "../crypto/crypto.h"
-#include "../Dynamic_Memory_Manager/DmemManager.h"
+#include "../secure_memory_management/DmemManager.h"
 #include "../prng/random_number.h"
 
 /****************************************************************************************************************

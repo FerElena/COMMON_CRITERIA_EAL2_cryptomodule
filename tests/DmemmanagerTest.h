@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "../Dynamic_Memory_Manager/DmemManager.h"
+#include "../secure_memory_management/DmemManager.h"
 
 void test_MM_compare_hash();
 
