@@ -11,7 +11,7 @@
  */
 
 /*
-ON ----> SELF-TEST ----> INITIALIZATION ----------->OPERATIONAL
+ON ----> INITIALIZATION ----> SELF-TEST ----------->OPERATIONAL
  |         |                  |                /         |        \
  |         v                  v               v          v        v
  +-------> ERROR <------------ ERROR <------OFF    CRYPTOGRAPHIC  CSP

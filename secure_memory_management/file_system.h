@@ -128,7 +128,7 @@
 
 // buffer to get the data out of the file
 
-extern unsigned char data_buffer[MAX_FILE_DATA]; // CSP
+extern unsigned char FS_data_buffer[MAX_FILE_DATA]; // CSP
 
 extern unsigned char FS_cipher_key[32];
 

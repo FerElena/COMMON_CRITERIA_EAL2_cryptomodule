@@ -31,16 +31,16 @@
 #define ALLOCATED_MEMORY 2
 
 /*
-estructura del paquete cifrado, el texto y la firma están cifrados por el AES-CBC-256
+Structure of the encrypted packet; the text and signature are encrypted using AES-CBC-256.
 
-+-----------------------+-----------------------+--------------------------+------------------------+
-|  Paquete de 8 bytes   |  IV de AES (16 bytes) |   Texto (longitud n)     | Firma HMAC (32 bytes)  |
-+-----------------------+-----------------------+--------------------------+------------------------+
-|                       |                       |                          |                        |
-|  [Tamaño del paquete] |   [IV AES de 16 B]    |  [Texto de longitud n]   |  [Firma HMAC de 32 B]  |
-|        (8 B)          |        (16 B)         |         (n B)            |         (32 B)         |
-|                       |                       |                          |                        |
-+-----------------------+-----------------------+--------------------------+------------------------+
++-----------------------+-----------------------+--------------------------+---------------------------+
+|   8-byte Packet       |   AES IV (16 bytes)   |      Text (length n)     | HMAC Signature (32 bytes) |
++-----------------------+-----------------------+--------------------------+---------------------------+
+|                       |                       |                          |                           |
+|   [Packet Size]       |   [16-byte AES IV]    |   [Text of length n]     |   [32-byte HMAC Signature]|
+|        (8 B)          |        (16 B)         |         (n B)            |         (32 B)            |
+|                       |                       |                          |                           |
++-----------------------+-----------------------+--------------------------+---------------------------+
 
 */
 

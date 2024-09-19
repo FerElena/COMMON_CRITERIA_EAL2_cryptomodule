@@ -71,7 +71,7 @@ extern pthread_mutex_t mutex; // Mutex to ensure thread safety during memory ope
  *
  * @note Must be called before any other memory tracking functions are used.
  */
-void initialize_trackers();
+void API_MT_initialize_trackers();
 
 /**
  * @brief Fetches a free tracker from the free list.
@@ -105,7 +105,7 @@ void return_tracker(MemoryTracker *tracker);
  * @param isCSP Indicates if the block contains Critical Security Parameters (1 for CSP, 0 otherwise).
  * @return The index of the tracker in the `trackers` array on success, or an error code on failure.
  */
-int add_tracker(void *ptr, size_t size, uint8_t isCSP);
+int API_MT_add_tracker(void *ptr, size_t size, uint8_t isCSP);
 
 /**
  * @brief Verifies the integrity of a tracked memory block.
@@ -116,7 +116,7 @@ int add_tracker(void *ptr, size_t size, uint8_t isCSP);
  * @param tracker A pointer to the `MemoryTracker` to verify.
  * @return `MT_OK` if the integrity is valid, `MT_FAIL` otherwise.
  */
-int verify_integrity(MemoryTracker *tracker);
+int API_MT_verify_integrity(MemoryTracker *tracker);
 
 /**
  * @brief Updates a memory tracker with a new memory block and size.
@@ -129,7 +129,7 @@ int verify_integrity(MemoryTracker *tracker);
  * @param new_size The size of the new memory block.
  * @return `MT_OK` on success, or an error code on failure.
  */
-int update_tracker(MemoryTracker *tracker, void *new_ptr, size_t new_size);
+int API_MT_update_tracker(MemoryTracker *tracker, void *new_ptr, size_t new_size);
 
 /**
  * @brief Removes a tracker from the used list, optionally zeroizing its memory.
@@ -140,7 +140,7 @@ int update_tracker(MemoryTracker *tracker, void *new_ptr, size_t new_size);
  * @param ptr A pointer to the memory block to remove.
  * @return `MT_OK` on success, or an error code on failure.
  */
-int remove_tracker(void *ptr);
+int API_MT_remove_tracker(void *ptr);
 
 /**
  * @brief Zeroizes and frees all tracked memory allocations.
@@ -150,6 +150,6 @@ int remove_tracker(void *ptr);
  *
  * @note This function clears all tracked memory and should be used with caution.
  */
-void zeroize_and_free_all();
+void API_MT_zeroize_and_free_all();
 
 #endif

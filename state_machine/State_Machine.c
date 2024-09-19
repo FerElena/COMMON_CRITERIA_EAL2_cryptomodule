@@ -19,9 +19,9 @@ int State_Change(State next_state){
         // When the system is on
         case STATE_ON:
             switch (next_state) {
-                case STATE_SELF_TEST:
-                    current_state = STATE_SELF_TEST;
-                    return STATE_CHANGE_SUCCESS;  // Successful transition to SELF-TEST
+                case STATE_INITIALIZATION:
+                    current_state = STATE_INITIALIZATION;
+                    return STATE_CHANGE_SUCCESS;  // Successful transition to STATE_INITIALIZATION
                 case STATE_SOFTERROR:
                     current_state = STATE_SOFTERROR;
                     return STATE_CHANGE_SOFTERROR;  // Transition to soft error
@@ -29,7 +29,19 @@ int State_Change(State next_state){
                     current_state = STATE_ERROR;
                     return STATE_CHANGE_ERROR;  // Invalid transition, go to error state
             }
-        
+        // During secure initialization of the module
+        case STATE_INITIALIZATION:
+            switch (next_state) {
+                case STATE_SELF_TEST:
+                    current_state = STATE_SELF_TEST;
+                    return STATE_CHANGE_SUCCESS;  // Transition to STATE_SELF_TEST
+                case STATE_SOFTERROR:
+                    current_state = STATE_SOFTERROR;
+                    return STATE_CHANGE_SOFTERROR;  // Transition to soft error
+                default:
+                    current_state = STATE_ERROR;
+                    return STATE_CHANGE_ERROR;  // Invalid transition, go to error state
+            }
         // During the self-test
         case STATE_SELF_TEST:
             switch (next_state) {
@@ -106,8 +118,17 @@ int State_Change(State next_state){
         
         // During a soft error
         case STATE_SOFTERROR:
-            current_state = STATE_SOFTERROR;
-            return STATE_CHANGE_SOFTERROR;  // Remain in soft error state
+            switch (next_state) {
+                case STATE_OPERATIONAL:
+                    current_state = STATE_OPERATIONAL;
+                    return STATE_CHANGE_SUCCESS;  // Transition back to OPERATIONAL
+                case STATE_SELF_TEST:
+                    current_state = STATE_SELF_TEST;
+                    return STATE_CHANGE_SUCCESS;  // Transition to CRYPTOGRAPHIC
+                default:
+                    current_state = STATE_ERROR;
+                    return STATE_CHANGE_SUCCESS;  // Invalid transition, go to error state
+            }
 
         // Default case for invalid states
         default:

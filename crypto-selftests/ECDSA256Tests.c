@@ -30,8 +30,7 @@ int SFT_ECDSA256_verify_test(unsigned char *Qx, size_t Qx_length, unsigned char 
     unsigned char p_publicKey[32 + 1];
     API_CP_compress_key(Qx,Qx_length,Qy,Qy_length,p_publicKey);
 	API_CP_verify_ECDSA256(p_publicKey, ECDSA_msg, sign, Qx_length + 1, ECDSA_msg_len, 64,&result);
-
-
+	
 	return result;
 }
 

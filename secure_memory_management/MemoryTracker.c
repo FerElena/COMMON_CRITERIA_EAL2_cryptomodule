@@ -1,5 +1,5 @@
 /*
-este código está pensado para un caso de uso en el que la función add_tracker(eficiente, busqueda de complejidad O 1)
+este código está pensado para un caso de uso en el que la función API_MT_add_tracker(eficiente, busqueda de complejidad O 1)
 es usada al principio de la ejecución de un programa con todas las estructuras de datos de las cuales hay que llevar un tracking
 dado que son CSP o PSP en nuestro contexto. Primero este debe ser inicializado con initialice_tracker, las
 funciones de update y remove tracker son mas costosas(busqueda de complejidad O n), y están pensadas para ser utilizadas en casos
@@ -24,7 +24,7 @@ MemoryTracker *Used_Trackers_List = NULL;
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
 // Initialize the tracker system.
-void initialize_trackers()
+void API_MT_initialize_trackers()
 {
     pthread_mutex_lock(&mutex); // Lock to ensure thread safety.
     for (int i = 0; i < MAX_TRACKERS - 1; i++)
@@ -57,11 +57,11 @@ void return_tracker(MemoryTracker *tracker)
 }
 
 // Add a new memory allocation to be tracked.
-int add_tracker(void *ptr, size_t size, uint8_t isCSP)
+int API_MT_add_tracker(void *ptr, size_t size, uint8_t isCSP)
 {
     if (ptr == NULL || size > SIZE_MAX || size < 0 || isCSP > 1 || isCSP < 0) // if invalid input parameters
     {
-        printf("invalid parameters on add_tracker \n"); // in the future substitute for a TraceWrite
+        printf("invalid parameters on API_MT_add_tracker \n"); // in the future substitute for a TraceWrite
         return INVALID_INPUT_MT;
     }
 
@@ -96,11 +96,11 @@ int add_tracker(void *ptr, size_t size, uint8_t isCSP)
 }
 
 // Verify the memory block's integrity using its checksum, no need locks as it's a read-only function.
-int verify_integrity(MemoryTracker *tracker)
+int API_MT_verify_integrity(MemoryTracker *tracker)
 {
     if (tracker == NULL)
     {
-        printf("wrong input in verify_integrity! \n"); // Tracewrite in future!
+        printf("wrong input in API_MT_verify_integrity! \n"); // Tracewrite in future!
         return INVALID_INPUT_MT;
     }
 
@@ -112,11 +112,11 @@ int verify_integrity(MemoryTracker *tracker)
 }
 
 // Update a tracker with a new memory block and size, you need to save the tracker index to use this function, not supposed to be used often
-int update_tracker(MemoryTracker *tracker, void *new_ptr, size_t new_size)
+int API_MT_update_tracker(MemoryTracker *tracker, void *new_ptr, size_t new_size)
 {
     if (tracker == NULL || new_ptr == NULL || new_size < 0 || new_size > SIZE_MAX)
     {
-        printf("invalid input in update_tracker! \n"); // Tracewrite in future!
+        printf("invalid input in API_MT_update_tracker! \n"); // Tracewrite in future!
         return INVALID_INPUT_MT;
     }
 
@@ -146,7 +146,7 @@ int update_tracker(MemoryTracker *tracker, void *new_ptr, size_t new_size)
 }
 
 // Remove a tracker from used list, zeroizing its memory if it is a CSP.
-int remove_tracker(void *ptr)
+int API_MT_remove_tracker(void *ptr)
 {
     pthread_mutex_lock(&mutex);
     // Find the tracker for the given memory pointer.
@@ -164,7 +164,7 @@ int remove_tracker(void *ptr)
 
     // Verify memory integrity before removal.
     MemoryTracker *toRemove = *indirect;
-    int integrity = verify_integrity(toRemove);
+    int integrity = API_MT_verify_integrity(toRemove);
     if (!integrity)
     {
         pthread_mutex_unlock(&mutex);                     // Unlock on integrity violation.
@@ -195,7 +195,7 @@ int remove_tracker(void *ptr)
 }
 
 // Clean up all tracked memory allocations.
-void zeroize_and_free_all()
+void API_MT_zeroize_and_free_all()
 {
     pthread_mutex_lock(&mutex);
     MemoryTracker *current = Used_Trackers_List;

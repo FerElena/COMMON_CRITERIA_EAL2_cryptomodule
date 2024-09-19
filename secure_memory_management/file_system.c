@@ -15,7 +15,7 @@ File_System MetadataBlock; // Global struct containing the metadata of the file 
 
 pthread_mutex_t FS_mutex = PTHREAD_MUTEX_INITIALIZER; // semaphore to keep the filesystem data resistant
 
-unsigned char data_buffer[MAX_FILE_DATA]; // CSP shared data buffer wich is overwriten with consecutive FS_functions calls(except API_FS_write_buffer_to_file and API_FS_read_buffer_from_file)
+unsigned char FS_data_buffer[MAX_FILE_DATA]; // CSP shared data buffer wich is overwriten with consecutive FS_functions calls(except API_FS_write_buffer_to_file and API_FS_read_buffer_from_file)
                                           // the data in this buffer is supposed to be copied to another buffer which is not going to be overwriten by consecutive operations
 
 unsigned char FS_cipher_key[32];
@@ -307,9 +307,9 @@ int API_FS_create_file_data(unsigned char *filename, size_t filename_length, uns
     if (isCSP && MetadataBlock.cipher_mode == CIPHER_ON)
     {
         fill_buffer_with_random_bytes(MetadataBlock.allocations[new_allocation_index].IV,AES_BLOCK_SIZE);
-        AES_OFB_EncryptDecrypt(data, data_size, FS_cipher_key, AES_KEY_SIZE_256, MetadataBlock.allocations[new_allocation_index].IV, data_buffer);
+        AES_OFB_EncryptDecrypt(data, data_size, FS_cipher_key, AES_KEY_SIZE_256, MetadataBlock.allocations[new_allocation_index].IV, FS_data_buffer);
         fseek(MetadataBlock.FS_data_descriptor, offset + sizeof(MetadataBlock), SEEK_SET);
-        write_bytes = fwrite(data_buffer, 1, data_size, MetadataBlock.FS_data_descriptor);
+        write_bytes = fwrite(FS_data_buffer, 1, data_size, MetadataBlock.FS_data_descriptor);
     }
     // else, just write on filesystem with no cipher
     else
@@ -377,7 +377,7 @@ int API_FS_zeroize_file(unsigned char *filename, size_t filename_length)
     {
         // Seek to the correct offset and read the file data
         fseek(MetadataBlock.FS_data_descriptor, MetadataBlock.allocations[index].offset + sizeof(MetadataBlock), SEEK_SET);
-        bytes_read = fread(data_buffer, 1, MetadataBlock.allocations[index].size, MetadataBlock.FS_data_descriptor);
+        bytes_read = fread(FS_data_buffer, 1, MetadataBlock.allocations[index].size, MetadataBlock.FS_data_descriptor);
         if (bytes_read != MetadataBlock.allocations[index].size)
         {
             pthread_mutex_unlock(&FS_mutex);
@@ -386,10 +386,10 @@ int API_FS_zeroize_file(unsigned char *filename, size_t filename_length)
         // Decrypt the data if encryption is enabled
         if (MetadataBlock.cipher_mode == CIPHER_ON)
         {
-            AES_OFB_EncryptDecrypt(data_buffer, MetadataBlock.allocations[index].size, FS_cipher_key, AES_KEY_SIZE_256, MetadataBlock.allocations[index].IV, data_buffer);
+            AES_OFB_EncryptDecrypt(FS_data_buffer, MetadataBlock.allocations[index].size, FS_cipher_key, AES_KEY_SIZE_256, MetadataBlock.allocations[index].IV, FS_data_buffer);
         }
         // Verify data integrity via CRC32
-        unsigned int New_CRC32 = crc_32(data_buffer, MetadataBlock.allocations[index].size);
+        unsigned int New_CRC32 = crc_32(FS_data_buffer, MetadataBlock.allocations[index].size);
         corrupted_data = (New_CRC32 == MetadataBlock.allocations[index].CRC_32_checksum) ? 0 : 1;
     }
 
@@ -398,9 +398,9 @@ int API_FS_zeroize_file(unsigned char *filename, size_t filename_length)
     {
         // Overwrite the file with the current Schneier pattern
         fseek(MetadataBlock.FS_data_descriptor, MetadataBlock.allocations[index].offset + sizeof(MetadataBlock), SEEK_SET);
-        for (int j = 0; j < MetadataBlock.allocations[index].size; data_buffer[j++] = Schneier_patterns[i])
+        for (int j = 0; j < MetadataBlock.allocations[index].size; FS_data_buffer[j++] = Schneier_patterns[i])
             ;
-        size_t written_bytes = fwrite(data_buffer, 1, MetadataBlock.allocations[index].size, MetadataBlock.FS_data_descriptor);
+        size_t written_bytes = fwrite(FS_data_buffer, 1, MetadataBlock.allocations[index].size, MetadataBlock.FS_data_descriptor);
         if (written_bytes != MetadataBlock.allocations[index].size)
         {
             pthread_mutex_unlock(&FS_mutex);
@@ -446,7 +446,7 @@ int API_FS_delete_file(unsigned char *filename, size_t filename_length)
     if (MetadataBlock.allocations[index].isCSP)
     {
         fseek(MetadataBlock.FS_data_descriptor, MetadataBlock.allocations[index].offset + sizeof(MetadataBlock), SEEK_SET);
-        bytes_read = fread(data_buffer, 1, MetadataBlock.allocations[index].size, MetadataBlock.FS_data_descriptor);
+        bytes_read = fread(FS_data_buffer, 1, MetadataBlock.allocations[index].size, MetadataBlock.FS_data_descriptor);
         if (bytes_read != MetadataBlock.allocations[index].size)
         {
             pthread_mutex_unlock(&FS_mutex);
@@ -454,9 +454,9 @@ int API_FS_delete_file(unsigned char *filename, size_t filename_length)
         }
         // if cipher mode, decipher it
         if (MetadataBlock.allocations[index].isCSP && MetadataBlock.cipher_mode == CIPHER_ON)
-            AES_OFB_EncryptDecrypt(data_buffer, MetadataBlock.allocations[index].size, FS_cipher_key, AES_KEY_SIZE_256, MetadataBlock.allocations[index].IV, data_buffer);
+            AES_OFB_EncryptDecrypt(FS_data_buffer, MetadataBlock.allocations[index].size, FS_cipher_key, AES_KEY_SIZE_256, MetadataBlock.allocations[index].IV, FS_data_buffer);
 
-        unsigned int New_CRC32 = crc_32(data_buffer, MetadataBlock.allocations[index].size);
+        unsigned int New_CRC32 = crc_32(FS_data_buffer, MetadataBlock.allocations[index].size);
         corrupted_data = (New_CRC32 == MetadataBlock.allocations[index].CRC_32_checksum) ? 0 : 1;
     }
 
@@ -466,9 +466,9 @@ int API_FS_delete_file(unsigned char *filename, size_t filename_length)
         for (int i = 0; i < 6; i++)
         {
             fseek(MetadataBlock.FS_data_descriptor, MetadataBlock.allocations[index].offset + sizeof(MetadataBlock), SEEK_SET);
-            for (int j = 0; j < MetadataBlock.allocations[index].size; data_buffer[j++] = Schneier_patterns[i])
+            for (int j = 0; j < MetadataBlock.allocations[index].size; FS_data_buffer[j++] = Schneier_patterns[i])
                 ;
-            fwrite(data_buffer, MetadataBlock.allocations[index].size, 1, MetadataBlock.FS_data_descriptor);
+            fwrite(FS_data_buffer, MetadataBlock.allocations[index].size, 1, MetadataBlock.FS_data_descriptor);
         }
     }
 
@@ -511,7 +511,7 @@ int API_FS_read_file_data(unsigned char *filename, size_t filename_length, unsig
     {
         // read data from the filesystem
         fseek(MetadataBlock.FS_data_descriptor, MetadataBlock.allocations[index].offset + sizeof(MetadataBlock), SEEK_SET);
-        size_t bytes_read = fread(data_buffer, 1, MetadataBlock.allocations[index].size, MetadataBlock.FS_data_descriptor);
+        size_t bytes_read = fread(FS_data_buffer, 1, MetadataBlock.allocations[index].size, MetadataBlock.FS_data_descriptor);
         if (bytes_read != MetadataBlock.allocations[index].size)
         {
             pthread_mutex_unlock(&FS_mutex);
@@ -519,14 +519,14 @@ int API_FS_read_file_data(unsigned char *filename, size_t filename_length, unsig
         }
         // if setup to cipher mode, we decipher it
         if (MetadataBlock.allocations[index].isCSP && MetadataBlock.cipher_mode == CIPHER_ON)
-            AES_OFB_EncryptDecrypt(data_buffer, MetadataBlock.allocations[index].size, FS_cipher_key, AES_KEY_SIZE_256, MetadataBlock.allocations[index].IV, data_buffer);
+            AES_OFB_EncryptDecrypt(FS_data_buffer, MetadataBlock.allocations[index].size, FS_cipher_key, AES_KEY_SIZE_256, MetadataBlock.allocations[index].IV, FS_data_buffer);
 
-        *buffer_out = data_buffer;                            // assign input parameter poiter, to the global data buffer
+        *buffer_out = FS_data_buffer;                            // assign input parameter poiter, to the global data buffer
         *data_length = MetadataBlock.allocations[index].size; // assign input length pointer to the size of the file
 
         if (MetadataBlock.allocations[index].isCSP)
         {
-            int New_CRC32 = crc_32(data_buffer, MetadataBlock.allocations[index].size);
+            int New_CRC32 = crc_32(FS_data_buffer, MetadataBlock.allocations[index].size);
             int corrupted_data = (New_CRC32 == MetadataBlock.allocations[index].CRC_32_checksum) ? 0 : 1;
             if (corrupted_data)
             {
@@ -603,7 +603,7 @@ int API_FS_update_file_data(unsigned char *filename, size_t filename_length, uns
     if (MetadataBlock.allocations[index].isCSP) // checks for memory corruption before the write
     {
         fseek(MetadataBlock.FS_data_descriptor, current_offset + sizeof(MetadataBlock), SEEK_SET);
-        bytes_trafic = fread(data_buffer, 1, MetadataBlock.allocations[index].size, MetadataBlock.FS_data_descriptor);
+        bytes_trafic = fread(FS_data_buffer, 1, MetadataBlock.allocations[index].size, MetadataBlock.FS_data_descriptor);
         if (bytes_trafic != MetadataBlock.allocations[index].size)
         {
             pthread_mutex_unlock(&FS_mutex);
@@ -611,9 +611,9 @@ int API_FS_update_file_data(unsigned char *filename, size_t filename_length, uns
         }
         if (MetadataBlock.cipher_mode == CIPHER_ON)
         {
-            AES_OFB_EncryptDecrypt(data_buffer, MetadataBlock.allocations[index].size, FS_cipher_key, AES_KEY_SIZE_256, MetadataBlock.allocations[index].IV, data_buffer);
+            AES_OFB_EncryptDecrypt(FS_data_buffer, MetadataBlock.allocations[index].size, FS_cipher_key, AES_KEY_SIZE_256, MetadataBlock.allocations[index].IV, FS_data_buffer);
         }
-        int New_CRC32 = crc_32(data_buffer, MetadataBlock.allocations[index].size);
+        int New_CRC32 = crc_32(FS_data_buffer, MetadataBlock.allocations[index].size);
         corrupted_data = (New_CRC32 == MetadataBlock.allocations[index].CRC_32_checksum) ? 0 : 1;
     }
 
@@ -627,9 +627,9 @@ int API_FS_update_file_data(unsigned char *filename, size_t filename_length, uns
         // cipher the new data in case is csp, and cipher mode is on:
         if (MetadataBlock.allocations[index].isCSP && MetadataBlock.cipher_mode == CIPHER_ON)
         {
-            AES_OFB_EncryptDecrypt(data, data_size, FS_cipher_key, AES_KEY_SIZE_256, MetadataBlock.allocations[index].IV, data_buffer);
+            AES_OFB_EncryptDecrypt(data, data_size, FS_cipher_key, AES_KEY_SIZE_256, MetadataBlock.allocations[index].IV, FS_data_buffer);
             fseek(MetadataBlock.FS_data_descriptor, current_offset + sizeof(MetadataBlock), SEEK_SET);
-            bytes_trafic = fwrite(data_buffer, 1, data_size, MetadataBlock.FS_data_descriptor);
+            bytes_trafic = fwrite(FS_data_buffer, 1, data_size, MetadataBlock.FS_data_descriptor);
         }
         else
         {
@@ -664,9 +664,9 @@ int API_FS_update_file_data(unsigned char *filename, size_t filename_length, uns
             for (int i = 0; i < 6; i++)
             {
                 fseek(MetadataBlock.FS_data_descriptor, MetadataBlock.allocations[index].offset + sizeof(MetadataBlock), SEEK_SET);
-                for (int j = 0; j < MetadataBlock.allocations[index].size; data_buffer[j++] = Schneier_patterns[i])
+                for (int j = 0; j < MetadataBlock.allocations[index].size; FS_data_buffer[j++] = Schneier_patterns[i])
                     ;
-                bytes_trafic = fwrite(data_buffer, 1, MetadataBlock.allocations[index].size, MetadataBlock.FS_data_descriptor);
+                bytes_trafic = fwrite(FS_data_buffer, 1, MetadataBlock.allocations[index].size, MetadataBlock.FS_data_descriptor);
                 if (bytes_trafic != MetadataBlock.allocations[index].size)
                 {
                     pthread_mutex_unlock(&FS_mutex);
@@ -683,9 +683,9 @@ int API_FS_update_file_data(unsigned char *filename, size_t filename_length, uns
         // if is csp and CIPHER mode is activated, cipher it before write:
         if (MetadataBlock.allocations[index].isCSP && MetadataBlock.cipher_mode == CIPHER_ON)
         {
-            AES_OFB_EncryptDecrypt(data, data_size, FS_cipher_key, AES_KEY_SIZE_256, MetadataBlock.allocations[index].IV, data_buffer);
+            AES_OFB_EncryptDecrypt(data, data_size, FS_cipher_key, AES_KEY_SIZE_256, MetadataBlock.allocations[index].IV, FS_data_buffer);
             fseek(MetadataBlock.FS_data_descriptor, new_offset + sizeof(MetadataBlock), SEEK_SET);
-            bytes_trafic = fwrite(data_buffer, 1, data_size, MetadataBlock.FS_data_descriptor);
+            bytes_trafic = fwrite(FS_data_buffer, 1, data_size, MetadataBlock.FS_data_descriptor);
         }
         else
         {
@@ -856,9 +856,9 @@ int API_FS_zeroize_file_system() // funtion to zeroize every single CSP in the f
             for (int j = 0; j < 6; j++)
             {
                 fseek(MetadataBlock.FS_data_descriptor, MetadataBlock.allocations[i].offset + sizeof(MetadataBlock), SEEK_SET);
-                for (int k = 0; k < MetadataBlock.allocations[i].size; data_buffer[k++] = Schneier_patterns[j])
+                for (int k = 0; k < MetadataBlock.allocations[i].size; FS_data_buffer[k++] = Schneier_patterns[j])
                     ;
-                wrote_zeroize += fwrite(data_buffer, MetadataBlock.allocations[i].size, 1, MetadataBlock.FS_data_descriptor);
+                wrote_zeroize += fwrite(FS_data_buffer, MetadataBlock.allocations[i].size, 1, MetadataBlock.FS_data_descriptor);
             }
             if (wrote_zeroize != 6)
             {
