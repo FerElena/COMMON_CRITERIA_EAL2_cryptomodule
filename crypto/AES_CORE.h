@@ -87,8 +87,6 @@ typedef struct AesContext {
 /**
  * @brief Initializes an AES context with an AES Key.
  * 
- * @sfr{FCS_COP.1.1}
- * @methodOfUse{This function is invoked by the CP_AesCbcInitializeWithKey function}
  * 
  * @param Context AES struct that contains the context
  * @param Key AES key
@@ -103,7 +101,6 @@ int API_CP_AesInitialize (AesContext* Context, void const* Key, uint32_t KeySize
 /**
  * @brief Performs an AES encryption of one block (128 bits) with an AES context
  * 
- * @methodOfUse{This function is invoked by the API_CP_AesEncryptInPlace function}
  * 
  * @param Context AES context
  * @param Input Input for the function AES to be encrypted
@@ -114,7 +111,6 @@ void CP_AesEncrypt(AesContext const* Context, uint8_t const Input [AES_BLOCK_SIZ
 /**
  * @brief Performs an AES decryption of one block (128 bits) with an AES context
  * 
- * @methodOfUse{This function is invoked by the CP_AesCbcDecrypt function}
  * 
  * @param Context AES context
  * @param Input Input for the function AES to be decrypted
@@ -125,7 +121,6 @@ void API_CP_AesDecrypt(AesContext const* Context, uint8_t const Input [AES_BLOCK
 /**
  * @brief Performs an AES encryption of one block (128 bits) with an AES context in the same memory block
  * 
- * @methodOfUse{This function is invoked by the CP_AesCbcEncrypt function}
  * 
  * @param Context AES context
  * @param Block AES block to be encrypted
