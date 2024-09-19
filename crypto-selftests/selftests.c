@@ -1,6 +1,6 @@
 /**
  * @file selftests.c
- * @brief File containing all the cryptographic functions and integrity hash verification selftest functionality
+ * @brief File containing all the cryptographic functions and integrity sign verification selftest functionality
  */
 
 /****************************************************************************************************************

@@ -4,6 +4,8 @@
 		"sha256.h": "c",
 		"functional": "c",
 		"memorytrackertest.h": "c",
-		"random_number.h": "c"
+		"random_number.h": "c",
+		"unistd.h": "c",
+		"errno.h": "c"
 	}
 }

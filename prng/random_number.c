@@ -4,7 +4,7 @@ int fill_buffer_with_random_bytes(unsigned char *buffer, size_t size) {
     int fd;
     ssize_t result;
 
-    // Primero intenta llenar el buffer usando /dev/random
+    // First, attempt to fill the buffer using /dev/random
     fd = open("/dev/random", O_RDONLY);
     if (fd >= 0) {
         result = read(fd, buffer, size);
@@ -15,22 +15,22 @@ int fill_buffer_with_random_bytes(unsigned char *buffer, size_t size) {
         close(fd);
     }
 
-    // Si no pudo usar /dev/random, intenta /dev/urandom
+    // If unable to use /dev/random, try /dev/urandom
     fd = open("/dev/urandom", O_RDONLY);
     if (fd >= 0) {
         result = read(fd, buffer, size);
         if (result == (ssize_t)size) {
             close(fd);
-            return ERROR_SECURE_RANDOM_FAILED;  // Retorna un error indicando que no se usó /dev/random
+            return PSEUDORANDOM_OK;  // Return an error indicating that /dev/random was not used
         }
         close(fd);
     }
 
-    // Si ambas opciones fallan, genera datos pseudoaleatorios como último recurso
+    // If both options fail, generate pseudo-random data as a last resort
     srand(time(NULL) ^ getpid());
     for (size_t i = 0; i < size; i++) {
-        buffer[i] = rand() % 256;  // Genera un byte pseudoaleatorio
+        buffer[i] = rand() % 256;  // Generate a pseudo-random byte
     }
 
-    return ERROR_RANDOM_GENERATION_FAILED;  // Retorna un error indicando que ninguna fuente segura fue utilizada
+    return ERROR_RANDOM_GENERATION_FAILED;  // Return an error indicating that no secure source was utilized
 }

@@ -1,4 +1,7 @@
-
+/**
+ * @file random_number.h
+ * @brief Header file for functions that generate random bytes using secure sources.
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -9,7 +12,7 @@
 #include <errno.h>
 
 #define RANDOM_OK 1
-#define ERROR_SECURE_RANDOM_FAILED -1
+#define PSEUDORANDOM_OK 2
 #define ERROR_RANDOM_GENERATION_FAILED -2
 
 /**
@@ -23,7 +26,7 @@
  * @param size Size of the buffer, i.e., the number of random bytes to generate.
  *
  * @return int Returns `RANDOM_OK` if `/dev/random` was successfully used.
- * Returns `ERROR_SECURE_RANDOM_FAILED` if `/dev/urandom` was used instead.
+ * Returns `PSEUDORANDOM_OK` if `/dev/urandom` was used instead.
  * Returns `ERROR_RANDOM_GENERATION_FAILED` if neither secure source was available
  * and pseudo-random data was generated.
  */
