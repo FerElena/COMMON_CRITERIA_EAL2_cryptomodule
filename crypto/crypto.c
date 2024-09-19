@@ -78,6 +78,9 @@ int API_CP_crc(unsigned char *msg, size_t lenght_msg, CRC type_crc, unsigned int
 	return 1; // Success
 }
 
+/*
+ * AES_CBC with padding
+ */
 int API_CP_AESCBC_encrypt(unsigned char *plaintext, size_t *len, unsigned char *key, unsigned int AES_KEY_SIZE, unsigned char *iv, unsigned char *ciphertext)
 {
 
