@@ -39,13 +39,12 @@
 
 /* Global variables definition ...................................... */
 
-extern unsigned char ihash[SHA256_HASH_SIZE];
-extern unsigned char ohash[SHA256_HASH_SIZE];
-extern unsigned char k[HMAC_SHA256_BLOCK_SIZE];
-extern unsigned char k_ipad[HMAC_SHA256_BLOCK_SIZE];
-extern unsigned char k_opad[HMAC_SHA256_BLOCK_SIZE];
-
-extern unsigned char sha_buf[SHA256_HASH_SIZE];
+extern unsigned char HMAC256_ihash[SHA256_HASH_SIZE];
+extern unsigned char HMAC256_ohash[SHA256_HASH_SIZE];
+extern unsigned char HMAC256_k[HMAC_SHA256_BLOCK_SIZE];
+extern unsigned char HMAC256_k_ipad[HMAC_SHA256_BLOCK_SIZE];
+extern unsigned char HMAC256_k_opad[HMAC_SHA256_BLOCK_SIZE];
+extern SHA256_STRUCT HMAC256_sha256_struct; 
 
 /* Function declaration zone ........................................ */
 
@@ -63,17 +62,17 @@ unsigned char *API_hmac_sha256(unsigned char *key, int keylen, unsigned char *da
 
 
 /**
- * @brief This function concatenates key k and message m, then returns a SHA256 hash of the concatenation.
+ * @brief This function concatenates key HMAC256_k and message m, then returns a SHA256 hash of the concatenation.
  * 
  * 
- * @param k Key
+ * @param HMAC256_k Key
  * @param keylen Lenght of the key
  * @param m Message
  * @param mlen Message lenght
  * @param out Returnsed hash of concatenated key & message
  * @param outlen Out lenght
  */
-static void CP_H_sha256(unsigned char *k, int keylen, unsigned char *m, int mlen, unsigned char *out);
+static void CP_H_sha256(unsigned char *HMAC256_k, int keylen, unsigned char *m, int mlen, unsigned char *out);
 
 /**
  * @brief Verify the HMAC-SHA256 signature sent by the receiver

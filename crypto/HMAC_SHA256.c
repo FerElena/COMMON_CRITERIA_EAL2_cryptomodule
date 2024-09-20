@@ -15,14 +15,12 @@
 
 /* Global variables definition ...................................... */ // CSP or PSP? ADD TO MEMORY TRACKER
 
-unsigned char ihash[SHA256_HASH_SIZE];
-unsigned char ohash[SHA256_HASH_SIZE];
-unsigned char k[HMAC_SHA256_BLOCK_SIZE];
-unsigned char k_ipad[HMAC_SHA256_BLOCK_SIZE];
-unsigned char k_opad[HMAC_SHA256_BLOCK_SIZE];
-
-unsigned char sha_buf[SHA256_HASH_SIZE];
-
+unsigned char HMAC256_ihash[SHA256_HASH_SIZE];
+unsigned char HMAC256_ohash[SHA256_HASH_SIZE];
+unsigned char HMAC256_k[HMAC_SHA256_BLOCK_SIZE];
+unsigned char HMAC256_k_ipad[HMAC_SHA256_BLOCK_SIZE];
+unsigned char HMAC256_k_opad[HMAC_SHA256_BLOCK_SIZE];
+SHA256_STRUCT HMAC256_sha256_struct; 
 
  /**************************************************************************************************************** 
   * Function definition zone 
@@ -31,32 +29,32 @@ unsigned char *API_hmac_sha256(unsigned char *key, int keylen, unsigned char *da
 {
     int i;
 
-    // By initializing k to a block of 0s we ensure the padding.
-    memset(k, 0, HMAC_SHA256_BLOCK_SIZE);
-    memset(k_ipad, 0x36, HMAC_SHA256_BLOCK_SIZE);
-    memset(k_opad, 0x5c, HMAC_SHA256_BLOCK_SIZE);
+    // By initializing HMAC256_k to a block of 0s we ensure the padding.
+    memset(HMAC256_k, 0, HMAC_SHA256_BLOCK_SIZE);
+    memset(HMAC256_k_ipad, 0x36, HMAC_SHA256_BLOCK_SIZE);
+    memset(HMAC256_k_opad, 0x5c, HMAC_SHA256_BLOCK_SIZE);
 
     if (keylen > HMAC_SHA256_BLOCK_SIZE)
     {
         // If the key is larger than the hash algorithm's block size,
         // we must digest it first by changing its value to its SHA256 hash.
-        API_sha256(key, keylen, k);
+        API_sha256(key, keylen, HMAC256_k);
     }
     else
     {
-        memcpy(k, key, keylen);
+        memcpy(HMAC256_k, key, keylen);
     }
 
     for (i = 0; i < HMAC_SHA256_BLOCK_SIZE; i++)
     {
-        k_ipad[i] ^= k[i];
-        k_opad[i] ^= k[i];
+        HMAC256_k_ipad[i] ^= HMAC256_k[i];
+        HMAC256_k_opad[i] ^= HMAC256_k[i];
     }
 
-    sha256_HMAC(k_ipad,HMAC_SHA256_BLOCK_SIZE,data, datalen,ihash);
-    sha256_HMAC(k_opad,HMAC_SHA256_BLOCK_SIZE,ihash, SHA256_HASH_SIZE,ohash);
+    sha256_HMAC(HMAC256_k_ipad,HMAC_SHA256_BLOCK_SIZE,data, datalen,HMAC256_ihash);
+    sha256_HMAC(HMAC256_k_opad,HMAC_SHA256_BLOCK_SIZE,HMAC256_ihash, SHA256_HASH_SIZE,HMAC256_ohash);
 
-    return ohash;
+    return HMAC256_ohash;
 }
 
 int API_verify_HMAC(unsigned char *msg, unsigned char *key, unsigned char *sign, size_t length_msg, size_t length_key, size_t length_sign)
@@ -80,14 +78,10 @@ int API_verify_HMAC(unsigned char *msg, unsigned char *key, unsigned char *sign,
 
 static void sha256_HMAC(unsigned char *key,size_t key_length,unsigned char *msg, int length_msg ,unsigned char *out)
 {
-	SHA256_STRUCT sha256_struct; // CHECKEAR SI ES NECESARIO ZEROIZAR LO DE DENTRO DE ESTA ESTRUCTURA
-
-	CP_sha256_init(&sha256_struct);
-
-	CP_sha256_update(&sha256_struct, key, key_length);
-    CP_sha256_update(&sha256_struct, msg, length_msg);
-
-	CP_sha256_final(&sha256_struct,out);
+	CP_sha256_init(&HMAC256_sha256_struct);
+	CP_sha256_update(&HMAC256_sha256_struct, key, key_length);
+    CP_sha256_update(&HMAC256_sha256_struct, msg, length_msg);
+	CP_sha256_final(&HMAC256_sha256_struct,out);
 }
 
 

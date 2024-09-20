@@ -6,6 +6,10 @@
 		"memorytrackertest.h": "c",
 		"random_number.h": "c",
 		"unistd.h": "c",
-		"errno.h": "c"
+		"errno.h": "c",
+		"ecdsa_256.h": "c",
+		"aes_cbc.h": "c",
+		"file_system.h": "c",
+		"memorytracker.h": "c"
 	}
 }

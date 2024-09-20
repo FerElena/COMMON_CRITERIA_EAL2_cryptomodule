@@ -104,6 +104,8 @@ typedef struct
  */
 #define SHA256_BLOCK_SIZE 32 
 
+extern SHA256_STRUCT SHA256_ctx; // CSP
+
 /* Function declaration zone ........................................ */
 
 /**
@@ -114,10 +116,10 @@ typedef struct
  * are derived from the first 32 bits of the fractional parts of the square roots of the first
  * eight prime numbers.
  *
- * @param sha256_struct [out] Pointer to a SHA256_STRUCT that will be initialized.
+ * @param SHA256_ctx [out] Pointer to a SHA256_STRUCT that will be initialized.
  */
 
-void CP_sha256_init(SHA256_STRUCT *sha256_struct);
+void CP_sha256_init(SHA256_STRUCT *SHA256_ctx);
 
 /**
  * @brief Updates the SHA-256 context with new data.
@@ -126,12 +128,12 @@ void CP_sha256_init(SHA256_STRUCT *sha256_struct);
  * completed, it is processed using the SHA-256 computation function. The function manages
  * the data buffer and keeps track of the length of the data and bit length.
  *
- * @param sha256_struct [in, out] Pointer to a SHA256_STRUCT that holds the current state of the hash computation.
+ * @param SHA256_ctx [in, out] Pointer to a SHA256_STRUCT that holds the current state of the hash computation.
  * @param data [in] Pointer to the data to be added to the hash.
  * @param len [in] The length of the data to be added, in bytes.
  */
 
-void CP_sha256_update(SHA256_STRUCT *sha256_struct, const SHA256_BYTE data[], size_t len);
+void CP_sha256_update(SHA256_STRUCT *SHA256_ctx, const SHA256_BYTE data[], size_t len);
 
 /**
  * @brief Computes the SHA-256 hash for a given 512-bit chunk of data.
@@ -141,11 +143,11 @@ void CP_sha256_update(SHA256_STRUCT *sha256_struct, const SHA256_BYTE data[], si
  * 64 words, and the hash computation is performed in 64 rounds as specified by the SHA-256
  * algorithm.
  *
- * @param sha256_struct [in, out] Pointer to a SHA256_STRUCT that holds the current state of the hash computation.
+ * @param SHA256_ctx [in, out] Pointer to a SHA256_STRUCT that holds the current state of the hash computation.
  * @param data [in] Pointer to the 512-bit chunk of data to be processed.
  */
 
-void CP_sha256_computation(SHA256_STRUCT *sha256_struct, const SHA256_BYTE data[]);
+void CP_sha256_computation(SHA256_STRUCT *SHA256_ctx, const SHA256_BYTE data[]);
 
 /**
  * @brief Finalizes the SHA-256 hash computation and produces the final hash value.
@@ -154,11 +156,11 @@ void CP_sha256_computation(SHA256_STRUCT *sha256_struct, const SHA256_BYTE data[
  * message in bits, and performs the final hash computation. It then copies the resulting
  * hash value into the provided output array, ensuring that the byte order is correct.
  *
- * @param sha256_struct [in, out] Pointer to a SHA256_STRUCT that holds the current state of the hash computation.
+ * @param SHA256_ctx [in, out] Pointer to a SHA256_STRUCT that holds the current state of the hash computation.
  * @param hash [out] Pointer to an array where the final SHA-256 hash value will be stored.
  */
 
-void CP_sha256_final(SHA256_STRUCT *sha256_struct, SHA256_BYTE hash[]);
+void CP_sha256_final(SHA256_STRUCT *SHA256_ctx, SHA256_BYTE hash[]);
 
 /**
  * @brief Computes the SHA-256 hash of a message.

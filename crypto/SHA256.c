@@ -12,6 +12,7 @@
 /****************************************************************************************************************
  * Global variables definition
  ****************************************************************************************************************/
+SHA256_STRUCT SHA256_ctx;
 
 // These 0 1 63 words represent the first thirty-two bits of the fractional parts of the cube roots of the first sixtyfour prime numbers.
 
@@ -31,7 +32,7 @@ static const _INT32 k256[64] = {
  * Function definition zone
  ****************************************************************************************************************/
 
-void CP_sha256_computation(SHA256_STRUCT *sha256_struct, const SHA256_BYTE data[])
+void CP_sha256_computation(SHA256_STRUCT *SHA256_ctx, const SHA256_BYTE data[])
 {
 	_INT32 a, b, c, d, e, f, g, h, i, j, t1, t2, m[64];
 
@@ -40,14 +41,14 @@ void CP_sha256_computation(SHA256_STRUCT *sha256_struct, const SHA256_BYTE data[
 	for (; i < 64; ++i)
 		m[i] = SHA256_SIG1(m[i - 2]) + m[i - 7] + SHA256_SIG0(m[i - 15]) + m[i - 16];
 
-	a = sha256_struct->temp_hash[0];
-	b = sha256_struct->temp_hash[1];
-	c = sha256_struct->temp_hash[2];
-	d = sha256_struct->temp_hash[3];
-	e = sha256_struct->temp_hash[4];
-	f = sha256_struct->temp_hash[5];
-	g = sha256_struct->temp_hash[6];
-	h = sha256_struct->temp_hash[7];
+	a = SHA256_ctx->temp_hash[0];
+	b = SHA256_ctx->temp_hash[1];
+	c = SHA256_ctx->temp_hash[2];
+	d = SHA256_ctx->temp_hash[3];
+	e = SHA256_ctx->temp_hash[4];
+	f = SHA256_ctx->temp_hash[5];
+	g = SHA256_ctx->temp_hash[6];
+	h = SHA256_ctx->temp_hash[7];
 
 	for (i = 0; i < 64; ++i)
 	{
@@ -63,33 +64,33 @@ void CP_sha256_computation(SHA256_STRUCT *sha256_struct, const SHA256_BYTE data[
 		a = t1 + t2;
 	}
 
-	sha256_struct->temp_hash[0] += a;
-	sha256_struct->temp_hash[1] += b;
-	sha256_struct->temp_hash[2] += c;
-	sha256_struct->temp_hash[3] += d;
-	sha256_struct->temp_hash[4] += e;
-	sha256_struct->temp_hash[5] += f;
-	sha256_struct->temp_hash[6] += g;
-	sha256_struct->temp_hash[7] += h;
+	SHA256_ctx->temp_hash[0] += a;
+	SHA256_ctx->temp_hash[1] += b;
+	SHA256_ctx->temp_hash[2] += c;
+	SHA256_ctx->temp_hash[3] += d;
+	SHA256_ctx->temp_hash[4] += e;
+	SHA256_ctx->temp_hash[5] += f;
+	SHA256_ctx->temp_hash[6] += g;
+	SHA256_ctx->temp_hash[7] += h;
 }
 
-void CP_sha256_init(SHA256_STRUCT *sha256_struct)
+void CP_sha256_init(SHA256_STRUCT *SHA256_ctx)
 {
 	// These words were obtained by taking the first thirty-two bits of the fractional parts of the square roots of the first eight prime numbers.
 
-	sha256_struct->datalen = 0;
-	sha256_struct->bitlen = 0;
-	sha256_struct->temp_hash[0] = 0x6a09e667;
-	sha256_struct->temp_hash[1] = 0xbb67ae85;
-	sha256_struct->temp_hash[2] = 0x3c6ef372;
-	sha256_struct->temp_hash[3] = 0xa54ff53a;
-	sha256_struct->temp_hash[4] = 0x510e527f;
-	sha256_struct->temp_hash[5] = 0x9b05688c;
-	sha256_struct->temp_hash[6] = 0x1f83d9ab;
-	sha256_struct->temp_hash[7] = 0x5be0cd19;
+	SHA256_ctx->datalen = 0;
+	SHA256_ctx->bitlen = 0;
+	SHA256_ctx->temp_hash[0] = 0x6a09e667;
+	SHA256_ctx->temp_hash[1] = 0xbb67ae85;
+	SHA256_ctx->temp_hash[2] = 0x3c6ef372;
+	SHA256_ctx->temp_hash[3] = 0xa54ff53a;
+	SHA256_ctx->temp_hash[4] = 0x510e527f;
+	SHA256_ctx->temp_hash[5] = 0x9b05688c;
+	SHA256_ctx->temp_hash[6] = 0x1f83d9ab;
+	SHA256_ctx->temp_hash[7] = 0x5be0cd19;
 }
 
-void CP_sha256_update(SHA256_STRUCT *sha256_struct, const SHA256_BYTE data[], size_t len)
+void CP_sha256_update(SHA256_STRUCT *SHA256_ctx, const SHA256_BYTE data[], size_t len)
 {
 	_INT32 i;
 
@@ -97,71 +98,69 @@ void CP_sha256_update(SHA256_STRUCT *sha256_struct, const SHA256_BYTE data[], si
 
 	for (i = 0; i < len; ++i)
 	{
-		sha256_struct->data[sha256_struct->datalen] = data[i];
-		sha256_struct->datalen++;
-		if (sha256_struct->datalen == 64)
+		SHA256_ctx->data[SHA256_ctx->datalen] = data[i];
+		SHA256_ctx->datalen++;
+		if (SHA256_ctx->datalen == 64)
 		{
-			CP_sha256_computation(sha256_struct, sha256_struct->data);
-			sha256_struct->bitlen += 512;
-			sha256_struct->datalen = 0;
+			CP_sha256_computation(SHA256_ctx, SHA256_ctx->data);
+			SHA256_ctx->bitlen += 512;
+			SHA256_ctx->datalen = 0;
 		}
 	}
 }
 
-void CP_sha256_final(SHA256_STRUCT *sha256_struct, SHA256_BYTE hash[])
+void CP_sha256_final(SHA256_STRUCT *SHA256_ctx, SHA256_BYTE hash[])
 {
 	_INT32 i;
 
-	i = sha256_struct->datalen;
+	i = SHA256_ctx->datalen;
 
 	// Pad whatever data is left in the buffer.
-	if (sha256_struct->datalen < 56)
+	if (SHA256_ctx->datalen < 56)
 	{
-		sha256_struct->data[i++] = 0x80;
+		SHA256_ctx->data[i++] = 0x80;
 		while (i < 56)
-			sha256_struct->data[i++] = 0x00;
+			SHA256_ctx->data[i++] = 0x00;
 	}
 	else
 	{
-		sha256_struct->data[i++] = 0x80;
+		SHA256_ctx->data[i++] = 0x80;
 		while (i < 64)
-			sha256_struct->data[i++] = 0x00;
-		CP_sha256_computation(sha256_struct, sha256_struct->data);
-		memset(sha256_struct->data, 0, 56);
+			SHA256_ctx->data[i++] = 0x00;
+		CP_sha256_computation(SHA256_ctx, SHA256_ctx->data);
+		memset(SHA256_ctx->data, 0, 56);
 	}
 
 	// Append to the padding the total message's length in bits and transform.
-	sha256_struct->bitlen += sha256_struct->datalen * 8;
-	sha256_struct->data[63] = sha256_struct->bitlen;
-	sha256_struct->data[62] = sha256_struct->bitlen >> 8;
-	sha256_struct->data[61] = sha256_struct->bitlen >> 16;
-	sha256_struct->data[60] = sha256_struct->bitlen >> 24;
-	sha256_struct->data[59] = sha256_struct->bitlen >> 32;
-	sha256_struct->data[58] = sha256_struct->bitlen >> 40;
-	sha256_struct->data[57] = sha256_struct->bitlen >> 48;
-	sha256_struct->data[56] = sha256_struct->bitlen >> 56;
-	CP_sha256_computation(sha256_struct, sha256_struct->data);
+	SHA256_ctx->bitlen += SHA256_ctx->datalen * 8;
+	SHA256_ctx->data[63] = SHA256_ctx->bitlen;
+	SHA256_ctx->data[62] = SHA256_ctx->bitlen >> 8;
+	SHA256_ctx->data[61] = SHA256_ctx->bitlen >> 16;
+	SHA256_ctx->data[60] = SHA256_ctx->bitlen >> 24;
+	SHA256_ctx->data[59] = SHA256_ctx->bitlen >> 32;
+	SHA256_ctx->data[58] = SHA256_ctx->bitlen >> 40;
+	SHA256_ctx->data[57] = SHA256_ctx->bitlen >> 48;
+	SHA256_ctx->data[56] = SHA256_ctx->bitlen >> 56;
+	CP_sha256_computation(SHA256_ctx, SHA256_ctx->data);
 
 	// Since this implementation uses little endian byte ordering and SHA uses big endian,
 	// reverse all the bytes when copying the final temp_hash to the output hash.
 	for (i = 0; i < 4; ++i)
 	{
-		hash[i] = (sha256_struct->temp_hash[0] >> (24 - i * 8)) & 0x000000ff;
-		hash[i + 4] = (sha256_struct->temp_hash[1] >> (24 - i * 8)) & 0x000000ff;
-		hash[i + 8] = (sha256_struct->temp_hash[2] >> (24 - i * 8)) & 0x000000ff;
-		hash[i + 12] = (sha256_struct->temp_hash[3] >> (24 - i * 8)) & 0x000000ff;
-		hash[i + 16] = (sha256_struct->temp_hash[4] >> (24 - i * 8)) & 0x000000ff;
-		hash[i + 20] = (sha256_struct->temp_hash[5] >> (24 - i * 8)) & 0x000000ff;
-		hash[i + 24] = (sha256_struct->temp_hash[6] >> (24 - i * 8)) & 0x000000ff;
-		hash[i + 28] = (sha256_struct->temp_hash[7] >> (24 - i * 8)) & 0x000000ff;
+		hash[i] = (SHA256_ctx->temp_hash[0] >> (24 - i * 8)) & 0x000000ff;
+		hash[i + 4] = (SHA256_ctx->temp_hash[1] >> (24 - i * 8)) & 0x000000ff;
+		hash[i + 8] = (SHA256_ctx->temp_hash[2] >> (24 - i * 8)) & 0x000000ff;
+		hash[i + 12] = (SHA256_ctx->temp_hash[3] >> (24 - i * 8)) & 0x000000ff;
+		hash[i + 16] = (SHA256_ctx->temp_hash[4] >> (24 - i * 8)) & 0x000000ff;
+		hash[i + 20] = (SHA256_ctx->temp_hash[5] >> (24 - i * 8)) & 0x000000ff;
+		hash[i + 24] = (SHA256_ctx->temp_hash[6] >> (24 - i * 8)) & 0x000000ff;
+		hash[i + 28] = (SHA256_ctx->temp_hash[7] >> (24 - i * 8)) & 0x000000ff;
 	}
 }
 
 void API_sha256(unsigned char *msg, int length_msg ,unsigned char *out)
 {
-	SHA256_STRUCT sha256_struct; // CHECKEAR SI ES NECESARIO ZEROIZAR LO DE DENTRO DE ESTA ESTRUCTURA
-
-	CP_sha256_init(&sha256_struct);
-	CP_sha256_update(&sha256_struct, msg, length_msg);
-	CP_sha256_final(&sha256_struct,out);
+	CP_sha256_init(&SHA256_ctx);
+	CP_sha256_update(&SHA256_ctx, msg, length_msg);
+	CP_sha256_final(&SHA256_ctx,out);
 }
