@@ -105,13 +105,13 @@ int API_MT_verify_integrity(MemoryTracker *tracker)
     }
 
     unsigned int current_checksum = crc_32(tracker->ptr, tracker->size); // Recalculate the current checksum.
-    if(current_checksum == tracker->checksum)                        // Return whether the checksums match (if correct, MT_OK, if not MT_FAIL)
+    if (current_checksum == tracker->checksum)                           // Return whether the checksums match (if correct, MT_OK, if not MT_FAIL)
         return MT_OK;
     else
         return MEMORYVIOLATION;
 }
 
-//updates a tracker with a new content and CRC, suposed to be used!!!
+// updates a tracker with a new content and CRC, suposed to be used!!!
 int API_MT_update_tracker(MemoryTracker *tracker)
 {
     if (tracker == NULL)

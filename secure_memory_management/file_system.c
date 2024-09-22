@@ -16,7 +16,7 @@ File_System MetadataBlock; // Global struct containing the metadata of the file 
 pthread_mutex_t FS_mutex = PTHREAD_MUTEX_INITIALIZER; // semaphore to keep the filesystem data resistant
 
 unsigned char FS_data_buffer[MAX_FILE_DATA]; // CSP shared data buffer wich is overwriten with consecutive FS_functions calls(except API_FS_write_buffer_to_file and API_FS_read_buffer_from_file)
-                                          // the data in this buffer is supposed to be copied to another buffer which is not going to be overwriten by consecutive operations
+                                             // the data in this buffer is supposed to be copied to another buffer which is not going to be overwriten by consecutive operations
 
 unsigned char FS_cipher_key[32];
 // Schneier patrons for secure zeroization making it harder for data recovery
@@ -306,7 +306,7 @@ int API_FS_create_file_data(unsigned char *filename, size_t filename_length, uns
     // if cipher mode on, cipher the data before write it;
     if (isCSP && MetadataBlock.cipher_mode == CIPHER_ON)
     {
-        fill_buffer_with_random_bytes(MetadataBlock.allocations[new_allocation_index].IV,AES_BLOCK_SIZE);
+        fill_buffer_with_random_bytes(MetadataBlock.allocations[new_allocation_index].IV, AES_BLOCK_SIZE);
         AES_OFB_EncryptDecrypt(data, data_size, FS_cipher_key, AES_KEY_SIZE_256, MetadataBlock.allocations[new_allocation_index].IV, FS_data_buffer);
         fseek(MetadataBlock.FS_data_descriptor, offset + sizeof(MetadataBlock), SEEK_SET);
         write_bytes = fwrite(FS_data_buffer, 1, data_size, MetadataBlock.FS_data_descriptor);
@@ -521,7 +521,7 @@ int API_FS_read_file_data(unsigned char *filename, size_t filename_length, unsig
         if (MetadataBlock.allocations[index].isCSP && MetadataBlock.cipher_mode == CIPHER_ON)
             AES_OFB_EncryptDecrypt(FS_data_buffer, MetadataBlock.allocations[index].size, FS_cipher_key, AES_KEY_SIZE_256, MetadataBlock.allocations[index].IV, FS_data_buffer);
 
-        *buffer_out = FS_data_buffer;                            // assign input parameter poiter, to the global data buffer
+        *buffer_out = FS_data_buffer;                         // assign input parameter poiter, to the global data buffer
         *data_length = MetadataBlock.allocations[index].size; // assign input length pointer to the size of the file
 
         if (MetadataBlock.allocations[index].isCSP)

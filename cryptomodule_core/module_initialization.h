@@ -21,11 +21,11 @@
 #include "../crypto/ECDSA_256.h"
 #include "../crypto/SHA256.h"
 
-//memorytracker initialization codes
+// memorytracker initialization codes
 #define CORRECT_TRACKER_INIT 1700
 #define INCORRECT_TRACKER_INIT -1700
 
-//filesystem initialization codes
+// filesystem initialization codes
 #define CORRECT_FILESYSTEM_INIT 1701
 #define INCORRECT_KEYFILE_PATH -1701
 #define INCORRECT_KEYFILE_FORMAT -1702
@@ -34,39 +34,37 @@
 
 #define INITIALIZE_OK 1705
 
-
 // TI (TRACKER INDEX) LIST for volatile memory integrity/zeroization
-extern int TI_FS_cipher_key;      /**< File system cipher key tracker index */
-extern int TI_FS_data_buffer;     /**< File system auxiliary data buffer tracker index */
-extern int TI_PCA_data_buffer_sed; /**< Packet cipher and authentication module data buffer tracker index */
+extern int TI_FS_cipher_key;	       /**< File system cipher key tracker index */
+extern int TI_FS_data_buffer;	       /**< File system auxiliary data buffer tracker index */
+extern int TI_PCA_data_buffer_sed;     /**< Packet cipher and authentication module data buffer tracker index */
 extern int TI_PCA_data_buffer_sed_aux; /**< Packet cipher and authentication module auxiliary data buffer tracker index */
 
 // AES CSPs parameters
-extern int TI_AES_CBC_ctx;        /**< AES-CBC context tracker index */
-extern int TI_AESOFB_CTX;         /**< AES-OFB context tracker index */
+extern int TI_AES_CBC_ctx;	  /**< AES-CBC context tracker index */
+extern int TI_AESOFB_CTX;	  /**< AES-OFB context tracker index */
 extern int TI_AESOFB_outputBlock; /**< AES-OFB output block tracker index */
-extern int TI_AESOFB_ivEnc;       /**< AES-OFB initialization vector encryption tracker index */
+extern int TI_AESOFB_ivEnc;	  /**< AES-OFB initialization vector encryption tracker index */
 
 // ECDSA-256 operation parameters with private keys
-extern int TI_ECDSA_curve_p;      /**< ECDSA curve parameter p tracker index */
-extern int TI_ECDSA_curve_B;      /**< ECDSA curve parameter B tracker index */
-extern int TI_ECDSA_curve_G;      /**< ECDSA curve generator point G tracker index */
-extern int TI_ECDSA_curve_n;      /**< ECDSA curve order n tracker index */
-extern int TI_ECDSA_k;            /**< ECDSA ephemeral key k tracker index */
-extern int TI_ECDSA_l_tmp;        /**< ECDSA temporary value tracker index */
-extern int TI_ECDSA_l_s;          /**< ECDSA signature value tracker index */
+extern int TI_ECDSA_curve_p; /**< ECDSA curve parameter p tracker index */
+extern int TI_ECDSA_curve_B; /**< ECDSA curve parameter B tracker index */
+extern int TI_ECDSA_curve_G; /**< ECDSA curve generator point G tracker index */
+extern int TI_ECDSA_curve_n; /**< ECDSA curve order n tracker index */
+extern int TI_ECDSA_k;	     /**< ECDSA ephemeral key k tracker index */
+extern int TI_ECDSA_l_tmp;   /**< ECDSA temporary value tracker index */
+extern int TI_ECDSA_l_s;     /**< ECDSA signature value tracker index */
 
 // HMAC-SHA256 operation parameters with secret keys
-extern int TI_HMAC256_ihash;      /**< HMAC-SHA256 inner hash tracker index */
-extern int TI_HMAC256_ohash;      /**< HMAC-SHA256 outer hash tracker index */
-extern int TI_HMAC256_k;          /**< HMAC-SHA256 secret key tracker index */
-extern int TI_HMAC256_k_ipad;     /**< HMAC-SHA256 key inner padding tracker index */
-extern int TI_HMAC256_k_opad;     /**< HMAC-SHA256 key outer padding tracker index */
+extern int TI_HMAC256_ihash;	     /**< HMAC-SHA256 inner hash tracker index */
+extern int TI_HMAC256_ohash;	     /**< HMAC-SHA256 outer hash tracker index */
+extern int TI_HMAC256_k;	     /**< HMAC-SHA256 secret key tracker index */
+extern int TI_HMAC256_k_ipad;	     /**< HMAC-SHA256 key inner padding tracker index */
+extern int TI_HMAC256_k_opad;	     /**< HMAC-SHA256 key outer padding tracker index */
 extern int TI_HMAC256_sha256_struct; /**< HMAC-SHA256 context structure tracker index */
 
 // SHA-256 parameters
-extern int TI_SHA256_ctx;         /**< SHA-256 context tracker index */
-
+extern int TI_SHA256_ctx; /**< SHA-256 context tracker index */
 
 /**
  * @brief Initializes the memory tracking system and registers cryptographic components.
@@ -96,17 +94,17 @@ int Memory_tracking_initialization();
  * @return Returns CORRECT_FILESYSTEM_INIT if initialization is successful,
  *         otherwise returns an error code.
  */
-int File_system_first_initialization(unsigned char *KEK_CERTIFICATE_file,unsigned char *Cryptodata_filename) ;
+int File_system_first_initialization(unsigned char *KEK_CERTIFICATE_file, unsigned char *Cryptodata_filename);
 
 /**
  * @brief Performs normal initialization of the file system using the provided Key Encryption Key (KEK).
  *
- * This function reads a 256-bit AES key from the provided key file (KEK_CERTIFICATE_file) and uses it to load the existing file system. 
- * It sets up the AES cipher for encryption/decryption operations. The file system is loaded in "load" mode, 
+ * This function reads a 256-bit AES key from the provided key file (KEK_CERTIFICATE_file) and uses it to load the existing file system.
+ * It sets up the AES cipher for encryption/decryption operations. The file system is loaded in "load" mode,
  * which is used during normal startup.
  *
  * @param KEK_CERTIFICATE_file Path to the key file containing the AES 256-bit key. It should not be NULL.
- * 
+ *
  * @return Returns one of the following status codes:
  * - CORRECT_FILESYSTEM_INIT: File system initialized successfully.
  * - INCORRECT_KEYFILE_PATH: Invalid key file path or the file cannot be opened.
@@ -115,7 +113,7 @@ int File_system_first_initialization(unsigned char *KEK_CERTIFICATE_file,unsigne
  * - INCORRECT_FILESYSTEM_INIT: The file system could not be initialized.
  */
 
-int File_system_normal_initialization(unsigned char *KEK_CERTIFICATE_file,unsigned char *Cryptodata_filename);
+int File_system_normal_initialization(unsigned char *KEK_CERTIFICATE_file, unsigned char *Cryptodata_filename);
 
 /**
  * @brief Performs the normal initialization of the file system.

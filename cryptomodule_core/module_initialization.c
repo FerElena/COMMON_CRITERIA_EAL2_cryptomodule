@@ -29,13 +29,14 @@ int TI_HMAC256_k_opad;
 int TI_HMAC256_sha256_struct;
 int TI_SHA256_ctx;
 
-
-int Memory_tracking_initialization() {
+int Memory_tracking_initialization()
+{
     int correct_tracker_init_result[64];
     uint32_t counter = 0;
 
     // Initialize array with 1s to indicate success by default
-    for (int i = 0; i < sizeof(correct_tracker_init_result) / sizeof(correct_tracker_init_result[0]); correct_tracker_init_result[i++] = 1);
+    for (int i = 0; i < sizeof(correct_tracker_init_result) / sizeof(correct_tracker_init_result[0]); correct_tracker_init_result[i++] = 1)
+        ;
 
     // Initialize the memory tracker pointers
     API_MT_initialize_trackers();
@@ -107,42 +108,50 @@ int Memory_tracking_initialization() {
     TI_SHA256_ctx = API_MT_add_tracker(&SHA256_ctx, sizeof(SHA256_ctx), CSP); // SHA-256 context
     correct_tracker_init_result[counter++] = (TI_SHA256_ctx >= 0) ? 1 : 0;
 
-    for(int i = 0 ; i < sizeof(correct_tracker_init_result); i++){ // check for errors
-        if(correct_tracker_init_result[i] == 0){
+    for (int i = 0; i < sizeof(correct_tracker_init_result); i++)
+    { // check for errors
+        if (correct_tracker_init_result[i] == 0)
+        {
             return INCORRECT_TRACKER_INIT;
         }
     }
     return CORRECT_TRACKER_INIT; // everything ok
 }
 
-int File_system_first_initialization(unsigned char *KEK_CERTIFICATE_file,unsigned char *Cryptodata_filename) {
+int File_system_first_initialization(unsigned char *KEK_CERTIFICATE_file, unsigned char *Cryptodata_filename)
+{
     uint8_t key_AES256_certificate[129]; // Buffer to store the AES-256 key[32 bytes], the ECDSA signature[64 bytes] , and the ECDSA PUB KEY [33 bytes compressed]
     FILE *file = NULL;
 
     // Check if the provided key file path is valid.
-    if (KEK_CERTIFICATE_file == NULL) {
+    if (KEK_CERTIFICATE_file == NULL)
+    {
         return INCORRECT_KEYFILE_PATH;
     }
 
     // Try to open the key file in read-binary mode.
     file = fopen(KEK_CERTIFICATE_file, "rb");
-    if (file == NULL) {
+    if (file == NULL)
+    {
         return INCORRECT_KEYFILE_PATH; // Return if file can't be opened.
     }
 
     // Read the AES-256 key from the file.
     size_t bytes_read = fread(key_AES256_certificate, 1, 129, file);
-    if (bytes_read < 129) {
-        if (feof(file)) {
+    if (bytes_read < 129)
+    {
+        if (feof(file))
+        {
             return INCORRECT_KEYFILE_FORMAT; // Key file is too short.
         }
-        fclose(file); // Ensure file is closed before returning.
+        fclose(file);                  // Ensure file is closed before returning.
         return INCORRECT_KEYFILE_READ; // Error reading key.
     }
     fclose(file); // Close the key file after reading.
 
     // Initialize the file system in 'init' mode for first-time setup.
-    if (API_FS_initiate_file_system(MODE_INIT, Cryptodata_filename, strlen(Cryptodata_filename)) < 0) {
+    if (API_FS_initiate_file_system(MODE_INIT, Cryptodata_filename, strlen(Cryptodata_filename)) < 0)
+    {
         return INCORRECT_FILESYSTEM_INIT; // File system initialization failed.
     }
 
@@ -154,51 +163,60 @@ int File_system_first_initialization(unsigned char *KEK_CERTIFICATE_file,unsigne
 
     unsigned char *conf_filename = "Configuration_file";
     uint8_t previus_state = 1;
-    int result1 = API_FS_create_file_data(conf_filename,strlen(conf_filename),&previus_state,1,NOT_CSP);
+    int result1 = API_FS_create_file_data(conf_filename, strlen(conf_filename), &previus_state, 1, NOT_CSP);
 
     unsigned char *cert_filename = "Auth_certificate_file";
-    int result2 = API_FS_create_file_data(cert_filename,strlen(cert_filename),key_AES256_certificate + 32,sizeof(key_AES256_certificate) - 32,CSP); // store the 97 bytes of sign and pubkey of ecdsa
+    int result2 = API_FS_create_file_data(cert_filename, strlen(cert_filename), key_AES256_certificate + 32, sizeof(key_AES256_certificate) - 32, CSP); // store the 97 bytes of sign and pubkey of ecdsa
 
     unsigned char Schneier_patterns[] = {0x00, 0xFF, 0xAA, 0x55, 0xAA, 0x55}; // zeroize old memory space for key
-    for(int i = 0 ; i < 6 ; i++){
-        for(int j = 0 ; j < 32 ; j++){
+    for (int i = 0; i < 6; i++)
+    {
+        for (int j = 0; j < 32; j++)
+        {
             key_AES256_certificate[i] = Schneier_patterns[j];
         }
     }
-    if(result1 != FILESYSTEM_OK && result2 != FILESYSTEM_OK){
+    if (result1 != FILESYSTEM_OK && result2 != FILESYSTEM_OK)
+    {
         return INCORRECT_FILESYSTEM_INIT;
     }
     return CORRECT_FILESYSTEM_INIT; // Return success.
 }
 
-int File_system_normal_initialization(unsigned char *KEK_CERTIFICATE_file,unsigned char *Cryptodata_filename) {
+int File_system_normal_initialization(unsigned char *KEK_CERTIFICATE_file, unsigned char *Cryptodata_filename)
+{
     uint8_t key_AES256[32]; // Buffer to store the AES-256 key.
     FILE *file = NULL;
 
     // Check if the provided key file path is valid.
-    if (KEK_CERTIFICATE_file == NULL) {
+    if (KEK_CERTIFICATE_file == NULL)
+    {
         return INCORRECT_KEYFILE_PATH;
     }
 
     // Try to open the key file in read-binary mode.
     file = fopen(KEK_CERTIFICATE_file, "rb");
-    if (file == NULL) {
+    if (file == NULL)
+    {
         return INCORRECT_KEYFILE_PATH; // Return if file can't be opened.
     }
 
     // Read the AES-256 key from the file.
     size_t bytes_read = fread(key_AES256, 1, AES_KEY_SIZE_256, file);
-    if (bytes_read < AES_KEY_SIZE_256) {
-        if (feof(file)) {
+    if (bytes_read < AES_KEY_SIZE_256)
+    {
+        if (feof(file))
+        {
             return INCORRECT_KEYFILE_FORMAT; // Key file is too short.
         }
-        fclose(file); // Ensure file is closed before returning.
+        fclose(file);                  // Ensure file is closed before returning.
         return INCORRECT_KEYFILE_READ; // Error reading key.
     }
     fclose(file); // Close the key file after reading.
 
     // Initialize the file system in 'load' mode for normal operation.
-    if (API_FS_initiate_file_system(MODE_LOAD, Cryptodata_filename, strlen(Cryptodata_filename)) < 0) {
+    if (API_FS_initiate_file_system(MODE_LOAD, Cryptodata_filename, strlen(Cryptodata_filename)) < 0)
+    {
         return INCORRECT_FILESYSTEM_INIT; // File system initialization failed.
     }
 
@@ -209,8 +227,10 @@ int File_system_normal_initialization(unsigned char *KEK_CERTIFICATE_file,unsign
     API_MT_update_tracker(&trackers[TI_FS_cipher_key]);
 
     unsigned char Schneier_patterns[] = {0x00, 0xFF, 0xAA, 0x55, 0xAA, 0x55}; // zeroize old memory space for key
-    for(int i = 0 ; i < 6 ; i++){
-        for(int j = 0 ; j < 32 ; j++){
+    for (int i = 0; i < 6; i++)
+    {
+        for (int j = 0; j < 32; j++)
+        {
             key_AES256[i] = Schneier_patterns[j];
         }
     }
@@ -218,43 +238,48 @@ int File_system_normal_initialization(unsigned char *KEK_CERTIFICATE_file,unsign
     return CORRECT_FILESYSTEM_INIT; // Return success.
 }
 
-int file_exists(const char *filename) {
+int file_exists(const char *filename)
+{
     FILE *file = fopen(filename, "r");
-    if (file) {
+    if (file)
+    {
         fclose(file);
         return 1; // El archivo existe
     }
     return 0; // El archivo no existe
 }
 
-int API_INIT_initialize_module(unsigned char *KEK_CERTIFICATE_file, unsigned char *Cryptodata_filename) {
+int API_INIT_initialize_module(unsigned char *KEK_CERTIFICATE_file, unsigned char *Cryptodata_filename)
+{
     int result1 = Memory_tracking_initialization(); // Initialize memory tracking
 
     // Check if memory tracking initialized correctly
-    if (result1 != CORRECT_TRACKER_INIT) {
+    if (result1 != CORRECT_TRACKER_INIT)
+    {
         return result1; // Return error code if initialization failed
     }
 
     // Check if the cryptodata file exists
-    if (file_exists(Cryptodata_filename)) {
+    if (file_exists(Cryptodata_filename))
+    {
         // Perform normal file system initialization
         result1 = File_system_normal_initialization(KEK_CERTIFICATE_file, Cryptodata_filename);
         // Check if the normal initialization was successful
-        if (result1 != CORRECT_FILESYSTEM_INIT) {
-            return result1; // Return error code if initialization failed
-        }
-    } else {
-        // Perform first-time file system initialization
-        result1 = File_system_first_initialization(KEK_CERTIFICATE_file, Cryptodata_filename);
-        // Check if the first-time initialization was successful
-        if (result1 != CORRECT_FILESYSTEM_INIT) {
+        if (result1 != CORRECT_FILESYSTEM_INIT)
+        {
             return result1; // Return error code if initialization failed
         }
     }
-    
+    else
+    {
+        // Perform first-time file system initialization
+        result1 = File_system_first_initialization(KEK_CERTIFICATE_file, Cryptodata_filename);
+        // Check if the first-time initialization was successful
+        if (result1 != CORRECT_FILESYSTEM_INIT)
+        {
+            return result1; // Return error code if initialization failed
+        }
+    }
+
     return INITIALIZE_OK; // Return success code if all initializations succeeded
 }
-
-
-
-
