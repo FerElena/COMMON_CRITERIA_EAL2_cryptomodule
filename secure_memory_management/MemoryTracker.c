@@ -111,12 +111,44 @@ int API_MT_verify_integrity(MemoryTracker *tracker)
         return MEMORYVIOLATION;
 }
 
-// Update a tracker with a new memory block and size, you need to save the tracker index to use this function, not supposed to be used often
-int API_MT_update_tracker(MemoryTracker *tracker, void *new_ptr, size_t new_size)
+//updates a tracker with a new content and CRC, suposed to be used!!!
+int API_MT_update_tracker(MemoryTracker *tracker)
+{
+    if (tracker == NULL)
+    {
+        printf("invalid input in API_MT_update_tracker! \n"); // Future tracewrite!
+        return INVALID_INPUT_MT;
+    }
+
+    pthread_mutex_lock(&mutex);
+
+    // Unlock old memory if it's locked.
+    if (munlock(tracker->ptr, tracker->size) != 0)
+    {
+        perror("munlock failed");
+    }
+
+    // Update tracker checksum.
+    tracker->checksum = crc_32(tracker->ptr, tracker->size); // Recalculate the checksum.
+
+    // Lock the new memory.
+    if (mlock(tracker->ptr, tracker->size) != 0)
+    {
+        perror("mlock failed");
+        pthread_mutex_unlock(&mutex);
+        return MEMORY_LOCK_FAIL; // Indicate failure.
+    }
+
+    pthread_mutex_unlock(&mutex);
+    return MT_OK;
+}
+
+// Change a tracker with a new memory block and size, you need to save the tracker index to use this function, not supposed to be used often
+int API_MT_change_tracker(MemoryTracker *tracker, void *new_ptr, size_t new_size)
 {
     if (tracker == NULL || new_ptr == NULL || new_size < 0 || new_size > SIZE_MAX)
     {
-        printf("invalid input in API_MT_update_tracker! \n"); // Tracewrite in future!
+        printf("invalid input in API_MT_change_tracker! \n"); // Tracewrite in future!
         return INVALID_INPUT_MT;
     }
 

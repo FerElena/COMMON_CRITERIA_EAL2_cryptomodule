@@ -12,9 +12,9 @@
 
 /**
  * @file memorytracker.h
- * @brief Memory tracking system for secure allocation and deallocation of memory.
+ * @brief Memory tracking system for secure allocation and deallocation of memory.!!TRACKED MEMORY MUST BE STATIC/DYNAMIC MEMORY OR SEGFAULTS WILL OCCUR¡¡¡¡¡¡
  *
- * This file provides the declarations and functionality for tracking memory allocations, 
+ * This file provides the declarations and functionality for tracking static/dynamic memory allocations, 
  * verifying memory integrity, and securely deallocating memory blocks that contain Critical Security Parameters (CSP).
  * It also includes secure zeroization techniques to prevent sensitive data recovery.
  */
@@ -119,9 +119,28 @@ int API_MT_add_tracker(void *ptr, size_t size, uint8_t isCSP);
 int API_MT_verify_integrity(MemoryTracker *tracker);
 
 /**
- * @brief Updates a memory tracker with a new memory block and size.
+ * @brief Updates the memory tracker, recalculates the checksum, and locks the memory.
  *
- * This function updates the memory block and size for an existing tracker and recalculates its checksum.
+ * This function updates the memory tracker by performing the following steps:
+ *  - Unlocks the previously locked memory (if applicable).
+ *  - Recalculates the checksum of the memory block.
+ *  - Locks the memory again to prevent it from being swapped out.
+ *
+ * The function is thread-safe, using a mutex to ensure exclusive access to the memory tracker during the update.
+ *
+ * @param tracker Pointer to the MemoryTracker structure to be updated.
+ *
+ * @return 
+ *  - MT_OK (0) on success.
+ *  - INVALID_INPUT_MT (-1) if the tracker pointer is NULL.
+ *  - MEMORY_LOCK_FAIL (-2) if mlock fails to lock the memory.
+ */
+int API_MT_update_tracker(MemoryTracker *tracker);
+
+/**
+ * @brief changes a memory tracker with a new memory block and size.
+ *
+ * This function changes the memory block and size for an existing tracker and recalculates its checksum.
  * It's intended for rare use cases where the memory block associated with a tracker needs to be changed.
  *
  * @param tracker A pointer to the `MemoryTracker` to update.
@@ -129,7 +148,7 @@ int API_MT_verify_integrity(MemoryTracker *tracker);
  * @param new_size The size of the new memory block.
  * @return `MT_OK` on success, or an error code on failure.
  */
-int API_MT_update_tracker(MemoryTracker *tracker, void *new_ptr, size_t new_size);
+int API_MT_change_tracker(MemoryTracker *tracker, void *new_ptr, size_t new_size);
 
 /**
  * @brief Removes a tracker from the used list, optionally zeroizing its memory.
