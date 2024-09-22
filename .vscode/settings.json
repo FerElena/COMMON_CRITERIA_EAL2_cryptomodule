@@ -10,6 +10,7 @@
 		"ecdsa_256.h": "c",
 		"aes_cbc.h": "c",
 		"file_system.h": "c",
-		"memorytracker.h": "c"
+		"memorytracker.h": "c",
+		"aes_ofb.h": "c"
 	}
 }

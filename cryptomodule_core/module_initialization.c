@@ -115,24 +115,24 @@ int Memory_tracking_initialization() {
     return CORRECT_TRACKER_INIT; // everything ok
 }
 
-int File_system_first_initialization(unsigned char *KEK_file) {
-    uint8_t key_AES256[32]; // Buffer to store the AES-256 key.
+int File_system_first_initialization(unsigned char *KEK_CERTIFICATE_file,unsigned char *Cryptodata_filename) {
+    uint8_t key_AES256_certificate[129]; // Buffer to store the AES-256 key[32 bytes], the ECDSA signature[64 bytes] , and the ECDSA PUB KEY [33 bytes compressed]
     FILE *file = NULL;
 
     // Check if the provided key file path is valid.
-    if (KEK_file == NULL) {
+    if (KEK_CERTIFICATE_file == NULL) {
         return INCORRECT_KEYFILE_PATH;
     }
 
     // Try to open the key file in read-binary mode.
-    file = fopen(KEK_file, "rb");
+    file = fopen(KEK_CERTIFICATE_file, "rb");
     if (file == NULL) {
         return INCORRECT_KEYFILE_PATH; // Return if file can't be opened.
     }
 
     // Read the AES-256 key from the file.
-    size_t bytes_read = fread(key_AES256, 1, AES_KEY_SIZE_256, file);
-    if (bytes_read < AES_KEY_SIZE_256) {
+    size_t bytes_read = fread(key_AES256_certificate, 1, 129, file);
+    if (bytes_read < 129) {
         if (feof(file)) {
             return INCORRECT_KEYFILE_FORMAT; // Key file is too short.
         }
@@ -142,30 +142,46 @@ int File_system_first_initialization(unsigned char *KEK_file) {
     fclose(file); // Close the key file after reading.
 
     // Initialize the file system in 'init' mode for first-time setup.
-    if (API_FS_initiate_file_system(MODE_INIT, FS_filename, strlen(FS_filename)) < 0) {
+    if (API_FS_initiate_file_system(MODE_INIT, Cryptodata_filename, strlen(Cryptodata_filename)) < 0) {
         return INCORRECT_FILESYSTEM_INIT; // File system initialization failed.
     }
 
     // Set up AES encryption with the loaded key.
-    API_FS_setup_cipher(CIPHER_ON, key_AES256);
+    API_FS_setup_cipher(CIPHER_ON, key_AES256_certificate);
 
     // Update the memory tracker with the new key.
     API_MT_update_tracker(&trackers[TI_FS_cipher_key]);
 
+    unsigned char conf_filename = "Configuration_file";
+    uint8_t previus_state = 1;
+    int result1 = API_FS_create_file_data(conf_filename,strlen(conf_filename),previus_state,1,NOT_CSP);
+
+    unsigned char cert_filename = "Auth_certificate_file";
+    int result2 = API_FS_create_file_data(cert_filename,strlen(cert_filename),key_AES256_certificate + 32,sizeof(key_AES256_certificate) - 32,CSP); // store the 97 bytes of sign and pubkey of ecdsa
+
+    unsigned char Schneier_patterns[] = {0x00, 0xFF, 0xAA, 0x55, 0xAA, 0x55}; // zeroize old memory space for key
+    for(int i = 0 ; i < 6 ; i++){
+        for(int j = 0 ; j < 32 ; j++){
+            key_AES256_certificate[i] = Schneier_patterns[j];
+        }
+    }
+    if(result1 != FILESYSTEM_OK && result2 != FILESYSTEM_OK){
+        return INCORRECT_FILESYSTEM_INIT;
+    }
     return CORRECT_FILESYSTEM_INIT; // Return success.
 }
 
-int File_system_normal_initialization(unsigned char *KEK_file) {
+int File_system_normal_initialization(unsigned char *KEK_CERTIFICATE_file,unsigned char *Cryptodata_filename) {
     uint8_t key_AES256[32]; // Buffer to store the AES-256 key.
     FILE *file = NULL;
 
     // Check if the provided key file path is valid.
-    if (KEK_file == NULL) {
+    if (KEK_CERTIFICATE_file == NULL) {
         return INCORRECT_KEYFILE_PATH;
     }
 
     // Try to open the key file in read-binary mode.
-    file = fopen(KEK_file, "rb");
+    file = fopen(KEK_CERTIFICATE_file, "rb");
     if (file == NULL) {
         return INCORRECT_KEYFILE_PATH; // Return if file can't be opened.
     }
@@ -182,7 +198,7 @@ int File_system_normal_initialization(unsigned char *KEK_file) {
     fclose(file); // Close the key file after reading.
 
     // Initialize the file system in 'load' mode for normal operation.
-    if (API_FS_initiate_file_system(MODE_LOAD, FS_filename, strlen(FS_filename)) < 0) {
+    if (API_FS_initiate_file_system(MODE_LOAD, Cryptodata_filename, strlen(Cryptodata_filename)) < 0) {
         return INCORRECT_FILESYSTEM_INIT; // File system initialization failed.
     }
 
@@ -192,8 +208,44 @@ int File_system_normal_initialization(unsigned char *KEK_file) {
     // Update the memory tracker with the new key.
     API_MT_update_tracker(&trackers[TI_FS_cipher_key]);
 
+    unsigned char Schneier_patterns[] = {0x00, 0xFF, 0xAA, 0x55, 0xAA, 0x55}; // zeroize old memory space for key
+    for(int i = 0 ; i < 6 ; i++){
+        for(int j = 0 ; j < 32 ; j++){
+            key_AES256[i] = Schneier_patterns[j];
+        }
+    }
+
     return CORRECT_FILESYSTEM_INIT; // Return success.
 }
+int file_exists(const char *filename) {
+    FILE *file = fopen(filename, "r");
+    if (file) {
+        fclose(file);
+        return 1; // El archivo existe
+    }
+    return 0; // El archivo no existe
+}
+
+int API_INIT_initialize_module(unsigned char *KEK_CERTIFICATE_file,unsigned char *Cryptodata_filename){
+    int result1 = Memory_tracking_initialization;
+        if(result1 != CORRECT_TRACKER_INIT){
+            return result1;
+        }
+    if(file_exists(Cryptodata_filename)){
+        result1 = File_system_normal_initialization(KEK_CERTIFICATE_file,Cryptodata_filename);
+        if(result1 != CORRECT_FILESYSTEM_INIT){
+            return result1;
+        }
+    }
+    else{
+        result1 = File_system_first_initialization(KEK_CERTIFICATE_file,Cryptodata_filename);
+        if(result1 != CORRECT_FILESYSTEM_INIT){
+            return result1;
+        }
+    }
+    return INITIALIZE_OK;
+}
+
 
 
 
