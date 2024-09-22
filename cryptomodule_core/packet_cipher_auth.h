@@ -33,6 +33,8 @@
 extern unsigned char PCA_data_buffer_sed[data_buffer_sign_encrypt_length]; // 256 kilobytes of static memory to avoid memory allocation every time CSP is used
 extern unsigned char PCA_data_buffer_sed_aux[data_buffer_sign_encrypt_length];
 
+extern uint8_t Current_Key_In_Use[32];
+
 /*
 Structure of the encrypted packet; the text and signature are encrypted using AES-CBC-256.
 

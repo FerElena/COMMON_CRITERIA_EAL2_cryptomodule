@@ -11,6 +11,10 @@
 		"aes_cbc.h": "c",
 		"file_system.h": "c",
 		"memorytracker.h": "c",
-		"aes_ofb.h": "c"
+		"aes_ofb.h": "c",
+		"packet_cipher_auth.h": "c",
+		"module_initialization.h": "c",
+		"state_machine.h": "c",
+		"log_manager.h": "c"
 	}
 }

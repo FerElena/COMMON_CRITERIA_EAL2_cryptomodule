@@ -1,5 +1,7 @@
 #include "State_Machine.h"
 
+static State current_state = STATE_OFF;
+
 int State_Change(State next_state){
     switch (current_state) {
         // When the system is off

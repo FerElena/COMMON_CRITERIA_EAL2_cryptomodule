@@ -27,9 +27,9 @@ ON ----> INITIALIZATION ----> SELF-TEST ----------->OPERATIONAL
  * tracking of whether the state transition was successful, or if an error (soft or hard) occurred.
  */
 
-#define STATE_CHANGE_SUCCESS 0         // Successful state change
-#define STATE_CHANGE_ERROR 1           // Hard error state
-#define STATE_CHANGE_SOFTERROR 2       // Soft error state
+#define STATE_CHANGE_SUCCESS 1800        // Successful state change
+#define STATE_CHANGE_ERROR -1800         // Hard error state
+#define STATE_CHANGE_SOFTERROR -1801      // Soft error state
 
 /**
  * @enum State
@@ -58,8 +58,6 @@ typedef enum {
  * This global variable holds the system's current state. It is initialized to `STATE_OFF`, 
  * indicating that the system is powered off at startup.
  */
-
-State current_state = STATE_OFF;
 
 /**
  * @brief Handles state transitions in the cryptographic system.

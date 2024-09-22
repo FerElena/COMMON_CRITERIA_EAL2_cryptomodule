@@ -15,6 +15,7 @@
 
 #include "../secure_memory_management/file_system.h"
 #include "../secure_memory_management/MemoryTracker.h"
+#include "../library_tracer/log_manager.h"
 #include "packet_cipher_auth.h"
 #include "../crypto/AES_CBC.h"
 #include "../crypto/AES_OFB.h"
@@ -31,14 +32,17 @@
 #define INCORRECT_KEYFILE_FORMAT -1702
 #define INCORRECT_KEYFILE_READ -1703
 #define INCORRECT_FILESYSTEM_INIT -1704
+#define TRACER_INIT_ERROR -1705
 
-#define INITIALIZE_OK 1705
+#define INITIALIZE_OK_FIRST_INIT 1705
+#define INITIALIZE_OK_NORMAL_INIT 1706
 
 // TI (TRACKER INDEX) LIST for volatile memory integrity/zeroization
 extern int TI_FS_cipher_key;	       /**< File system cipher key tracker index */
 extern int TI_FS_data_buffer;	       /**< File system auxiliary data buffer tracker index */
 extern int TI_PCA_data_buffer_sed;     /**< Packet cipher and authentication module data buffer tracker index */
 extern int TI_PCA_data_buffer_sed_aux; /**< Packet cipher and authentication module auxiliary data buffer tracker index */
+extern int TI_Current_Key_In_Use;      /**< Current key in use for cipher and authenticate packets */
 
 // AES CSPs parameters
 extern int TI_AES_CBC_ctx;	  /**< AES-CBC context tracker index */

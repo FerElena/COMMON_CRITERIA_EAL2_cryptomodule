@@ -10,6 +10,7 @@ int TI_FS_cipher_key;
 int TI_FS_data_buffer;
 int TI_PCA_data_buffer_sed;
 int TI_PCA_data_buffer_sed_aux;
+int TI_Current_Key_In_Use;
 int TI_AES_CBC_ctx;
 int TI_AESOFB_CTX;
 int TI_AESOFB_outputBlock;
@@ -53,6 +54,9 @@ int Memory_tracking_initialization()
 
     TI_PCA_data_buffer_sed_aux = API_MT_add_tracker(PCA_data_buffer_sed_aux, sizeof(PCA_data_buffer_sed_aux), CSP); // Packet cipher and auth auxiliary buffer
     correct_tracker_init_result[counter++] = (TI_PCA_data_buffer_sed_aux >= 0) ? 1 : 0;
+
+    TI_Current_Key_In_Use = API_MT_add_tracker(Current_Key_In_Use, sizeof(Current_Key_In_Use), CSP); // Packet cipher and auth auxiliary buffer
+    correct_tracker_init_result[counter++] = (TI_Current_Key_In_Use >= 0) ? 1 : 0;
 
     TI_AES_CBC_ctx = API_MT_add_tracker(&AES_CBC_ctx, sizeof(AES_CBC_ctx), CSP); // AES-CBC context
     correct_tracker_init_result[counter++] = (TI_AES_CBC_ctx >= 0) ? 1 : 0;
@@ -124,9 +128,12 @@ int File_system_first_initialization(unsigned char *KEK_CERTIFICATE_file, unsign
     FILE *file = NULL;
 
     // Check if the provided key file path is valid.
-    if (KEK_CERTIFICATE_file == NULL)
+    if (KEK_CERTIFICATE_file == NULL )
     {
         return INCORRECT_KEYFILE_PATH;
+    }
+    if(Cryptodata_filename == NULL){
+        return INCORRECT_FILESYSTEM_INIT;
     }
 
     // Try to open the key file in read-binary mode.
@@ -251,6 +258,7 @@ int file_exists(const char *filename)
 
 int API_INIT_initialize_module(unsigned char *KEK_CERTIFICATE_file, unsigned char *Cryptodata_filename)
 {
+    int return_value;
     int result1 = Memory_tracking_initialization(); // Initialize memory tracking
 
     // Check if memory tracking initialized correctly
@@ -269,6 +277,7 @@ int API_INIT_initialize_module(unsigned char *KEK_CERTIFICATE_file, unsigned cha
         {
             return result1; // Return error code if initialization failed
         }
+        return_value = INITIALIZE_OK_NORMAL_INIT;
     }
     else
     {
@@ -279,7 +288,12 @@ int API_INIT_initialize_module(unsigned char *KEK_CERTIFICATE_file, unsigned cha
         {
             return result1; // Return error code if initialization failed
         }
+        return_value = INITIALIZE_OK_FIRST_INIT;
+    }
+    result1 = API_MT_startTraceFile();
+    if(result1 == TRACER_ERROR){
+        return TRACER_INIT_ERROR;
     }
 
-    return INITIALIZE_OK; // Return success code if all initializations succeeded
+    return return_value; // Return success code if all initializations succeeded
 }
