@@ -69,15 +69,15 @@ int main(int argc, char *argv[])
 	{
 		printf("Uso: %s <opción> [filepath]\n", argv[0]);
 		printf("Opciones:\n");
-		printf("  -ecdsa_keypargen <filepath> \n");
-		printf("  -cert_gen <key_filepath> <file_tosign> <keycert_name>\n");
-		printf("  -aply_cert <cert_file> <file_to_apply>\n");
-		printf("  -watchhexfile <file> \n"); // Nueva opción
+		printf("  -ek <filepath> for generate an ecdsa key pair\n");
+		printf("  -cg <key_filepath> <file_tosign> <keycert_name> for create a new certificate given a keypair and a file\n");
+		printf("  -ap <cert_file> <file_to_apply> to apply a certificate to a file\n");
+		printf("  -wh <file> to what a cert file in hex\n"); 
 		return 1;
 	}
 
 	// Opción para mostrar el archivo en hexadecimal
-	if (strcmp(argv[1], "-watchhexfile") == 0)
+	if (strcmp(argv[1], "wh") == 0)
 	{
 		if (argc < 3)
 		{
@@ -89,7 +89,7 @@ int main(int argc, char *argv[])
 	}
 
 	// Opción para generar un par de claves ECDSA
-	if (strcmp(argv[1], "-ecdsa_keypargen") == 0)
+	if (strcmp(argv[1], "-ek") == 0)
 	{
 		if (argc < 3)
 		{
@@ -105,7 +105,7 @@ int main(int argc, char *argv[])
 		fclose(f);
 	}
 	// Opción para generar un certificado
-	else if (strcmp(argv[1], "-cert_gen") == 0)
+	else if (strcmp(argv[1], "-cg") == 0)
 	{
 		if (argc < 5)
 		{
@@ -146,7 +146,7 @@ int main(int argc, char *argv[])
 		// Liberar memoria
 		free(buffer_to_sign);
 	}
-	else if (strcmp(argv[1], "-aply_cert") == 0){
+	else if (strcmp(argv[1], "-ap") == 0){
 		if (argc < 4)
 		{
 			printf("Error: Falta informacion para validar un cert a un fichero\n");
@@ -167,7 +167,7 @@ int main(int argc, char *argv[])
 		fread(key_AES256_certificate,sizeof(key_AES256_certificate),1,f);
 		fclose(f);
 		int result = ecdsa_verify(key_AES256_certificate + 96,hash,key_AES256_certificate + 32);
-		if(result = 1){
+		if(result == 1){
 			printf("certificado validado correctamente\n");
 		}
 		else{
