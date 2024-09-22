@@ -11,6 +11,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include <string.h>
 
 #include "../secure_memory_management/file_system.h"
 #include "../secure_memory_management/MemoryTracker.h"
@@ -19,6 +20,17 @@
 #include "../crypto/AES_OFB.h"
 #include "../crypto/ECDSA_256.h"
 #include "../crypto/SHA256.h"
+
+#define CORRECT_TRACKER_INIT 1700
+#define INCORRECT_TRACKER_INIT -1700
+
+#define CORRECT_FILESYSTEM_INIT 1701
+#define INCORRECT_KEYFILE_PATH -1701
+#define INCORRECT_KEYFILE_FORMAT -1702
+#define INCORRECT_KEYFILE_READ -1703
+#define INCORRECT_FILESYSTEM_INIT -1704
+
+unsigned char *FS_filename = "CRYPTODATA_BASE.cm";
 
 // TI (TRACKER INDEX) LIST for volatile memory integrity/zeroization
 extern int TI_FS_cipher_key;      /**< File system cipher key tracker index */
@@ -62,5 +74,43 @@ extern int TI_SHA256_ctx;         /**< SHA-256 context tracker index */
  * @return 0 on success, non-zero on failure.
  */
 int Memory_tracking_initialization();
+
+/**
+ * @brief Performs the first-time initialization of the file system with a given Key Encryption Key (KEK).
+ *
+ * This function reads a 256-bit AES key from the provided key file (KEK_file) and uses it to initialize the file system 
+ * for the first time. It also sets up the AES cipher for future encryption operations. The file system is initialized 
+ * in "init" mode, which is used during the first-time setup.
+ *
+ * @param KEK_file Path to the key file containing the AES 256-bit key. It should not be NULL.
+ * 
+ * @return Returns one of the following status codes:
+ * - CORRECT_FILESYSTEM_INIT: File system initialized successfully.
+ * - INCORRECT_KEYFILE_PATH: Invalid key file path or the file cannot be opened.
+ * - INCORRECT_KEYFILE_FORMAT: The key file is too short and does not contain enough data.
+ * - INCORRECT_KEYFILE_READ: An error occurred while reading the key file.
+ * - INCORRECT_FILESYSTEM_INIT: The file system could not be initialized.
+ */
+
+int File_system_first_initialization(unsigned char *KEK_CERTIFICATE_file);
+
+/**
+ * @brief Performs normal initialization of the file system using the provided Key Encryption Key (KEK).
+ *
+ * This function reads a 256-bit AES key from the provided key file (KEK_file) and uses it to load the existing file system. 
+ * It sets up the AES cipher for encryption/decryption operations. The file system is loaded in "load" mode, 
+ * which is used during normal startup.
+ *
+ * @param KEK_file Path to the key file containing the AES 256-bit key. It should not be NULL.
+ * 
+ * @return Returns one of the following status codes:
+ * - CORRECT_FILESYSTEM_INIT: File system initialized successfully.
+ * - INCORRECT_KEYFILE_PATH: Invalid key file path or the file cannot be opened.
+ * - INCORRECT_KEYFILE_FORMAT: The key file is too short and does not contain enough data.
+ * - INCORRECT_KEYFILE_READ: An error occurred while reading the key file.
+ * - INCORRECT_FILESYSTEM_INIT: The file system could not be initialized.
+ */
+
+int File_system_normal_initialization(unsigned char *KEK_CERTIFICATE_file);
 
 #endif // MODULE_INITIALIZATION_H

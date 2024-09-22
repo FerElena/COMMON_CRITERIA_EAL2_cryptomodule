@@ -5,7 +5,7 @@
 
 #include "module_initialization.h"
 
-// Tracker indices for memory tracking
+// Tracker indexs for memory tracking
 int TI_FS_cipher_key;
 int TI_FS_data_buffer;
 int TI_PCA_data_buffer_sed;
@@ -107,7 +107,94 @@ int Memory_tracking_initialization() {
     TI_SHA256_ctx = API_MT_add_tracker(&SHA256_ctx, sizeof(SHA256_ctx), CSP); // SHA-256 context
     correct_tracker_init_result[counter++] = (TI_SHA256_ctx >= 0) ? 1 : 0;
 
-    return 0;
+    for(int i = 0 ; i < sizeof(correct_tracker_init_result); i++){ // check for errors
+        if(correct_tracker_init_result[i] == 0){
+            return INCORRECT_TRACKER_INIT;
+        }
+    }
+    return CORRECT_TRACKER_INIT; // everything ok
 }
+
+int File_system_first_initialization(unsigned char *KEK_file) {
+    uint8_t key_AES256[32]; // Buffer to store the AES-256 key.
+    FILE *file = NULL;
+
+    // Check if the provided key file path is valid.
+    if (KEK_file == NULL) {
+        return INCORRECT_KEYFILE_PATH;
+    }
+
+    // Try to open the key file in read-binary mode.
+    file = fopen(KEK_file, "rb");
+    if (file == NULL) {
+        return INCORRECT_KEYFILE_PATH; // Return if file can't be opened.
+    }
+
+    // Read the AES-256 key from the file.
+    size_t bytes_read = fread(key_AES256, 1, AES_KEY_SIZE_256, file);
+    if (bytes_read < AES_KEY_SIZE_256) {
+        if (feof(file)) {
+            return INCORRECT_KEYFILE_FORMAT; // Key file is too short.
+        }
+        fclose(file); // Ensure file is closed before returning.
+        return INCORRECT_KEYFILE_READ; // Error reading key.
+    }
+    fclose(file); // Close the key file after reading.
+
+    // Initialize the file system in 'init' mode for first-time setup.
+    if (API_FS_initiate_file_system(MODE_INIT, FS_filename, strlen(FS_filename)) < 0) {
+        return INCORRECT_FILESYSTEM_INIT; // File system initialization failed.
+    }
+
+    // Set up AES encryption with the loaded key.
+    API_FS_setup_cipher(CIPHER_ON, key_AES256);
+
+    // Update the memory tracker with the new key.
+    API_MT_update_tracker(&trackers[TI_FS_cipher_key]);
+
+    return CORRECT_FILESYSTEM_INIT; // Return success.
+}
+
+int File_system_normal_initialization(unsigned char *KEK_file) {
+    uint8_t key_AES256[32]; // Buffer to store the AES-256 key.
+    FILE *file = NULL;
+
+    // Check if the provided key file path is valid.
+    if (KEK_file == NULL) {
+        return INCORRECT_KEYFILE_PATH;
+    }
+
+    // Try to open the key file in read-binary mode.
+    file = fopen(KEK_file, "rb");
+    if (file == NULL) {
+        return INCORRECT_KEYFILE_PATH; // Return if file can't be opened.
+    }
+
+    // Read the AES-256 key from the file.
+    size_t bytes_read = fread(key_AES256, 1, AES_KEY_SIZE_256, file);
+    if (bytes_read < AES_KEY_SIZE_256) {
+        if (feof(file)) {
+            return INCORRECT_KEYFILE_FORMAT; // Key file is too short.
+        }
+        fclose(file); // Ensure file is closed before returning.
+        return INCORRECT_KEYFILE_READ; // Error reading key.
+    }
+    fclose(file); // Close the key file after reading.
+
+    // Initialize the file system in 'load' mode for normal operation.
+    if (API_FS_initiate_file_system(MODE_LOAD, FS_filename, strlen(FS_filename)) < 0) {
+        return INCORRECT_FILESYSTEM_INIT; // File system initialization failed.
+    }
+
+    // Set up AES encryption with the loaded key.
+    API_FS_setup_cipher(CIPHER_ON, key_AES256);
+
+    // Update the memory tracker with the new key.
+    API_MT_update_tracker(&trackers[TI_FS_cipher_key]);
+
+    return CORRECT_FILESYSTEM_INIT; // Return success.
+}
+
+
 
 
