@@ -80,23 +80,23 @@ extern int TI_SHA256_ctx;         /**< SHA-256 context tracker index */
 int Memory_tracking_initialization();
 
 /**
- * @brief Performs the first-time initialization of the file system with a given Key Encryption Key (KEK).
+ * @brief Performs the first-time initialization of the file system.
  *
- * This function reads a 256-bit AES key from the provided key file (KEK_CERTIFICATE_file) and uses it to initialize the file system 
- * for the first time. It also sets up the AES cipher for future encryption operations. The file system is initialized 
- * in "init" mode, which is used during the first-time setup.
+ * This function initializes the file system by:
+ * 1. Checking if the provided KEK certificate file path is valid.
+ * 2. Attempting to open the KEK certificate file in binary read mode.
+ * 3. Reading the AES-256 key, ECDSA signature, and public key from the file.
+ * 4. Initializing the file system in 'init' mode.
+ * 5. Setting up AES encryption with the loaded key.
+ * 6. Creating configuration and authentication certificate files.
+ * 7. Zeroing out the memory space used for the key.
  *
- * @param KEK_CERTIFICATE_file Path to the key file containing the AES 256-bit key. It should not be NULL.
- * 
- * @return Returns one of the following status codes:
- * - CORRECT_FILESYSTEM_INIT: File system initialized successfully.
- * - INCORRECT_KEYFILE_PATH: Invalid key file path or the file cannot be opened.
- * - INCORRECT_KEYFILE_FORMAT: The key file is too short and does not contain enough data.
- * - INCORRECT_KEYFILE_READ: An error occurred while reading the key file.
- * - INCORRECT_FILESYSTEM_INIT: The file system could not be initialized.
+ * @param KEK_CERTIFICATE_file A pointer to the KEK certificate file.
+ * @param Cryptodata_filename A pointer to the cryptodata file.
+ * @return Returns CORRECT_FILESYSTEM_INIT if initialization is successful,
+ *         otherwise returns an error code.
  */
-
-int File_system_first_initialization(unsigned char *KEK_CERTIFICATE_file);
+int File_system_first_initialization(unsigned char *KEK_CERTIFICATE_file,unsigned char *Cryptodata_filename) ;
 
 /**
  * @brief Performs normal initialization of the file system using the provided Key Encryption Key (KEK).
@@ -115,6 +115,25 @@ int File_system_first_initialization(unsigned char *KEK_CERTIFICATE_file);
  * - INCORRECT_FILESYSTEM_INIT: The file system could not be initialized.
  */
 
-int File_system_normal_initialization(unsigned char *KEK_CERTIFICATE_file);
+int File_system_normal_initialization(unsigned char *KEK_CERTIFICATE_file,unsigned char *Cryptodata_filename);
+
+/**
+ * @brief Performs the normal initialization of the file system.
+ *
+ * This function initializes the file system by:
+ * 1. Checking if the provided KEK certificate file path is valid.
+ * 2. Attempting to open the KEK certificate file in binary read mode.
+ * 3. Reading the AES-256 key from the file.
+ * 4. Initializing the file system in 'load' mode.
+ * 5. Setting up AES encryption with the loaded key.
+ * 6. Zeroing out the memory space used for the key.
+ *
+ * @param KEK_CERTIFICATE_file A pointer to the KEK certificate file.
+ * @param Cryptodata_filename A pointer to the cryptodata file.
+ * @return Returns CORRECT_FILESYSTEM_INIT if initialization is successful,
+ *         otherwise returns an error code.
+ */
+
+int API_INIT_initialize_module(unsigned char *KEK_CERTIFICATE_file, unsigned char *Cryptodata_filename);
 
 #endif // MODULE_INITIALIZATION_H

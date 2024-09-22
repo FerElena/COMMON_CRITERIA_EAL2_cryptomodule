@@ -152,11 +152,11 @@ int File_system_first_initialization(unsigned char *KEK_CERTIFICATE_file,unsigne
     // Update the memory tracker with the new key.
     API_MT_update_tracker(&trackers[TI_FS_cipher_key]);
 
-    unsigned char conf_filename = "Configuration_file";
+    unsigned char *conf_filename = "Configuration_file";
     uint8_t previus_state = 1;
-    int result1 = API_FS_create_file_data(conf_filename,strlen(conf_filename),previus_state,1,NOT_CSP);
+    int result1 = API_FS_create_file_data(conf_filename,strlen(conf_filename),&previus_state,1,NOT_CSP);
 
-    unsigned char cert_filename = "Auth_certificate_file";
+    unsigned char *cert_filename = "Auth_certificate_file";
     int result2 = API_FS_create_file_data(cert_filename,strlen(cert_filename),key_AES256_certificate + 32,sizeof(key_AES256_certificate) - 32,CSP); // store the 97 bytes of sign and pubkey of ecdsa
 
     unsigned char Schneier_patterns[] = {0x00, 0xFF, 0xAA, 0x55, 0xAA, 0x55}; // zeroize old memory space for key
@@ -217,6 +217,7 @@ int File_system_normal_initialization(unsigned char *KEK_CERTIFICATE_file,unsign
 
     return CORRECT_FILESYSTEM_INIT; // Return success.
 }
+
 int file_exists(const char *filename) {
     FILE *file = fopen(filename, "r");
     if (file) {
@@ -226,26 +227,33 @@ int file_exists(const char *filename) {
     return 0; // El archivo no existe
 }
 
-int API_INIT_initialize_module(unsigned char *KEK_CERTIFICATE_file,unsigned char *Cryptodata_filename){
-    int result1 = Memory_tracking_initialization;
-        if(result1 != CORRECT_TRACKER_INIT){
-            return result1;
-        }
-    if(file_exists(Cryptodata_filename)){
-        result1 = File_system_normal_initialization(KEK_CERTIFICATE_file,Cryptodata_filename);
-        if(result1 != CORRECT_FILESYSTEM_INIT){
-            return result1;
-        }
-    }
-    else{
-        result1 = File_system_first_initialization(KEK_CERTIFICATE_file,Cryptodata_filename);
-        if(result1 != CORRECT_FILESYSTEM_INIT){
-            return result1;
-        }
-    }
-    return INITIALIZE_OK;
-}
+int API_INIT_initialize_module(unsigned char *KEK_CERTIFICATE_file, unsigned char *Cryptodata_filename) {
+    int result1 = Memory_tracking_initialization(); // Initialize memory tracking
 
+    // Check if memory tracking initialized correctly
+    if (result1 != CORRECT_TRACKER_INIT) {
+        return result1; // Return error code if initialization failed
+    }
+
+    // Check if the cryptodata file exists
+    if (file_exists(Cryptodata_filename)) {
+        // Perform normal file system initialization
+        result1 = File_system_normal_initialization(KEK_CERTIFICATE_file, Cryptodata_filename);
+        // Check if the normal initialization was successful
+        if (result1 != CORRECT_FILESYSTEM_INIT) {
+            return result1; // Return error code if initialization failed
+        }
+    } else {
+        // Perform first-time file system initialization
+        result1 = File_system_first_initialization(KEK_CERTIFICATE_file, Cryptodata_filename);
+        // Check if the first-time initialization was successful
+        if (result1 != CORRECT_FILESYSTEM_INIT) {
+            return result1; // Return error code if initialization failed
+        }
+    }
+    
+    return INITIALIZE_OK; // Return success code if all initializations succeeded
+}
 
 
 
