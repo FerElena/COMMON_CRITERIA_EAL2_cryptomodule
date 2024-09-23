@@ -15,6 +15,7 @@
 		"packet_cipher_auth.h": "c",
 		"module_initialization.h": "c",
 		"state_machine.h": "c",
-		"log_manager.h": "c"
+		"log_manager.h": "c",
+		"error_manager.h": "c"
 	}
 }

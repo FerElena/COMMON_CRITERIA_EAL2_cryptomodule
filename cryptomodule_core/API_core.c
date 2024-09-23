@@ -6,7 +6,18 @@ int API_MC_Initialize_module(unsigned char *KEK_CERTIFICATE_file,unsigned char *
 	int Operation_result = 0;
 	//start initializing the cryptomodule
 	State_Change(STATE_INITIALIZATION);
-	API_INIT_initialize_module(KEK_CERTIFICATE_file,Cryptodata_filename);
-	API_MT_traceWrite("");
+
+	Operation_result = API_INIT_initialize_module(KEK_CERTIFICATE_file,Cryptodata_filename);
+	if(Operation_result == INITIALIZE_OK_FIRST_INIT){
+		API_LT_traceWrite("Module_first_initialization",NULL);
+	}
+	else if(Operation_result == INITIALIZE_OK_NORMAL_INIT){
+		API_LT_traceWrite("Module_Normal_initialization",NULL);
+	}
+	else{
+		API_LT_traceWrite("Initialization Error",NULL);
+		return initialized_module;
+	}
+	
 	return 1;
 }

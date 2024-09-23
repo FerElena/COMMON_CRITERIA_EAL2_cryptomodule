@@ -21,7 +21,7 @@ unsigned char concatenated_string[MAX_STRING];
  * Function definition zone
  ****************************************************************************************************************/
 
-int API_MT_startTraceFile()
+int API_LT_startTraceFile()
 {
     int create1,create2;
 	pthread_t thread_trace;
@@ -32,6 +32,7 @@ int API_MT_startTraceFile()
 	create1 = API_FS_create_file_data(TRACERLOW, TRACERLOW_LENGTH, content, MAX_BYTES_TRACER_LOW,NOT_CSP);
 	create2 = API_FS_create_file_data(TRACERHIGH, TRACERHIGH_LENGTH, content2, MAX_BYTES_TRACER_HIGH,NOT_CSP);
 	pthread_create(&thread_trace, NULL, WriteTrace, NULL);
+     pthread_detach(thread_trace);  // Detach the thread so we don't need to call pthread_join
 	sem_init(&TraceSem_empty, 0, 1);
 	sem_init(&TraceSem_full, 0, 1);
     if(create1 == FILESYSTEM_OK && create2 == FILESYSTEM_OK)
@@ -40,7 +41,7 @@ int API_MT_startTraceFile()
         return TRACER_ERROR;
 }
 
-void API_MT_traceWrite(unsigned char *str, ...) {
+void API_LT_traceWrite(unsigned char *str, ...) {
     sem_wait(&TraceSem_empty);
     va_list args;
     va_start(args, str);

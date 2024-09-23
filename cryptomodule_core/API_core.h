@@ -9,5 +9,8 @@
 #include "module_initialization.h"
 #include "../state_machine/State_Machine.h"
 #include "../library_tracer/log_manager.h"
+#include "Error_Manager.h"
+
+#define initialized_module 2000
 
 #endif

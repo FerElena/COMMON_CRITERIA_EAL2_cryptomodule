@@ -1,6 +1,56 @@
 #ifndef ERROR_MANAGER_H
 #define ERROR_MANAGER_H
 
+#include <stdio.h>
+#include <pthread.h>
+#include <unistd.h>
+
 #include "../state_machine/State_Machine.h"
+
+#define REDUCTION_INTERVAL 600 // 600 seconds (10 minutes)
+#define MAX_ERRORS 50          // Maximum error threshold
+
+#define Errormanager_thread_error -1900
+#define Errormanager_OK 1900
+
+/**
+ * @brief Function that runs in a separate thread to reduce the error counter.
+ * 
+ * This function is executed in an infinite loop where it reduces the error counter by 1 
+ * every 10 minutes (600 seconds) as long as the counter is greater than 0. The access to 
+ * the error counter is synchronized using a mutex to prevent data races.
+ * 
+ * @param arg Unused argument (can be NULL).
+ * @return NULL Always returns NULL after execution.
+ */
+
+void* reduce_error_counter(void* arg);
+
+/**
+ * @brief Initializes the error counter and starts the reduction thread.
+ * 
+ * This function starts a new thread that periodically (every 10 minutes) reduces the 
+ * error counter. It also detaches the thread to ensure that its resources are cleaned 
+ * up automatically when the thread terminates. The function returns an error code if 
+ * thread creation or detachment fails.
+ * 
+ * @return int Returns `Errormanager_OK` if initialization is successful, 
+ *             or `Errormanager_thread_error` if the thread fails to be created or detached.
+ */
+
+int API_EM_init_error_counter();
+
+/**
+ * @brief Increments the error counter by a specified value.
+ * 
+ * This function increments the error counter by a given value. If the error counter 
+ * exceeds the `MAX_ERRORS` threshold after the increment, it triggers a state change 
+ * indicating a soft error. The function uses a mutex to ensure thread-safe access 
+ * to the error counter.
+ * 
+ * @param increment_value The value to add to the error counter.
+ */
+
+void API_EM_increment_error_counter(int increment_value);
 
 #endif

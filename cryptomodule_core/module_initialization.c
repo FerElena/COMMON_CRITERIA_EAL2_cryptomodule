@@ -128,11 +128,12 @@ int File_system_first_initialization(unsigned char *KEK_CERTIFICATE_file, unsign
     FILE *file = NULL;
 
     // Check if the provided key file path is valid.
-    if (KEK_CERTIFICATE_file == NULL )
+    if (KEK_CERTIFICATE_file == NULL)
     {
         return INCORRECT_KEYFILE_PATH;
     }
-    if(Cryptodata_filename == NULL){
+    if (Cryptodata_filename == NULL)
+    {
         return INCORRECT_FILESYSTEM_INIT;
     }
 
@@ -288,11 +289,12 @@ int API_INIT_initialize_module(unsigned char *KEK_CERTIFICATE_file, unsigned cha
         {
             return result1; // Return error code if initialization failed
         }
+        result1 = API_LT_startTraceFile();
+        if (result1 == TRACER_ERROR)
+        {
+            return TRACER_INIT_ERROR;  // Return error code if tracer could not be initialized
+        }
         return_value = INITIALIZE_OK_FIRST_INIT;
-    }
-    result1 = API_MT_startTraceFile();
-    if(result1 == TRACER_ERROR){
-        return TRACER_INIT_ERROR;
     }
 
     return return_value; // Return success code if all initializations succeeded

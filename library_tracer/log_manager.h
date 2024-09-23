@@ -57,7 +57,7 @@ extern unsigned char concatenated_string[MAX_STRING];
  *
  * @return `TRACER_OK` if the trace system is successfully initialized, or `TRACER_ERROR` if file creation fails.
  */
-int API_MT_startTraceFile();
+int API_LT_startTraceFile();
 
 /**
  * @brief Writes a formatted trace message to the trace buffer.
@@ -68,7 +68,7 @@ int API_MT_startTraceFile();
  *
  * @param str A format string for the trace message, followed by a variable number of arguments.
  */
-void API_MT_traceWrite(unsigned char *str, ...);
+void API_LT_traceWrite(unsigned char *str, ...);
 
 
 /**
