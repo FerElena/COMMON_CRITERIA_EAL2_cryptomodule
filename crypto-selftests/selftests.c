@@ -18,24 +18,24 @@ int filename_hash_length = 11;
 int API_SFT_initSelfTests() // FALTA POR IMPLEMENTAR EL TEST DE INTEGRIDAD, HACERLO LO ÚLTIMO!!!
 {
     if(API_SM_get_current_state() != STATE_SELF_TEST){
-        return STATE_INCORRECTSTATE_ERROR;
+        return SM_ERROR_STATE;
     }
     int CorrectTest = SELFTEST_PASSED; 
     if (!API_SFT_SHA256Tests()) // SHA256 selftests starts
     {
-        return SHA256_SELFTEST_FAILED;
+        return SFT_SHA256_SELFTEST_FAILED;
     }
     if (!API_SFT_HMACTest()) // HMAC selftests starts
     {
-        return HMAC_SHA256_SELFTEST_FAILED;
+        return SFT_HMAC_SHA256_SELFTEST_FAILED;
     }
     if (!API_SFT_ECDSA256Tests()) // ECDSA256 selftests starts
     {
-        return ECDSAP256_SELFTEST_FAILED;
+        return SFT_ECDSAP256_SELFTEST_FAILED;
     }
     if(!API_SFT_AESTests()) // COPERNICUS256 selftests starts
     {
-        return AES256_CBC_SELFTEST_FAILED;
+        return SFT_AES256_CBC_SELFTEST_FAILED;
     }
     return SELFTEST_PASSED;
 }

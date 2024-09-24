@@ -10,7 +10,7 @@ int TI_FS_cipher_key;
 int TI_FS_data_buffer;
 int TI_PCA_data_buffer_sed;
 int TI_PCA_data_buffer_sed_aux;
-int TI_Current_key_in_use;
+int TI_Current_Key_In_Use;
 int TI_AES_CBC_ctx;
 int TI_AESOFB_CTX;
 int TI_AESOFB_outputBlock;
@@ -55,8 +55,8 @@ int Memory_tracking_initialization()
     TI_PCA_data_buffer_sed_aux = API_MT_add_tracker(PCA_data_buffer_sed_aux, sizeof(PCA_data_buffer_sed_aux), CSP); // Packet cipher and auth auxiliary buffer
     correct_tracker_init_result[counter++] = (TI_PCA_data_buffer_sed_aux >= 0) ? 1 : 0;
 
-    TI_Current_key_in_use = API_MT_add_tracker(&Current_key_in_use, sizeof(Current_key_in_use), CSP); // Packet cipher and auth auxiliary buffer
-    correct_tracker_init_result[counter++] = (TI_Current_key_in_use >= 0) ? 1 : 0;
+    TI_Current_Key_In_Use = API_MT_add_tracker(&Current_key_in_use, sizeof(Current_key_in_use), CSP); // Packet cipher and auth auxiliary buffer
+    correct_tracker_init_result[counter++] = (TI_Current_Key_In_Use >= 0) ? 1 : 0;
 
     TI_AES_CBC_ctx = API_MT_add_tracker(&AES_CBC_ctx, sizeof(AES_CBC_ctx), CSP); // AES-CBC context
     correct_tracker_init_result[counter++] = (TI_AES_CBC_ctx >= 0) ? 1 : 0;
@@ -116,7 +116,7 @@ int Memory_tracking_initialization()
     { // check for errors
         if (correct_tracker_init_result[i] == 0)
         {
-            return INCORRECT_TRACKER_INIT;
+            return INIT_INCORRECT_TRACKER_INIT;
         }
     }
     return CORRECT_TRACKER_INIT; // everything ok
@@ -130,18 +130,18 @@ int File_system_first_initialization(unsigned char *KEK_CERTIFICATE_file, unsign
     // Check if the provided key file path is valid.
     if (KEK_CERTIFICATE_file == NULL)
     {
-        return INCORRECT_KEYFILE_PATH;
+        return INIT_INCORRECT_KEYFILE_PATH;
     }
     if (Cryptodata_filename == NULL)
     {
-        return INCORRECT_FILESYSTEM_INIT;
+        return INIT_INCORRECT_FILESYSTEM_INIT;
     }
 
     // Try to open the key file in read-binary mode.
     file = fopen(KEK_CERTIFICATE_file, "rb");
     if (file == NULL)
     {
-        return INCORRECT_KEYFILE_PATH; // Return if file can't be opened.
+        return INIT_INCORRECT_KEYFILE_PATH; // Return if file can't be opened.
     }
 
     // Read the AES-256 key from the file.
@@ -150,17 +150,17 @@ int File_system_first_initialization(unsigned char *KEK_CERTIFICATE_file, unsign
     {
         if (feof(file))
         {
-            return INCORRECT_KEYFILE_FORMAT; // Key file is too short.
+            return INIT_INCORRECT_KEYFILE_FORMAT; // Key file is too short.
         }
         fclose(file);                  // Ensure file is closed before returning.
-        return INCORRECT_KEYFILE_READ; // Error reading key.
+        return INIT_INCORRECT_KEYFILE_READ; // Error reading key.
     }
     fclose(file); // Close the key file after reading.
 
     // Initialize the file system in 'init' mode for first-time setup.
     if (API_FS_initiate_file_system(MODE_INIT, Cryptodata_filename, strlen(Cryptodata_filename)) < 0)
     {
-        return INCORRECT_FILESYSTEM_INIT; // File system initialization failed.
+        return INIT_INCORRECT_FILESYSTEM_INIT; // File system initialization failed.
     }
 
     // Set up AES encryption with the loaded key.
@@ -186,7 +186,7 @@ int File_system_first_initialization(unsigned char *KEK_CERTIFICATE_file, unsign
     }
     if (result1 != FILESYSTEM_OK && result2 != FILESYSTEM_OK)
     {
-        return INCORRECT_FILESYSTEM_INIT;
+        return INIT_INCORRECT_FILESYSTEM_INIT;
     }
     return CORRECT_FILESYSTEM_INIT; // Return success.
 }
@@ -199,14 +199,14 @@ int File_system_normal_initialization(unsigned char *KEK_CERTIFICATE_file, unsig
     // Check if the provided key file path is valid.
     if (KEK_CERTIFICATE_file == NULL)
     {
-        return INCORRECT_KEYFILE_PATH;
+        return INIT_INCORRECT_KEYFILE_PATH;
     }
 
     // Try to open the key file in read-binary mode.
     file = fopen(KEK_CERTIFICATE_file, "rb");
     if (file == NULL)
     {
-        return INCORRECT_KEYFILE_PATH; // Return if file can't be opened.
+        return INIT_INCORRECT_KEYFILE_PATH; // Return if file can't be opened.
     }
 
     // Read the AES-256 key from the file.
@@ -215,17 +215,17 @@ int File_system_normal_initialization(unsigned char *KEK_CERTIFICATE_file, unsig
     {
         if (feof(file))
         {
-            return INCORRECT_KEYFILE_FORMAT; // Key file is too short.
+            return INIT_INCORRECT_KEYFILE_FORMAT; // Key file is too short.
         }
         fclose(file);                  // Ensure file is closed before returning.
-        return INCORRECT_KEYFILE_READ; // Error reading key.
+        return INIT_INCORRECT_KEYFILE_READ; // Error reading key.
     }
     fclose(file); // Close the key file after reading.
 
     // Initialize the file system in 'load' mode for normal operation.
     if (API_FS_initiate_file_system(MODE_LOAD, Cryptodata_filename, strlen(Cryptodata_filename)) < 0)
     {
-        return INCORRECT_FILESYSTEM_INIT; // File system initialization failed.
+        return INIT_INCORRECT_FILESYSTEM_INIT; // File system initialization failed.
     }
 
     // Set up AES encryption with the loaded key.
@@ -260,7 +260,7 @@ int file_exists(const char *filename)
 int API_INIT_initialize_module(unsigned char *KEK_CERTIFICATE_file, unsigned char *Cryptodata_filename)
 {
     if(API_SM_get_current_state() != STATE_INITIALIZATION){
-        return STATE_INCORRECTSTATE_ERROR;
+        return SM_ERROR_STATE;
     }
     int return_value;
     int result1 = Memory_tracking_initialization(); // Initialize memory tracking
@@ -294,9 +294,9 @@ int API_INIT_initialize_module(unsigned char *KEK_CERTIFICATE_file, unsigned cha
         return_value = INITIALIZE_OK_FIRST_INIT;
     }
     result1 = API_LT_startTraceFile();
-        if (result1 == TRACER_ERROR)
+        if (result1 == LT_TRACER_ERROR)
         {
-            return TRACER_INIT_ERROR;  // Return error code if tracer could not be initialized
+            return INIT_TRACER_INIT_ERROR;  // Return error code if tracer could not be initialized
         }
         
     return return_value; // Return success code if all initializations succeeded

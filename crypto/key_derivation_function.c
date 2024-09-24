@@ -14,7 +14,7 @@ const unsigned char constant2[HASH_SIZE] = {
     0xaa, 0x23, 0x39, 0x94, 0xd2, 0x4f, 0xc8, 0x81, 0x6e, 0x5b, 0x90, 0xef, 0x37, 0x63, 0xd1, 0x7f
 };
 
-void derive_complex_key(uint8_t input_key[32], uint8_t derived_key_cipher[32], uint8_t derived_key_auth[32]) {
+void API_KDF_derive_complex_key(uint8_t input_key[32], uint8_t derived_key_cipher[32], uint8_t derived_key_auth[32]) {
     
     // Step 1: Derive cipher key by concatenating input_key and constant1, then applying SHA-256
     memcpy(kdf_buffer, input_key, HASH_SIZE);       

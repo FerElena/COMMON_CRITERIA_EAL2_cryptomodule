@@ -38,15 +38,15 @@
 
 // memorytracker initialization codes
 #define CORRECT_TRACKER_INIT 1700
-#define INCORRECT_TRACKER_INIT -1700
+#define INIT_INCORRECT_TRACKER_INIT -1700
 
 // filesystem initialization codes
 #define CORRECT_FILESYSTEM_INIT 1701
-#define INCORRECT_KEYFILE_PATH -1701
-#define INCORRECT_KEYFILE_FORMAT -1702
-#define INCORRECT_KEYFILE_READ -1703
-#define INCORRECT_FILESYSTEM_INIT -1704
-#define TRACER_INIT_ERROR -1705
+#define INIT_INCORRECT_KEYFILE_PATH -1701
+#define INIT_INCORRECT_KEYFILE_FORMAT -1702
+#define INIT_INCORRECT_KEYFILE_READ -1703
+#define INIT_INCORRECT_FILESYSTEM_INIT -1704
+#define INIT_TRACER_INIT_ERROR -1705
 
 #define INITIALIZE_OK_FIRST_INIT 1705
 #define INITIALIZE_OK_NORMAL_INIT 1706
@@ -129,10 +129,10 @@ int File_system_first_initialization(unsigned char *KEK_CERTIFICATE_file, unsign
  *
  * @return Returns one of the following status codes:
  * - CORRECT_FILESYSTEM_INIT: File system initialized successfully.
- * - INCORRECT_KEYFILE_PATH: Invalid key file path or the file cannot be opened.
- * - INCORRECT_KEYFILE_FORMAT: The key file is too short and does not contain enough data.
- * - INCORRECT_KEYFILE_READ: An error occurred while reading the key file.
- * - INCORRECT_FILESYSTEM_INIT: The file system could not be initialized.
+ * - INIT_INCORRECT_KEYFILE_PATH: Invalid key file path or the file cannot be opened.
+ * - INIT_INCORRECT_KEYFILE_FORMAT: The key file is too short and does not contain enough data.
+ * - INIT_INCORRECT_KEYFILE_READ: An error occurred while reading the key file.
+ * - INIT_INCORRECT_FILESYSTEM_INIT: The file system could not be initialized.
  */
 
 int File_system_normal_initialization(unsigned char *KEK_CERTIFICATE_file, unsigned char *Cryptodata_filename);

@@ -32,10 +32,10 @@
  ****************************************************************************************************************/
 
 #define SUCCESSMM 1200
-#define ERROR_NULL_POINTER -1201
-#define ERROR_MEMORY_ALLOCATION_FAILED -1202
-#define ERROR_HASH_COLLISION -1203
-#define ERROR_MEMORY_DEALLOCATION_FAILED -1204
+#define MM_ERROR_NULL_POINTER -1201
+#define MM_MEMORY_ALLOCATION_FAILED -1202
+#define MM_ERROR_HASH_COLLISION -1203
+#define MM_MEMORY_DEALLOCATION_FAILED -1204
 
 /**
  * @brief Structure for a node in the memory hash-tree.

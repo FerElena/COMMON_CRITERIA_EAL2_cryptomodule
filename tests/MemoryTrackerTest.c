@@ -40,7 +40,7 @@ void test_API_MT_verify_integrity_failure()
     MemoryTracker *tracker = &trackers[index];
     data[0] = 'X'; // Corrupt the data
     int result = API_MT_verify_integrity(tracker);
-    printf("Test Verify Integrity (Failure): %s%s%s\n", result == MEMORYVIOLATION? GREEN : RED, result == MEMORYVIOLATION ? "Passed" : "Failed", RESET);
+    printf("Test Verify Integrity (Failure): %s%s%s\n", result == MT_MEMORYVIOLATION? GREEN : RED, result == MT_MEMORYVIOLATION ? "Passed" : "Failed", RESET);
 }
 
 void test_API_MT_update_tracker_success()

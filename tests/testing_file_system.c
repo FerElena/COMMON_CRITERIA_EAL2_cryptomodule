@@ -47,12 +47,12 @@ void FS_testing()
     // testing MODE_INIT
 
     // testing error if wrong parameters
-    if (API_FS_initiate_file_system(MODE_INIT, NULL, strlen(file_system_rpath)) != INCORRECT_ARGUMENT_ERROR)
+    if (API_FS_initiate_file_system(MODE_INIT, NULL, strlen(file_system_rpath)) != FS_INCORRECT_ARGUMENT_ERROR)
     {
         failed_test[0]++;
         correct_test = 0;
     }
-    if (API_FS_initiate_file_system(MODE_INIT, file_system_rpath, 513) != INCORRECT_ARGUMENT_ERROR)
+    if (API_FS_initiate_file_system(MODE_INIT, file_system_rpath, 513) != FS_INCORRECT_ARGUMENT_ERROR)
     {
         failed_test[1]++;
         correct_test = 0;
@@ -113,7 +113,7 @@ void FS_testing()
 #define NOT_CORRECT_MODE 999
 
     value_returned = API_FS_initiate_file_system(NOT_CORRECT_MODE, file_system_rpath, strlen(file_system_rpath));
-    if (value_returned != INCORRECT_MODE)
+    if (value_returned != FS_INCORRECT_MODE)
     {
         failed_test[7]++;
         correct_test = 0;
@@ -144,7 +144,7 @@ void FS_testing()
         correct_test = 0;
     }
 
-    if (API_FS_exists_file("testing_file2", strlen(filename1) + 1) != NOT_EXISTANT_FILENAME)
+    if (API_FS_exists_file("testing_file2", strlen(filename1) + 1) != FS_NOT_EXISTANT_FILENAME)
     {
         failed_test[1]++;
         correct_test = 0;
@@ -192,34 +192,34 @@ void FS_testing()
 
     unsigned char *filename7 = "filename7";
 
-    if (API_FS_create_file_data(filename7, strlen(filename7), data, sizeof(data), 2) != INCORRECT_ARGUMENT_ERROR)
+    if (API_FS_create_file_data(filename7, strlen(filename7), data, sizeof(data), 2) != FS_INCORRECT_ARGUMENT_ERROR)
     {
         failed_test[1]++;
         correct_test = 0;
     }
-    if (API_FS_create_file_data(filename7, strlen(filename7), NULL, sizeof(data), 2) != INCORRECT_ARGUMENT_ERROR)
+    if (API_FS_create_file_data(filename7, strlen(filename7), NULL, sizeof(data), 2) != FS_INCORRECT_ARGUMENT_ERROR)
     {
         failed_test[2]++;
         correct_test = 0;
     }
-    if (API_FS_create_file_data(NULL, strlen(filename7), data, sizeof(data), 2) != INCORRECT_ARGUMENT_ERROR)
+    if (API_FS_create_file_data(NULL, strlen(filename7), data, sizeof(data), 2) != FS_INCORRECT_ARGUMENT_ERROR)
     {
         failed_test[3]++;
         correct_test = 0;
     }
-    if (API_FS_create_file_data(filename7, strlen(filename7), data, MAX_FILE_DATA + 1, 2) != INCORRECT_ARGUMENT_ERROR)
+    if (API_FS_create_file_data(filename7, strlen(filename7), data, MAX_FILE_DATA + 1, 2) != FS_INCORRECT_ARGUMENT_ERROR)
     {
         failed_test[4]++;
         correct_test = 0;
     }
-    if (API_FS_create_file_data(filename7, MAX_FILENAME_LENGTH, data, sizeof(data), 2) != INCORRECT_ARGUMENT_ERROR)
+    if (API_FS_create_file_data(filename7, MAX_FILENAME_LENGTH, data, sizeof(data), 2) != FS_INCORRECT_ARGUMENT_ERROR)
     {
         failed_test[5]++;
         correct_test = 0;
     }
 
     // testing triying to create an already existing file
-    if (API_FS_create_file_data(filename5, strlen(filename5), data, sizeof(data), IS_CSP) != FILENAME_ALREADYEXIST_ERROR)
+    if (API_FS_create_file_data(filename5, strlen(filename5), data, sizeof(data), IS_CSP) != FS_FILENAME_ALREADYEXIST_ERROR)
     {
         failed_test[6]++;
         correct_test = 0;
@@ -280,7 +280,7 @@ void FS_testing()
     API_FS_create_file_data(filename26, strlen(filename26), newdata, sizeof(newdata), IS_CSP);
     API_FS_create_file_data(filename27, strlen(filename27), newdata, sizeof(newdata), IS_CSP);
 
-    if (API_FS_create_file_data(filename28, strlen(filename28), newdata, sizeof(newdata), IS_CSP) != MAX_SIZE_REACHED)
+    if (API_FS_create_file_data(filename28, strlen(filename28), newdata, sizeof(newdata), IS_CSP) != FS_MAX_SIZE_REACHED)
     {
         failed_test[7]++;
         correct_test = 0;
@@ -307,19 +307,19 @@ void FS_testing()
 
     // testing correct parameter checking
 
-    if (API_FS_delete_file(NULL, 5) != INCORRECT_ARGUMENT_ERROR)
+    if (API_FS_delete_file(NULL, 5) != FS_INCORRECT_ARGUMENT_ERROR)
     {
         failed_test[0]++;
         correct_test = 0;
     }
-    if (API_FS_delete_file(filename2, MAX_FILENAME_LENGTH + 1) != INCORRECT_ARGUMENT_ERROR)
+    if (API_FS_delete_file(filename2, MAX_FILENAME_LENGTH + 1) != FS_INCORRECT_ARGUMENT_ERROR)
     {
         failed_test[1]++;
         correct_test = 0;
     }
     // testing triying to delete a non existing file
 
-    if (API_FS_delete_file(filename29, strlen(filename29)) != NOT_EXISTANT_FILENAME)
+    if (API_FS_delete_file(filename29, strlen(filename29)) != FS_NOT_EXISTANT_FILENAME)
     {
         failed_test[2]++;
         correct_test = 0;
@@ -338,7 +338,7 @@ void FS_testing()
     fwrite(buffercorrompe, sizeof(buffercorrompe), 1, fd);
     fclose(fd); // secure writing in the file
 
-    if (API_FS_delete_file(filename2, strlen(filename2)) != CORRUPTED_DATA)
+    if (API_FS_delete_file(filename2, strlen(filename2)) != FS_CORRUPTED_DATA)
     {
         failed_test[4]++;
         correct_test = 0;
@@ -386,22 +386,22 @@ void FS_testing()
     int test_read1;
     unsigned char *test_read2;
 
-    if (API_FS_read_file_data(NULL, strlen(filename29), &test_read2, &test_read1) != INCORRECT_ARGUMENT_ERROR)
+    if (API_FS_read_file_data(NULL, strlen(filename29), &test_read2, &test_read1) != FS_INCORRECT_ARGUMENT_ERROR)
     {
         failed_test[0]++;
         correct_test = 0;
     }
-    if (API_FS_read_file_data(filename29, MAX_FILENAME_LENGTH + 1, &test_read2, &test_read1) != INCORRECT_ARGUMENT_ERROR)
+    if (API_FS_read_file_data(filename29, MAX_FILENAME_LENGTH + 1, &test_read2, &test_read1) != FS_INCORRECT_ARGUMENT_ERROR)
     {
         failed_test[1]++;
         correct_test = 0;
     }
-    if (API_FS_read_file_data(filename29, strlen(filename29), NULL, &test_read1) != INCORRECT_ARGUMENT_ERROR)
+    if (API_FS_read_file_data(filename29, strlen(filename29), NULL, &test_read1) != FS_INCORRECT_ARGUMENT_ERROR)
     {
         failed_test[2]++;
         correct_test = 0;
     }
-    if (API_FS_read_file_data(filename29, strlen(filename29), &test_read2, NULL) != INCORRECT_ARGUMENT_ERROR)
+    if (API_FS_read_file_data(filename29, strlen(filename29), &test_read2, NULL) != FS_INCORRECT_ARGUMENT_ERROR)
     {
         failed_test[3]++;
         correct_test = 0;
@@ -431,7 +431,7 @@ void FS_testing()
     // testing triying to read a non existing filename
 
     unsigned char *filename30 = "filename30";
-    if (API_FS_read_file_data(filename30, strlen(filename30), &test_read2, &test_read1) != NOT_EXISTANT_FILENAME)
+    if (API_FS_read_file_data(filename30, strlen(filename30), &test_read2, &test_read1) != FS_NOT_EXISTANT_FILENAME)
     {
         failed_test[5]++;
         correct_test = 0;
@@ -444,7 +444,7 @@ void FS_testing()
     fwrite(buffercorrompe, sizeof(buffercorrompe), 1, fd);
     fclose(fd); // secure writing in the file
 
-    if (API_FS_read_file_data(filename29, strlen(filename29), &read_pointer_filename29, &New_len_data_filename29) != CORRUPTED_DATA)
+    if (API_FS_read_file_data(filename29, strlen(filename29), &read_pointer_filename29, &New_len_data_filename29) != FS_CORRUPTED_DATA)
     {
         failed_test[6]++;
         correct_test = 0;
@@ -471,22 +471,22 @@ void FS_testing()
 
     // testing correct parameter checking
 
-    if (API_FS_rename_file(NULL, strlen(filename29), filename30, strlen(filename30)) != INCORRECT_ARGUMENT_ERROR)
+    if (API_FS_rename_file(NULL, strlen(filename29), filename30, strlen(filename30)) != FS_INCORRECT_ARGUMENT_ERROR)
     {
         failed_test[0]++;
         correct_test = 0;
     }
-    if (API_FS_rename_file(filename29, MAX_FILENAME_LENGTH + 1, filename30, strlen(filename30)) != INCORRECT_ARGUMENT_ERROR)
+    if (API_FS_rename_file(filename29, MAX_FILENAME_LENGTH + 1, filename30, strlen(filename30)) != FS_INCORRECT_ARGUMENT_ERROR)
     {
         failed_test[1]++;
         correct_test = 0;
     }
-    if (API_FS_rename_file(filename29, strlen(filename29), NULL, strlen(filename30)) != INCORRECT_ARGUMENT_ERROR)
+    if (API_FS_rename_file(filename29, strlen(filename29), NULL, strlen(filename30)) != FS_INCORRECT_ARGUMENT_ERROR)
     {
         failed_test[2]++;
         correct_test = 0;
     }
-    if (API_FS_rename_file(filename29, strlen(filename29), filename30, MAX_FILENAME_LENGTH + 1) != INCORRECT_ARGUMENT_ERROR)
+    if (API_FS_rename_file(filename29, strlen(filename29), filename30, MAX_FILENAME_LENGTH + 1) != FS_INCORRECT_ARGUMENT_ERROR)
     {
         failed_test[3]++;
         correct_test = 0;
@@ -501,7 +501,7 @@ void FS_testing()
 
     // testing triying to rename a non existing file
 
-    if (API_FS_rename_file(filename29, strlen(filename29), filename30, strlen(filename30)) != NOT_EXISTANT_FILENAME)
+    if (API_FS_rename_file(filename29, strlen(filename29), filename30, strlen(filename30)) != FS_NOT_EXISTANT_FILENAME)
     {
         failed_test[5]++;
         correct_test = 0;
@@ -531,22 +531,22 @@ void FS_testing()
     unsigned char *data_more = "this is not a random generated test, I wrote it because idk what to write for the test,this data have more than 100 characters";
     unsigned char *data_less = "this is not a random generated test, this data have less than 100 characters";
 
-    if (API_FS_update_file_data(NULL, strlen(filename4), data_more, strlen(data_more)) != INCORRECT_ARGUMENT_ERROR)
+    if (API_FS_update_file_data(NULL, strlen(filename4), data_more, strlen(data_more)) != FS_INCORRECT_ARGUMENT_ERROR)
     {
         failed_test[0]++;
         correct_test = 0;
     }
-    if (API_FS_update_file_data(filename4, MAX_FILENAME_LENGTH + 1, data_more, strlen(data_more)) != INCORRECT_ARGUMENT_ERROR)
+    if (API_FS_update_file_data(filename4, MAX_FILENAME_LENGTH + 1, data_more, strlen(data_more)) != FS_INCORRECT_ARGUMENT_ERROR)
     {
         failed_test[1]++;
         correct_test = 0;
     }
-    if (API_FS_update_file_data(filename4, strlen(filename4), NULL, strlen(data_more)) != INCORRECT_ARGUMENT_ERROR)
+    if (API_FS_update_file_data(filename4, strlen(filename4), NULL, strlen(data_more)) != FS_INCORRECT_ARGUMENT_ERROR)
     {
         failed_test[2]++;
         correct_test = 0;
     }
-    if (API_FS_update_file_data(filename4, strlen(filename4), data_more, MAX_FILE_DATA + 1) != INCORRECT_ARGUMENT_ERROR)
+    if (API_FS_update_file_data(filename4, strlen(filename4), data_more, MAX_FILE_DATA + 1) != FS_INCORRECT_ARGUMENT_ERROR)
     {
         failed_test[3]++;
         correct_test = 0;
@@ -554,7 +554,7 @@ void FS_testing()
 
     // testing triying to update a non existant file
 
-    if (API_FS_update_file_data(filename29, strlen(filename29), data_more, strlen(data_more)) != NOT_EXISTANT_FILENAME)
+    if (API_FS_update_file_data(filename29, strlen(filename29), data_more, strlen(data_more)) != FS_NOT_EXISTANT_FILENAME)
     {
         failed_test[4]++;
         correct_test = 0;
@@ -567,7 +567,7 @@ void FS_testing()
     fwrite(buffercorrompe, sizeof(buffercorrompe), 1, fd);
     fclose(fd); // secure writing in the file
 
-    if (API_FS_update_file_data(filename4, strlen(filename4), buffercorrompe, strlen(buffercorrompe)) != CORRUPTED_DATA)
+    if (API_FS_update_file_data(filename4, strlen(filename4), buffercorrompe, strlen(buffercorrompe)) != FS_CORRUPTED_DATA)
     {
         failed_test[5]++;
         correct_test = 0;
@@ -611,7 +611,7 @@ void FS_testing()
 
     // testing if there is no size for the new updated file size, in the filesystem
 
-    if (API_FS_update_file_data(filename6, strlen(filename6), data_more, MAX_FILE_DATA) != MAX_SIZE_REACHED)
+    if (API_FS_update_file_data(filename6, strlen(filename6), data_more, MAX_FILE_DATA) != FS_MAX_SIZE_REACHED)
     {
         failed_test[9]++;
         correct_test = 0;
@@ -643,22 +643,22 @@ void FS_testing()
 
     // testing correct parameter checking
 
-    if (API_FS_write_buffer_to_file(NULL, strlen(filename1), write_buffer_test, strlen(write_buffer_test), 10) != INCORRECT_ARGUMENT_ERROR)
+    if (API_FS_write_buffer_to_file(NULL, strlen(filename1), write_buffer_test, strlen(write_buffer_test), 10) != FS_INCORRECT_ARGUMENT_ERROR)
     {
         failed_test[0]++;
         correct_test = 0;
     }
-    if (API_FS_write_buffer_to_file(filename1, MAX_FILENAME_LENGTH + 1, write_buffer_test, strlen(write_buffer_test), 10) != INCORRECT_ARGUMENT_ERROR)
+    if (API_FS_write_buffer_to_file(filename1, MAX_FILENAME_LENGTH + 1, write_buffer_test, strlen(write_buffer_test), 10) != FS_INCORRECT_ARGUMENT_ERROR)
     {
         failed_test[1]++;
         correct_test = 0;
     }
-    if (API_FS_write_buffer_to_file(filename1, strlen(filename1), NULL, strlen(write_buffer_test), 10) != INCORRECT_ARGUMENT_ERROR)
+    if (API_FS_write_buffer_to_file(filename1, strlen(filename1), NULL, strlen(write_buffer_test), 10) != FS_INCORRECT_ARGUMENT_ERROR)
     {
         failed_test[2]++;
         correct_test = 0;
     }
-    if (API_FS_write_buffer_to_file(filename1, strlen(filename1), write_buffer_test, MAX_FILE_DATA + 1, 10) != INCORRECT_ARGUMENT_ERROR)
+    if (API_FS_write_buffer_to_file(filename1, strlen(filename1), write_buffer_test, MAX_FILE_DATA + 1, 10) != FS_INCORRECT_ARGUMENT_ERROR)
     {
         failed_test[3]++;
         correct_test = 0;
@@ -666,7 +666,7 @@ void FS_testing()
 
     // testing you cannot write on a non-existing file
 
-    if (API_FS_write_buffer_to_file(filename2, strlen(filename2), write_buffer_test, strlen(write_buffer_test), 10) != NOT_EXISTANT_FILENAME)
+    if (API_FS_write_buffer_to_file(filename2, strlen(filename2), write_buffer_test, strlen(write_buffer_test), 10) != FS_NOT_EXISTANT_FILENAME)
     {
         failed_test[4]++;
         correct_test = 0;
@@ -674,7 +674,7 @@ void FS_testing()
 
     // testing you cannot write more size than the size of the current size of the file
 
-    if (API_FS_write_buffer_to_file(filename1, strlen(filename1), writeread_test_buffer, strlen(writeread_test_buffer), 1) != MAX_SIZE_REACHED)
+    if (API_FS_write_buffer_to_file(filename1, strlen(filename1), writeread_test_buffer, strlen(writeread_test_buffer), 1) != FS_MAX_SIZE_REACHED)
     {
         failed_test[5]++;
         correct_test = 0;
@@ -726,22 +726,22 @@ void FS_testing()
 
     // testing correct parameter checking
 
-    if (API_FS_read_buffer_from_file(NULL, strlen(filename1), read_pointer_test, strlen(write_buffer_test), 12) != INCORRECT_ARGUMENT_ERROR)
+    if (API_FS_read_buffer_from_file(NULL, strlen(filename1), read_pointer_test, strlen(write_buffer_test), 12) != FS_INCORRECT_ARGUMENT_ERROR)
     {
         failed_test[0]++;
         correct_test = 0;
     }
-    if (API_FS_read_buffer_from_file(filename1, MAX_FILENAME_LENGTH + 1, read_pointer_test, strlen(write_buffer_test), 12) != INCORRECT_ARGUMENT_ERROR)
+    if (API_FS_read_buffer_from_file(filename1, MAX_FILENAME_LENGTH + 1, read_pointer_test, strlen(write_buffer_test), 12) != FS_INCORRECT_ARGUMENT_ERROR)
     {
         failed_test[1]++;
         correct_test = 0;
     }
-    if (API_FS_read_buffer_from_file(filename1, strlen(filename1), NULL, strlen(write_buffer_test), 12) != INCORRECT_ARGUMENT_ERROR)
+    if (API_FS_read_buffer_from_file(filename1, strlen(filename1), NULL, strlen(write_buffer_test), 12) != FS_INCORRECT_ARGUMENT_ERROR)
     {
         failed_test[2]++;
         correct_test = 0;
     }
-    if (API_FS_read_buffer_from_file(filename1, strlen(filename1), read_pointer_test, MAX_FILE_DATA + 1, 12) != INCORRECT_ARGUMENT_ERROR)
+    if (API_FS_read_buffer_from_file(filename1, strlen(filename1), read_pointer_test, MAX_FILE_DATA + 1, 12) != FS_INCORRECT_ARGUMENT_ERROR)
     {
         failed_test[3]++;
         correct_test = 0;
@@ -749,7 +749,7 @@ void FS_testing()
 
     // testing you cannot read on a non-existing file
 
-    if (API_FS_read_buffer_from_file(filename2, strlen(filename2), read_pointer_test, strlen(write_buffer_test), 12) != NOT_EXISTANT_FILENAME)
+    if (API_FS_read_buffer_from_file(filename2, strlen(filename2), read_pointer_test, strlen(write_buffer_test), 12) != FS_NOT_EXISTANT_FILENAME)
     {
         failed_test[4]++;
         correct_test = 0;
@@ -757,7 +757,7 @@ void FS_testing()
 
     // testing you cannot read more size than the current size of the file
 
-    if (API_FS_read_buffer_from_file(filename1, strlen(filename1), read_pointer_test, strlen(writeread_test_buffer), 1) != MAX_SIZE_REACHED)
+    if (API_FS_read_buffer_from_file(filename1, strlen(filename1), read_pointer_test, strlen(writeread_test_buffer), 1) != FS_MAX_SIZE_REACHED)
     {
         failed_test[5]++;
         correct_test = 0;

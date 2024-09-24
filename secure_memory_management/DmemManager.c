@@ -100,7 +100,7 @@ node *MM_find_minimum(node *current_node) {
 }
 
 // Securely wipes the memory by overwriting it with predefined patterns.
-void secure_zeroize(void *data, size_t size) {
+void API_MM_secure_zeroize(void *data, size_t size) {
     for (int i = 0; i < 6; i++) {
         memset(data, Schneier_patternsDM[i], size);  // Overwrite memory with each pattern.
     }
@@ -140,9 +140,9 @@ void MM_delete_node(node *node_to_delete) {
         successor->left->father = successor;
     }
 
-    secure_zeroize(node_to_delete->ptr, node_to_delete->size);  // Securely wipe memory block.
+    API_MM_secure_zeroize(node_to_delete->ptr, node_to_delete->size);  // Securely wipe memory block.
     free(node_to_delete->ptr);  // Free memory block.
-    secure_zeroize(node_to_delete, sizeof(node));  // Securely wipe node structure.
+    API_MM_secure_zeroize(node_to_delete, sizeof(node));  // Securely wipe node structure.
     free(node_to_delete);  // Free node.
 }
 
@@ -171,13 +171,13 @@ void *API_MM_allocateMem(size_t size) {
 
 // Frees memory and removes its corresponding node from the tree.
 int API_MM_freeMem(void *ptr) {
-    if (!ptr) return ERROR_NULL_POINTER;  // Return 0 if pointer is NULL.
+    if (!ptr) return MM_ERROR_NULL_POINTER;  // Return 0 if pointer is NULL.
 
     unsigned char hash[HASH_BLOCK_SIZE];
     MM_hash_address(ptr, hash);  // Hash the pointer.
 
     node *node_to_delete = MM_find_node_by_hash(ROOT, hash);  // Find the node corresponding to the pointer.
-    if (!node_to_delete) return ERROR_MEMORY_DEALLOCATION_FAILED;  // Return 0 if node not found.
+    if (!node_to_delete) return MM_MEMORY_DEALLOCATION_FAILED;  // Return 0 if node not found.
 
     MM_delete_node(node_to_delete);  // Delete the node and free its memory.
     return SUCCESSMM;  // Return success.
@@ -218,8 +218,8 @@ void zeroize_tree(node *current_node) {
         zeroize_tree(current_node->left);  // Recursively clear the left subtree.
         zeroize_tree(current_node->right); // Recursively clear the right subtree.
 
-        secure_zeroize(current_node->ptr, current_node->size);  // Securely wipe the memory block.
-        secure_zeroize(current_node, sizeof(node));  // Securely wipe the node structure.
+        API_MM_secure_zeroize(current_node->ptr, current_node->size);  // Securely wipe the memory block.
+        API_MM_secure_zeroize(current_node, sizeof(node));  // Securely wipe the node structure.
     }
 }
 

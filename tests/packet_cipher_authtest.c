@@ -55,8 +55,8 @@ void run_tests_packets(int num_times) {
     unsigned char key_HMAC[32];  // Clave de 256 bits
 
     // Llenar las claves con valores aleatorios
-    fill_buffer_with_random_bytes(key_AES, sizeof(key_AES));
-    fill_buffer_with_random_bytes(key_HMAC, sizeof(key_HMAC));
+    API_RNG_fill_buffer_random(key_AES, sizeof(key_AES));
+    API_RNG_fill_buffer_random(key_HMAC, sizeof(key_HMAC));
 
     // Configurar la generación aleatoria de números
     srand((unsigned int)time(NULL));
@@ -73,7 +73,7 @@ void run_tests_packets(int num_times) {
         }
 
         // Llenar el texto plano con datos aleatorios
-        fill_buffer_with_random_bytes(plaintext, plaintext_length);
+        API_RNG_fill_buffer_random(plaintext, plaintext_length);
 
         // Probar el cifrado/descifrado del texto plano
         printf("Test #%d - Longitud del texto plano: %zu bytes\n", i + 1, plaintext_length);

@@ -85,7 +85,7 @@
 /**
  * @brief File system operation generic error code
  */
-#define FILESYSTEM_ERROR -1000
+#define FS_ERROR -1000
 
 /**
  * @brief File system operation correct code
@@ -95,43 +95,43 @@
 /**
  * @brief No file system files exists error code
  */
-#define NO_FILESYSTEM_FILES -1001
+#define FS_NO_FILESYSTEM_FILES -1001
 
 /**
  * @brief Incorrect file system mode error code
  */
-#define INCORRECT_MODE -1002
+#define FS_INCORRECT_MODE -1002
 
 /**
  * @brief No filename error code
  */
-#define NOT_EXISTANT_FILENAME -1003
+#define FS_NOT_EXISTANT_FILENAME -1003
 
 /**
  * @brief Max filenames in file system error code
  */
-#define MAX_FILENAMES_REACHED -1004
+#define FS_MAX_FILENAMES_REACHED -1004
 
 /**
  * @brief Incorrect arguments error code
  */
-#define INCORRECT_ARGUMENT_ERROR -1005
+#define FS_INCORRECT_ARGUMENT_ERROR -1005
 
 /**
  * @brief Filename creation error code
  */
-#define FILENAME_ALREADYEXIST_ERROR -1006
+#define FS_FILENAME_ALREADYEXIST_ERROR -1006
 
 /**
  * @brief Max size reached in file system error code
  */
-#define MAX_SIZE_REACHED -1007
+#define FS_MAX_SIZE_REACHED -1007
 
 /**
  * @brief Data modification without prior authorization
  * 
  */
-#define CORRUPTED_DATA -1008
+#define FS_CORRUPTED_DATA -1008
 
 // buffer to get the data out of the file
 
@@ -235,8 +235,8 @@ int FS_checkdatasave(unsigned int IsCSP,uint8_t Metadata_update);
  * @return The result of the operation
  *
  * @errors
- * @error{ ERROR 1, Returns NO_FILESYSTEM_FILES if the file system file descriptors are NULL}
- * @error{ ERROR 2, Returns INCORRECT_MODE if the open mode is incorrect}
+ * @error{ ERROR 1, Returns FS_NO_FILESYSTEM_FILES if the file system file descriptors are NULL}
+ * @error{ ERROR 2, Returns FS_INCORRECT_MODE if the open mode is incorrect}
  */
 int API_FS_initiate_file_system(unsigned int mode , unsigned char *filesystem_route , size_t filesystem_route_length);
 
@@ -254,7 +254,7 @@ int API_FS_setup_cipher(uint8_t mode,uint8_t *fs_Key);
  * @return The Metadatablock index related to the filename
  *
  * @errors
- * @error{ ERROR 1, Returns NOT_EXISTANT_FILENAME if the filename is not in the file system}
+ * @error{ ERROR 1, Returns FS_NOT_EXISTANT_FILENAME if the filename is not in the file system}
  */
 int API_FS_exists_file(unsigned char *filename, size_t filename_length);
 
@@ -275,10 +275,10 @@ int API_FS_exists_file(unsigned char *filename, size_t filename_length);
  * @return Result of the operation
  *
  * @errors
- * @error{ ERROR 1, Returns MAX_FILENAMES_REACHED if the metadata cannot allocate more information}
- * @error{ ERROR 2, Returns INCORRECT_ARGUMENT_ERROR if the provided arguments are incorrect}
- * @error{ ERROR 3, Returns FILENAME_ALREADYEXIST_ERROR if the filename is in the file system
- * @error{ ERROR 4, Returns MAX_SIZE_REACHED if the file system cannot allocate more information}
+ * @error{ ERROR 1, Returns FS_MAX_FILENAMES_REACHED if the metadata cannot allocate more information}
+ * @error{ ERROR 2, Returns FS_INCORRECT_ARGUMENT_ERROR if the provided arguments are incorrect}
+ * @error{ ERROR 3, Returns FS_FILENAME_ALREADYEXIST_ERROR if the filename is in the file system
+ * @error{ ERROR 4, Returns FS_MAX_SIZE_REACHED if the file system cannot allocate more information}
  */
 int API_FS_create_file_data(unsigned char *filename, size_t filename_length, unsigned char *data, size_t data_size, uint8_t isCSP);
 
@@ -296,10 +296,10 @@ int API_FS_create_file_data(unsigned char *filename, size_t filename_length, uns
  * @return Result of the zeroization process
  *
  * @errors
- * @error{ ERROR 1, Returns INCORRECT_ARGUMENT_ERROR if the filename is NULL or too long}
- * @error{ ERROR 2, Returns NO_FILESYSTEM_FILES if the filesystem is not initialized or closed}
- * @error{ ERROR 3, Returns FILESYSTEM_ERROR if there is an issue reading or writing the file}
- * @error{ ERROR 4, Returns CORRUPTED_DATA if the file's integrity check fails before zeroization}
+ * @error{ ERROR 1, Returns FS_INCORRECT_ARGUMENT_ERROR if the filename is NULL or too long}
+ * @error{ ERROR 2, Returns FS_NO_FILESYSTEM_FILES if the filesystem is not initialized or closed}
+ * @error{ ERROR 3, Returns FS_ERROR if there is an issue reading or writing the file}
+ * @error{ ERROR 4, Returns FS_CORRUPTED_DATA if the file's integrity check fails before zeroization}
  */
 
 int API_FS_zeroize_file(unsigned char *filename,size_t filename_length);
@@ -316,7 +316,7 @@ int API_FS_zeroize_file(unsigned char *filename,size_t filename_length);
  * @return Result of the operation
  *
  * @errors
- * @error{ ERROR 1, Returns NOT_EXISTANT_FILENAME if the filename does not exist in the file system}
+ * @error{ ERROR 1, Returns FS_NOT_EXISTANT_FILENAME if the filename does not exist in the file system}
  */
 int API_FS_delete_file(unsigned char *filename , size_t filename_length);
 
@@ -355,10 +355,10 @@ int API_FS_read_file_data(unsigned char *filename,size_t filename_length,unsigne
  * @return Result of the operation.
  * 
  * @errors
- * @error{ ERROR 1, Returns INCORRECT_ARGUMENT_ERROR if the provided arguments are incorrect.}
- * @error{ ERROR 2, Returns NO_FILESYSTEM_FILES if the filesystem is not initialized or is closed.}
- * @error{ ERROR 3, Returns NOT_EXISTANT_FILENAME if the file to be renamed does not exist.}
- * @error{ ERROR 4, Returns FILESYSTEM_ERROR if an error occurs while saving metadata.}
+ * @error{ ERROR 1, Returns FS_INCORRECT_ARGUMENT_ERROR if the provided arguments are incorrect.}
+ * @error{ ERROR 2, Returns FS_NO_FILESYSTEM_FILES if the filesystem is not initialized or is closed.}
+ * @error{ ERROR 3, Returns FS_NOT_EXISTANT_FILENAME if the file to be renamed does not exist.}
+ * @error{ ERROR 4, Returns FS_ERROR if an error occurs while saving metadata.}
  * @error{ ERROR 5, Returns FILESYSTEM_OK if the rename operation was successful.}
  */
 int API_FS_rename_file(unsigned char *old_filename , size_t old_filename_length , unsigned char *new_filename , size_t new_filename_length);
@@ -403,9 +403,9 @@ int API_FS_zeroize_file_system();
  * @return The result of the operation
  *
  * @errors
- * @error{ ERROR 1, Returns NOT_EXISTANT_FILENAME if the filename does not exist in the file system}
- * @error{ ERROR 2, Returns MAX_SIZE_REACHED if the buffer size exceeds file space}
- * @error{ ERROR 3, Returns FILESYSTEM_ERROR if there is an error writing buffer to file}
+ * @error{ ERROR 1, Returns FS_NOT_EXISTANT_FILENAME if the filename does not exist in the file system}
+ * @error{ ERROR 2, Returns FS_MAX_SIZE_REACHED if the buffer size exceeds file space}
+ * @error{ ERROR 3, Returns FS_ERROR if there is an error writing buffer to file}
 
  */
 int API_FS_write_buffer_to_file(unsigned char *filename,size_t filename_length, unsigned char *buffer_in, size_t buffer_size, size_t position);
@@ -422,11 +422,11 @@ int API_FS_write_buffer_to_file(unsigned char *filename,size_t filename_length, 
  * @return The result of the operation
  *
  * @errors
- * @error{ ERROR 1, Returns NOT_EXISTANT_FILENAME if the filename does not exist in the file system}
- * @error{ ERROR 2, Returns MAX_SIZE_REACHED if the read position is invalid}
- * @error{ ERROR 3, Returns MAX_SIZE_REACHED if the read size is invalid}
- * @error{ ERROR 4, Returns INCORRECT_ARGUMENT_ERROR if there is an error moving the file pointer}
- * @error{ ERROR 5, Returns FILESYSTEM_ERROR if there is an error reading the file}
+ * @error{ ERROR 1, Returns FS_NOT_EXISTANT_FILENAME if the filename does not exist in the file system}
+ * @error{ ERROR 2, Returns FS_MAX_SIZE_REACHED if the read position is invalid}
+ * @error{ ERROR 3, Returns FS_MAX_SIZE_REACHED if the read size is invalid}
+ * @error{ ERROR 4, Returns FS_INCORRECT_ARGUMENT_ERROR if there is an error moving the file pointer}
+ * @error{ ERROR 5, Returns FS_ERROR if there is an error reading the file}
  */
 int API_FS_read_buffer_from_file(unsigned char *filename,size_t filename_length, unsigned char *buffer_out, size_t read_size, size_t position);
 

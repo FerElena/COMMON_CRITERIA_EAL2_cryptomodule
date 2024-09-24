@@ -27,6 +27,6 @@
  * @param derived_key_auth: A pointer to store the derived key used for authentication (32 bytes).
  */
 
-void derive_complex_key(uint8_t input_key[32], uint8_t derived_key_cipher[32], uint8_t derived_key_auth[32]) ;
+void API_KDF_derive_complex_key(uint8_t input_key[32], uint8_t derived_key_cipher[32], uint8_t derived_key_auth[32]) ;
 
 #endif

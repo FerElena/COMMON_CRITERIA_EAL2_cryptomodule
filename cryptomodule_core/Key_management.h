@@ -7,26 +7,69 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include <ctype.h>
 
 /****************************************************************************************************************
  * Private include files
  ****************************************************************************************************************/
-
-
+#include "../state_machine/State_Machine.h"
+#include "../secure_memory_management/file_system.h"
+#include "../crypto/AES_CORE.h"
+#include "../crypto/key_derivation_function.h"
+#include "../secure_memory_management/MemoryTracker.h"
+#include "module_initialization.h"
 /****************************************************************************************************************
  * Global variables/constants definition
  ****************************************************************************************************************/
+
+#define KM_OK 1300
+
+#define KM_PARAMETERS_ERROR -1300
+
+
+#define MAXLENGTH_KEYID 50
 
 typedef struct current_key_in_use{
 	uint8_t Main_key[32];
 	uint8_t Cipher_key[32];
 	uint8_t Auth_key[32];
+	unsigned char keyname[MAX_FILENAME_LENGTH];
 }current_key_in_use;
+
+extern current_key_in_use Current_key_in_use;
 
 /****************************************************************************************************************
  * Function definition zone
  ****************************************************************************************************************/
 
-extern current_key_in_use Current_key_in_use;
+/**
+ * @brief Stores a cryptographic key securely in the file system.
+ *
+ * This function stores a key in the file system if the current state is `STATE_CSP`. The key and its ID
+ * must be valid, and the function constructs a file name using a prefix and the provided Key ID.
+ * 
+ * @param In_Key Pointer to the input key (32 bytes expected).
+ * @param key_size Size of the key in bytes (should be <= 32 bytes for AES-256).
+ * @param Key_id Pointer to the key identifier.
+ * @param Key_id_length Length of the key identifier.
+ * 
+ * @return `KM_OK` on success, error code otherwise.
+ */
 
+int API_KM_storekey(unsigned char In_Key[32], size_t key_size, unsigned char *Key_id, size_t Key_id_length);
+
+/**
+ * @brief Loads a cryptographic key from the file system using the provided Key ID.
+ *
+ * This function retrieves a key from the file system based on a given Key ID. The key is loaded
+ * into the current key structure and used for further cryptographic operations. It also updates
+ * the memory tracker for the current key.
+ *
+ * @param Key_id Pointer to the key identifier.
+ * @param Key_id_length Length of the key identifier.
+ * 
+ * @return `KM_OK` on success, error code otherwise.
+ */
+
+int API_KM_loadkey(unsigned char *Key_id, size_t Key_id_length);
 #endif

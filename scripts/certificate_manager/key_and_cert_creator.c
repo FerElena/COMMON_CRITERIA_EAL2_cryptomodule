@@ -119,7 +119,7 @@ int main(int argc, char *argv[])
 		size_t file_size;
 
 		// Llenar el buffer con bytes aleatorios
-		fill_buffer_with_random_bytes(key_AES256_certificate, 32);
+		API_RNG_fill_buffer_random(key_AES256_certificate, 32);
 
 		// Leer la clave ECDSA del archivo
 		FILE *f1 = fopen(argv[2], "rb");

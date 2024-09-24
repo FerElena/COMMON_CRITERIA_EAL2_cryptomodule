@@ -39,7 +39,7 @@ extern sem_t TraceSem_full;
 
 #define TRACER_OK 1500
 
-#define TRACER_ERROR -1500
+#define LT_TRACER_ERROR -1500
 
 
 
@@ -65,7 +65,7 @@ extern unsigned char concatenated_string[MAX_STRING];
  * to handle the writing of trace messages asynchronously. It also initializes the necessary semaphores for
  * synchronization.
  *
- * @return `TRACER_OK` if the trace system is successfully initialized, or `TRACER_ERROR` if file creation fails.
+ * @return `TRACER_OK` if the trace system is successfully initialized, or `LT_TRACER_ERROR` if file creation fails.
  */
 int API_LT_startTraceFile();
 

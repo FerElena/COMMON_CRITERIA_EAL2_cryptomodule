@@ -60,7 +60,7 @@ int API_PCA_sign_encrypt_packet(unsigned char *data_in, size_t data_in_length, u
 	data_in_len_aux += HMAC_SHA256_sign_size;
 
 	// Generate IV for AES encryption.
-	int result2 = fill_buffer_with_random_bytes(AES_IV, 16);
+	int result2 = API_RNG_fill_buffer_random(AES_IV, 16);
 
 	// Encrypt the data and signature using AES in CBC mode.
 	int result3 = API_CP_AESCBC_encrypt(aux_buffer_pointer, &data_in_len_aux, key_AES, AES_KEY_SIZE_256, AES_IV, out_buffer_pointer + 24);

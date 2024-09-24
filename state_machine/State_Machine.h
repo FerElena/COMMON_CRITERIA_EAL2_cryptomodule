@@ -32,9 +32,9 @@ ON ----> INITIALIZATION ----> SELF-TEST ----------->OPERATIONAL
  */
 
 #define STATE_CHANGE_SUCCESS 1800         // Successful state change
-#define STATE_CHANGE_ERROR -1800          // Hard error state
-#define STATE_CHANGE_SOFTERROR -1801      // Soft error state
-#define STATE_INCORRECTSTATE_ERROR -1802  //Invalid operation for this state
+#define SM_ERROR -1800          // Hard error state
+#define SM_SOFTERROR -1801      // Soft error state
+#define SM_ERROR_STATE -1802  //Invalid operation for this state
 
 /**
  * @enum State
@@ -79,8 +79,8 @@ typedef enum {
  * @param next_state The next state to which the system should transition.
  * @return int Returns a constant indicating the result of the state change:
  *  - `STATE_CHANGE_SUCCESS`: Indicates the state change was successful.
- *  - `STATE_CHANGE_ERROR`: Indicates the state change led to a hard error.
- *  - `STATE_CHANGE_SOFTERROR`: Indicates the state change led to a soft error.
+ *  - `SM_ERROR`: Indicates the state change led to a hard error.
+ *  - `SM_SOFTERROR`: Indicates the state change led to a soft error.
  */
 
 int API_SM_State_Change(State next_state);

@@ -1,6 +1,6 @@
 #include "random_number.h"
 
-int fill_buffer_with_random_bytes(unsigned char *buffer, size_t size) {
+int API_RNG_fill_buffer_random(unsigned char *buffer, size_t size) {
     int fd;
     ssize_t result;
 
@@ -32,5 +32,5 @@ int fill_buffer_with_random_bytes(unsigned char *buffer, size_t size) {
         buffer[i] = rand() % 256;  // Generate a pseudo-random byte
     }
 
-    return ERROR_RANDOM_GENERATION_FAILED;  // Return an error indicating that no secure source was utilized
+    return RNG_RANDOM_GENERATION_FAILED;  // Return an error indicating that no secure source was utilized
 }

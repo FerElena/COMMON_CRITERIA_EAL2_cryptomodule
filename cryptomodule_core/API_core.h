@@ -26,7 +26,7 @@
  ****************************************************************************************************************/
 
 #define INITIALIZATION_OK 2000
-#define INITIALIZATION_ERROR -2000
+#define MC_INITIALIZATION_ERROR -2000
 
 /****************************************************************************************************************
  * Function definition zone
@@ -51,7 +51,7 @@ int API_MC_getcurrent_state();
  * @param[in] Cryptodata_filename   Pointer to the cryptographic data file.
  * 
  * @return int Returns `INITIALIZATION_OK` if the initialization is successful. 
- *             Returns `INITIALIZATION_ERROR` if an error occurs during initialization.
+ *             Returns `MC_INITIALIZATION_ERROR` if an error occurs during initialization.
  * 
  * The function follows these main steps:
  * - Changes the system state to `STATE_INITIALIZATION`.

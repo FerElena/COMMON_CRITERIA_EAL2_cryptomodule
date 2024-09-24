@@ -17,7 +17,7 @@ pthread_mutex_t FS_mutex = PTHREAD_MUTEX_INITIALIZER; // semaphore to keep the f
 
 unsigned char FS_data_buffer[MAX_FILE_DATA]; // CSP shared data buffer wich is overwriten with consecutive FS_functions calls(except API_FS_write_buffer_to_file and API_FS_read_buffer_from_file)
                                              // the data in this buffer is supposed to be copied to another buffer which is not going to be overwriten by consecutive operations
-
+                                             // FS does not really support threads as this buffer can be overwriten with 2 consecutive FS calls
 unsigned char FS_cipher_key[32];
 // Schneier patrons for secure zeroization making it harder for data recovery
 static const unsigned char Schneier_patterns[] = {0x00, 0xFF, 0xAA, 0x55, 0xAA, 0x55};
@@ -73,14 +73,14 @@ int FS_saveall_metadatablock()
     // Save the metadata in the global variable, to the metadata_file , this function supposses that the filesystem is already opened
     if (MetadataBlock.FS_data_descriptor == NULL)
     {
-        return NO_FILESYSTEM_FILES;
+        return FS_NO_FILESYSTEM_FILES;
     }
     fseek(MetadataBlock.FS_data_descriptor, 0, SEEK_SET);
     size_t write_bytes = fwrite(&MetadataBlock, 1, sizeof(MetadataBlock), MetadataBlock.FS_data_descriptor); // write all metadata from position 0 in the file_system
 
     if (write_bytes != sizeof(MetadataBlock))
     {
-        return FILESYSTEM_ERROR;
+        return FS_ERROR;
     }
     return FILESYSTEM_OK;
 }
@@ -112,7 +112,7 @@ int FS_checkdatasave(unsigned int IsCSP, uint8_t Metadata_update)
         return FILESYSTEM_OK && result;
     }
     else
-        return FILESYSTEM_ERROR;
+        return FS_ERROR;
 }
 
 // FS FUNCTIONS
@@ -122,7 +122,7 @@ int API_FS_initiate_file_system(unsigned int mode, unsigned char *filesystem_rou
 {
     if (filesystem_route == NULL || filesystem_route_length >= 512)
     {
-        return INCORRECT_ARGUMENT_ERROR;
+        return FS_INCORRECT_ARGUMENT_ERROR;
     }
     pthread_mutex_lock(&FS_mutex);
 
@@ -135,7 +135,7 @@ int API_FS_initiate_file_system(unsigned int mode, unsigned char *filesystem_rou
         if (MetadataBlock.FS_data_descriptor == NULL)
         { // return error if cannot open file
             pthread_mutex_unlock(&FS_mutex);
-            return NO_FILESYSTEM_FILES;
+            return FS_NO_FILESYSTEM_FILES;
         }
 
         // configure Metadata parameters for Initialization mode
@@ -152,7 +152,7 @@ int API_FS_initiate_file_system(unsigned int mode, unsigned char *filesystem_rou
             fclose(MetadataBlock.FS_data_descriptor);
             MetadataBlock.filesystem_state = SYSTEM_CLOSE;
             pthread_mutex_unlock(&FS_mutex);
-            return FILESYSTEM_ERROR;
+            return FS_ERROR;
         }
 
         rewind(MetadataBlock.FS_data_descriptor);
@@ -169,7 +169,7 @@ int API_FS_initiate_file_system(unsigned int mode, unsigned char *filesystem_rou
         if (auxf == NULL)
         { // return error if cannot open file
             pthread_mutex_unlock(&FS_mutex);
-            return NO_FILESYSTEM_FILES;
+            return FS_NO_FILESYSTEM_FILES;
         }
 
         // load Metadata from disk into RAM
@@ -186,7 +186,7 @@ int API_FS_initiate_file_system(unsigned int mode, unsigned char *filesystem_rou
             fclose(MetadataBlock.FS_data_descriptor);
             MetadataBlock.filesystem_state = SYSTEM_CLOSE;
             pthread_mutex_unlock(&FS_mutex);
-            return FILESYSTEM_ERROR;
+            return FS_ERROR;
         }
 
         pthread_mutex_unlock(&FS_mutex);
@@ -195,7 +195,7 @@ int API_FS_initiate_file_system(unsigned int mode, unsigned char *filesystem_rou
     else
     { // if incorrect mode
         pthread_mutex_unlock(&FS_mutex);
-        return INCORRECT_MODE;
+        return FS_INCORRECT_MODE;
     }
 }
 
@@ -227,7 +227,7 @@ int API_FS_exists_file(unsigned char *filename, size_t filename_length) // auxil
             return i; // return the position of the descriptor
         }
     }
-    return NOT_EXISTANT_FILENAME; // return error if the descriptor was not found
+    return FS_NOT_EXISTANT_FILENAME; // return error if the descriptor was not found
 }
 
 // create a new file, and adds a data buffer
@@ -241,24 +241,24 @@ int API_FS_create_file_data(unsigned char *filename, size_t filename_length, uns
     if (new_allocation_index >= MAX_FILES)
     {
         pthread_mutex_unlock(&FS_mutex);
-        return MAX_FILENAMES_REACHED;
+        return FS_MAX_FILENAMES_REACHED;
     }
     // Check if the provided arguments are valid (e.g. valid length, data and filename are not NULL).
     if (filename_length > MAX_FILENAME_LENGTH || data_size > MAX_FILE_DATA || filename == NULL || data == NULL || isCSP > 1)
     {
         pthread_mutex_unlock(&FS_mutex);
-        return INCORRECT_ARGUMENT_ERROR;
+        return FS_INCORRECT_ARGUMENT_ERROR;
     }
     if (MetadataBlock.FS_data_descriptor == NULL || MetadataBlock.filesystem_state == SYSTEM_CLOSE)
     {
         pthread_mutex_unlock(&FS_mutex);
-        return NO_FILESYSTEM_FILES;
+        return FS_NO_FILESYSTEM_FILES;
     }
     // Check if the file descriptor already exists, you cannot create an already existing file!
-    if (API_FS_exists_file(filename, filename_length) != NOT_EXISTANT_FILENAME)
+    if (API_FS_exists_file(filename, filename_length) != FS_NOT_EXISTANT_FILENAME)
     {
         pthread_mutex_unlock(&FS_mutex);
-        return FILENAME_ALREADYEXIST_ERROR;
+        return FS_FILENAME_ALREADYEXIST_ERROR;
     }
     // Check if the file can fit at offset 0. If the offset of the first descriptor is equal or larger than the new data size,
     // it means that the new file can fit at the beginning of the file (offset 0) (used for the case where file 0 have been erased at some point)
@@ -294,7 +294,7 @@ int API_FS_create_file_data(unsigned char *filename, size_t filename_length, uns
     if (offset + data_size > MAX_FILESYSTEM_SIZE)
     {
         pthread_mutex_unlock(&FS_mutex);
-        return MAX_SIZE_REACHED;
+        return FS_MAX_SIZE_REACHED;
     }
     // if is CSP, calculate checksum for integrity testing
     if (isCSP)
@@ -306,7 +306,7 @@ int API_FS_create_file_data(unsigned char *filename, size_t filename_length, uns
     // if cipher mode on, cipher the data before write it;
     if (isCSP && MetadataBlock.cipher_mode == CIPHER_ON)
     {
-        fill_buffer_with_random_bytes(MetadataBlock.allocations[new_allocation_index].IV, AES_BLOCK_SIZE);
+        API_RNG_fill_buffer_random(MetadataBlock.allocations[new_allocation_index].IV, AES_BLOCK_SIZE);
         AES_OFB_EncryptDecrypt(data, data_size, FS_cipher_key, AES_KEY_SIZE_256, MetadataBlock.allocations[new_allocation_index].IV, FS_data_buffer);
         fseek(MetadataBlock.FS_data_descriptor, offset + sizeof(MetadataBlock), SEEK_SET);
         write_bytes = fwrite(FS_data_buffer, 1, data_size, MetadataBlock.FS_data_descriptor);
@@ -320,7 +320,7 @@ int API_FS_create_file_data(unsigned char *filename, size_t filename_length, uns
     if (write_bytes != data_size)
     {
         pthread_mutex_unlock(&FS_mutex);
-        return FILESYSTEM_ERROR;
+        return FS_ERROR;
     }
 
     // Move existing allocations to make room for the new one.
@@ -346,7 +346,7 @@ int API_FS_create_file_data(unsigned char *filename, size_t filename_length, uns
         return FILESYSTEM_OK;
 
     else
-        return FILESYSTEM_ERROR;
+        return FS_ERROR;
 }
 
 // Zeroizes a file
@@ -355,12 +355,12 @@ int API_FS_zeroize_file(unsigned char *filename, size_t filename_length)
     // Validate input parameters
     if (filename == NULL || filename_length > MAX_FILENAME_LENGTH)
     {
-        return INCORRECT_ARGUMENT_ERROR; // Invalid filename or length
+        return FS_INCORRECT_ARGUMENT_ERROR; // Invalid filename or length
     }
     // Ensure the filesystem is open and ready
     if (MetadataBlock.FS_data_descriptor == NULL || MetadataBlock.filesystem_state == SYSTEM_CLOSE)
     {
-        return NO_FILESYSTEM_FILES; // Filesystem not available
+        return FS_NO_FILESYSTEM_FILES; // Filesystem not available
     }
 
     // Find the file in the filesystem
@@ -381,7 +381,7 @@ int API_FS_zeroize_file(unsigned char *filename, size_t filename_length)
         if (bytes_read != MetadataBlock.allocations[index].size)
         {
             pthread_mutex_unlock(&FS_mutex);
-            return FILESYSTEM_ERROR; // Error reading the file
+            return FS_ERROR; // Error reading the file
         }
         // Decrypt the data if encryption is enabled
         if (MetadataBlock.cipher_mode == CIPHER_ON)
@@ -404,7 +404,7 @@ int API_FS_zeroize_file(unsigned char *filename, size_t filename_length)
         if (written_bytes != MetadataBlock.allocations[index].size)
         {
             pthread_mutex_unlock(&FS_mutex);
-            return FILESYSTEM_ERROR; // Error writing the file
+            return FS_ERROR; // Error writing the file
         }
     }
 
@@ -414,7 +414,7 @@ int API_FS_zeroize_file(unsigned char *filename, size_t filename_length)
     // Return error if data corruption was detected, otherwise return success
     if (corrupted_data)
     {
-        return CORRUPTED_DATA;
+        return FS_CORRUPTED_DATA;
     }
     return FILESYSTEM_OK;
 }
@@ -424,18 +424,18 @@ int API_FS_delete_file(unsigned char *filename, size_t filename_length)
 {
     if (filename == NULL || filename_length > MAX_FILENAME_LENGTH)
     {
-        return INCORRECT_ARGUMENT_ERROR;
+        return FS_INCORRECT_ARGUMENT_ERROR;
     }
     if (MetadataBlock.FS_data_descriptor == NULL || MetadataBlock.filesystem_state == SYSTEM_CLOSE)
     {
         pthread_mutex_unlock(&FS_mutex);
-        return NO_FILESYSTEM_FILES;
+        return FS_NO_FILESYSTEM_FILES;
     }
 
     int index = API_FS_exists_file(filename, filename_length);
-    if ((index == NOT_EXISTANT_FILENAME)) // check if files exists, you cannot delete a non existing file!
+    if ((index == FS_NOT_EXISTANT_FILENAME)) // check if files exists, you cannot delete a non existing file!
     {
-        return NOT_EXISTANT_FILENAME; // File descriptor does not exist.
+        return FS_NOT_EXISTANT_FILENAME; // File descriptor does not exist.
     }
     // open file system
     pthread_mutex_lock(&FS_mutex);
@@ -450,7 +450,7 @@ int API_FS_delete_file(unsigned char *filename, size_t filename_length)
         if (bytes_read != MetadataBlock.allocations[index].size)
         {
             pthread_mutex_unlock(&FS_mutex);
-            return FILESYSTEM_ERROR;
+            return FS_ERROR;
         }
         // if cipher mode, decipher it
         if (MetadataBlock.allocations[index].isCSP && MetadataBlock.cipher_mode == CIPHER_ON)
@@ -484,30 +484,30 @@ int API_FS_delete_file(unsigned char *filename, size_t filename_length)
     int save_result = FS_checkdatasave(IS_CSP, SAVE_METADATA);
     pthread_mutex_unlock(&FS_mutex);
     if (corrupted_data)
-        return CORRUPTED_DATA; // unauthorized data modification before deletion
+        return FS_CORRUPTED_DATA; // unauthorized data modification before deletion
 
     else if (save_result)
         return FILESYSTEM_OK; // Successful deletion.
 
     else
-        return FILESYSTEM_ERROR; // Unsuccessful deletion.
+        return FS_ERROR; // Unsuccessful deletion.
 }
 
-// read the entire data of a file, and returns it in the global buffer whis is reutilized
+// read the entire data of a file, and returns it in the global buffer which is reutilized
 int API_FS_read_file_data(unsigned char *filename, size_t filename_length, unsigned char **buffer_out, unsigned int *data_length)
 {
     if (filename == NULL || filename_length > MAX_FILENAME_LENGTH || buffer_out == NULL || data_length == NULL)
     {
-        return INCORRECT_ARGUMENT_ERROR;
+        return FS_INCORRECT_ARGUMENT_ERROR;
     }
     if (MetadataBlock.FS_data_descriptor == NULL || MetadataBlock.filesystem_state == SYSTEM_CLOSE)
     {
-        return NO_FILESYSTEM_FILES;
+        return FS_NO_FILESYSTEM_FILES;
     }
     pthread_mutex_lock(&FS_mutex);
 
     int index = API_FS_exists_file(filename, filename_length);
-    if (index != NOT_EXISTANT_FILENAME) // if the user does exist
+    if (index != FS_NOT_EXISTANT_FILENAME) // if the user does exist
     {
         // read data from the filesystem
         fseek(MetadataBlock.FS_data_descriptor, MetadataBlock.allocations[index].offset + sizeof(MetadataBlock), SEEK_SET);
@@ -515,13 +515,13 @@ int API_FS_read_file_data(unsigned char *filename, size_t filename_length, unsig
         if (bytes_read != MetadataBlock.allocations[index].size)
         {
             pthread_mutex_unlock(&FS_mutex);
-            return FILESYSTEM_ERROR;
+            return FS_ERROR;
         }
         // if setup to cipher mode, we decipher it
         if (MetadataBlock.allocations[index].isCSP && MetadataBlock.cipher_mode == CIPHER_ON)
             AES_OFB_EncryptDecrypt(FS_data_buffer, MetadataBlock.allocations[index].size, FS_cipher_key, AES_KEY_SIZE_256, MetadataBlock.allocations[index].IV, FS_data_buffer);
 
-        *buffer_out = FS_data_buffer;                         // assign input parameter poiter, to the global data buffer
+        *buffer_out = FS_data_buffer;                         // assign input parameter pointer, to the global data buffer
         *data_length = MetadataBlock.allocations[index].size; // assign input length pointer to the size of the file
 
         if (MetadataBlock.allocations[index].isCSP)
@@ -531,7 +531,7 @@ int API_FS_read_file_data(unsigned char *filename, size_t filename_length, unsig
             if (corrupted_data)
             {
                 pthread_mutex_unlock(&FS_mutex);
-                return CORRUPTED_DATA;
+                return FS_CORRUPTED_DATA;
             }
         }
         int save_result = FS_checkdatasave(MetadataBlock.allocations[index].isCSP, NO_METADATA); // no need to save metadata as it is only a read from file
@@ -539,11 +539,11 @@ int API_FS_read_file_data(unsigned char *filename, size_t filename_length, unsig
         if (save_result)
             return FILESYSTEM_OK; // return success in read the data operation
         else
-            return FILESYSTEM_ERROR; // return error in operation
+            return FS_ERROR; // return error in operation
     }
     // else, user does not exists
     pthread_mutex_unlock(&FS_mutex);
-    return NOT_EXISTANT_FILENAME; // if the user does not exist, return ERROR
+    return FS_NOT_EXISTANT_FILENAME; // if the user does not exist, return ERROR
 }
 
 // update filename of a file
@@ -552,20 +552,20 @@ int API_FS_rename_file(unsigned char *old_filename, size_t old_filename_length, 
 {
     if (old_filename == NULL || new_filename == NULL || old_filename_length > MAX_FILENAME_LENGTH || new_filename_length > MAX_FILENAME_LENGTH)
     {
-        return INCORRECT_ARGUMENT_ERROR;
+        return FS_INCORRECT_ARGUMENT_ERROR;
     }
     if (MetadataBlock.FS_data_descriptor == NULL || MetadataBlock.filesystem_state == SYSTEM_CLOSE)
     {
         pthread_mutex_unlock(&FS_mutex);
-        return NO_FILESYSTEM_FILES;
+        return FS_NO_FILESYSTEM_FILES;
     }
     int index = API_FS_exists_file(old_filename, old_filename_length);
     pthread_mutex_lock(&FS_mutex);
 
-    if (index == NOT_EXISTANT_FILENAME)
+    if (index == FS_NOT_EXISTANT_FILENAME)
     { // if file does not exists, return error code
         pthread_mutex_unlock(&FS_mutex);
-        return NOT_EXISTANT_FILENAME;
+        return FS_NOT_EXISTANT_FILENAME;
     }
 
     memcpy(MetadataBlock.allocations[index].filename, new_filename, new_filename_length);
@@ -575,7 +575,7 @@ int API_FS_rename_file(unsigned char *old_filename, size_t old_filename_length, 
     if (save_result)
         return FILESYSTEM_OK; // correct rename of data
     else
-        return FILESYSTEM_ERROR;
+        return FS_ERROR;
 }
 
 // update the old file data, at the same times it reallocs more memory iun disk if needed, if used with larger sizes it can fragment the disk, so not recomended to reuse if asking for more size
@@ -584,14 +584,14 @@ int API_FS_rename_file(unsigned char *old_filename, size_t old_filename_length, 
 int API_FS_update_file_data(unsigned char *filename, size_t filename_length, unsigned char *data, size_t data_size)
 {
     if (filename == NULL || filename_length > MAX_FILENAME_LENGTH || data == NULL || data_size > MAX_FILE_DATA)
-        return INCORRECT_ARGUMENT_ERROR;
+        return FS_INCORRECT_ARGUMENT_ERROR;
     if (MetadataBlock.FS_data_descriptor == NULL || MetadataBlock.filesystem_state == SYSTEM_CLOSE)
-        return NO_FILESYSTEM_FILES;
+        return FS_NO_FILESYSTEM_FILES;
 
     int index = API_FS_exists_file(filename, filename_length);
     int save_result;
-    if (index == NOT_EXISTANT_FILENAME) // if file does not exists, return error code
-        return NOT_EXISTANT_FILENAME;
+    if (index == FS_NOT_EXISTANT_FILENAME) // if file does not exists, return error code
+        return FS_NOT_EXISTANT_FILENAME;
 
     pthread_mutex_lock(&FS_mutex);
     int current_offset = MetadataBlock.allocations[index].offset;
@@ -607,7 +607,7 @@ int API_FS_update_file_data(unsigned char *filename, size_t filename_length, uns
         if (bytes_trafic != MetadataBlock.allocations[index].size)
         {
             pthread_mutex_unlock(&FS_mutex);
-            return FILESYSTEM_ERROR;
+            return FS_ERROR;
         }
         if (MetadataBlock.cipher_mode == CIPHER_ON)
         {
@@ -640,7 +640,7 @@ int API_FS_update_file_data(unsigned char *filename, size_t filename_length, uns
         if (bytes_trafic != data_size)
         {
             pthread_mutex_unlock(&FS_mutex);
-            return FILESYSTEM_ERROR;
+            return FS_ERROR;
         }
         // updates Metadata in case is CSP, or data is smaller than old data
         MetadataBlock.allocations[index].size = data_size;
@@ -653,10 +653,10 @@ int API_FS_update_file_data(unsigned char *filename, size_t filename_length, uns
         index = API_FS_exists_file(filename, filename_length);                       // takes the new file index after the quicksort
         int new_offset = find_space_for_data(data_size, index);
 
-        if (new_offset == MAX_SIZE_REACHED)
+        if (new_offset == FS_MAX_SIZE_REACHED)
         { // if no more space avaiable in the file system for the updated
             pthread_mutex_unlock(&FS_mutex);
-            return MAX_SIZE_REACHED;
+            return FS_MAX_SIZE_REACHED;
         }
 
         if (MetadataBlock.allocations[index].isCSP) // if CSP, zeroizes old space with Scheneier secure pattern
@@ -670,7 +670,7 @@ int API_FS_update_file_data(unsigned char *filename, size_t filename_length, uns
                 if (bytes_trafic != MetadataBlock.allocations[index].size)
                 {
                     pthread_mutex_unlock(&FS_mutex);
-                    return FILESYSTEM_ERROR;
+                    return FS_ERROR;
                 }
             }
         }
@@ -695,7 +695,7 @@ int API_FS_update_file_data(unsigned char *filename, size_t filename_length, uns
         if (bytes_trafic != data_size)
         {
             pthread_mutex_unlock(&FS_mutex);
-            return FILESYSTEM_ERROR;
+            return FS_ERROR;
         }
         // updates metadata according to the new file position in the system
         MetadataBlock.allocations[index].offset = new_offset;
@@ -705,9 +705,9 @@ int API_FS_update_file_data(unsigned char *filename, size_t filename_length, uns
     pthread_mutex_unlock(&FS_mutex);
 
     if (corrupted_data) // old data corrupted
-        return CORRUPTED_DATA;
-    else if (save_result == FILESYSTEM_ERROR) // unsuccesfull update operation
-        return FILESYSTEM_ERROR;
+        return FS_CORRUPTED_DATA;
+    else if (save_result == FS_ERROR) // unsuccesfull update operation
+        return FS_ERROR;
     else // succesfull update operation
         return FILESYSTEM_OK;
 }
@@ -735,7 +735,7 @@ int find_space_for_data(size_t data_size, unsigned int exclude_index)
     {
         return potential_start;
     }
-    return MAX_SIZE_REACHED; // new size cannot fit in the current file_system
+    return FS_MAX_SIZE_REACHED; // new size cannot fit in the current file_system
 }
 
 // Write buffer to file , does not check memory corruptions and does not updates CRC, optimized for recursive use, DO NOT USE IF FILE IS CSP
@@ -743,30 +743,30 @@ int API_FS_write_buffer_to_file(unsigned char *filename, size_t filename_length,
 {
     if (filename == NULL || filename_length > MAX_FILENAME_LENGTH || buffer_in == NULL || buffer_size > MAX_FILE_DATA)
     {
-        return INCORRECT_ARGUMENT_ERROR;
+        return FS_INCORRECT_ARGUMENT_ERROR;
     }
     if (MetadataBlock.FS_data_descriptor == NULL || MetadataBlock.filesystem_state == SYSTEM_CLOSE)
     {
-        return NO_FILESYSTEM_FILES;
+        return FS_NO_FILESYSTEM_FILES;
     }
     pthread_mutex_lock(&FS_mutex);
 
     int index = API_FS_exists_file(filename, filename_length); // check for index of the file
-    if (index == NOT_EXISTANT_FILENAME)
+    if (index == FS_NOT_EXISTANT_FILENAME)
     {
         pthread_mutex_unlock(&FS_mutex);
-        return NOT_EXISTANT_FILENAME; // File does not exist in the file system
+        return FS_NOT_EXISTANT_FILENAME; // File does not exist in the file system
     }
     if (MetadataBlock.allocations[index].isCSP)
     {
         pthread_mutex_unlock(&FS_mutex);
-        return INCORRECT_ARGUMENT_ERROR;
+        return FS_INCORRECT_ARGUMENT_ERROR;
     }
     // Check if buffer size exceeds available space in the file
     if (position + buffer_size > MetadataBlock.allocations[index].size)
     {
         pthread_mutex_unlock(&FS_mutex);
-        return MAX_SIZE_REACHED; // Buffer size exceeds file space
+        return FS_MAX_SIZE_REACHED; // Buffer size exceeds file space
     }
     // Move the file pointer to the specified position
     fseek(MetadataBlock.FS_data_descriptor, MetadataBlock.allocations[index].offset + position + sizeof(MetadataBlock), SEEK_SET);
@@ -776,7 +776,7 @@ int API_FS_write_buffer_to_file(unsigned char *filename, size_t filename_length,
     if (bytes != buffer_size)
     {
         pthread_mutex_unlock(&FS_mutex);
-        return FILESYSTEM_ERROR; // Error writing buffer to file
+        return FS_ERROR; // Error writing buffer to file
     }
 
     int save_result = FS_checkdatasave(NOT_CSP, NO_METADATA);
@@ -784,7 +784,7 @@ int API_FS_write_buffer_to_file(unsigned char *filename, size_t filename_length,
     if (save_result)
         return FILESYSTEM_OK; // Success
     else
-        return FILESYSTEM_ERROR; // Error
+        return FS_ERROR; // Error
 }
 
 // Read buffer from file , DOES NOT CHECK FOR MEMORY CORRUPTIONS, DO NOT USE IF FILE IS CSP
@@ -792,30 +792,30 @@ int API_FS_read_buffer_from_file(unsigned char *filename, size_t filename_length
 {
     if (filename == NULL || filename_length > MAX_FILENAME_LENGTH || buffer_out == NULL || read_size > MAX_FILE_DATA)
     {
-        return INCORRECT_ARGUMENT_ERROR;
+        return FS_INCORRECT_ARGUMENT_ERROR;
     }
     if (MetadataBlock.FS_data_descriptor == NULL || MetadataBlock.filesystem_state == SYSTEM_CLOSE)
     {
-        return NO_FILESYSTEM_FILES;
+        return FS_NO_FILESYSTEM_FILES;
     }
     pthread_mutex_lock(&FS_mutex);
 
     int index = API_FS_exists_file(filename, filename_length);
-    if (index == NOT_EXISTANT_FILENAME)
+    if (index == FS_NOT_EXISTANT_FILENAME)
     {
         pthread_mutex_unlock(&FS_mutex);
-        return NOT_EXISTANT_FILENAME; // File does not exist in the file system
+        return FS_NOT_EXISTANT_FILENAME; // File does not exist in the file system
     }
     if (MetadataBlock.allocations[index].isCSP)
     {
         pthread_mutex_unlock(&FS_mutex);
-        return INCORRECT_ARGUMENT_ERROR;
+        return FS_INCORRECT_ARGUMENT_ERROR;
     }
     // Check if read position and size are valid
     if (position + read_size >= MetadataBlock.allocations[index].size)
     {
         pthread_mutex_unlock(&FS_mutex);
-        return MAX_SIZE_REACHED; // Invalid read position
+        return FS_MAX_SIZE_REACHED; // Invalid read position
     }
 
     // Move the file pointer to the specified position
@@ -826,7 +826,7 @@ int API_FS_read_buffer_from_file(unsigned char *filename, size_t filename_length
     if (bytes_read != (size_t)read_size)
     {
         pthread_mutex_unlock(&FS_mutex);
-        return FILESYSTEM_ERROR; // Error reading file data
+        return FS_ERROR; // Error reading file data
     }
 
     int save_result = FS_checkdatasave(NOT_CSP, NO_METADATA);
@@ -834,7 +834,7 @@ int API_FS_read_buffer_from_file(unsigned char *filename, size_t filename_length
     if (save_result)
         return FILESYSTEM_OK; // Success
     else
-        return FILESYSTEM_ERROR;
+        return FS_ERROR;
 }
 
 int API_FS_zeroize_file_system() // funtion to zeroize every single CSP in the file_system , it
@@ -846,7 +846,7 @@ int API_FS_zeroize_file_system() // funtion to zeroize every single CSP in the f
     if (MetadataBlock.FS_data_descriptor == NULL || MetadataBlock.filesystem_state == SYSTEM_CLOSE)
     {
         pthread_mutex_unlock(&FS_mutex);
-        return NO_FILESYSTEM_FILES;
+        return FS_NO_FILESYSTEM_FILES;
     }
     for (int i = 0; i < MetadataBlock.num_filenames; i++)
     {
@@ -874,7 +874,7 @@ int API_FS_zeroize_file_system() // funtion to zeroize every single CSP in the f
     }
     else
     {
-        return FILESYSTEM_ERROR;
+        return FS_ERROR;
     }
 }
 

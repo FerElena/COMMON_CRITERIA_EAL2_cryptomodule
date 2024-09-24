@@ -21,7 +21,7 @@
 
 #define RANDOM_OK 1400
 #define PSEUDORANDOM_OK 1401
-#define ERROR_RANDOM_GENERATION_FAILED -1401
+#define RNG_RANDOM_GENERATION_FAILED -1401
 
 /****************************************************************************************************************
  * Function definition zone
@@ -39,7 +39,7 @@
  *
  * @return int Returns `RANDOM_OK` if `/dev/random` was successfully used.
  * Returns `PSEUDORANDOM_OK` if `/dev/urandom` was used instead.
- * Returns `ERROR_RANDOM_GENERATION_FAILED` if neither secure source was available
+ * Returns `RNG_RANDOM_GENERATION_FAILED` if neither secure source was available
  * and pseudo-random data was generated.
  */
-int fill_buffer_with_random_bytes(unsigned char *buffer, size_t size);
+int API_RNG_fill_buffer_random(unsigned char *buffer, size_t size);

@@ -69,7 +69,7 @@ int API_MT_add_tracker(void *ptr, size_t size, uint8_t isCSP)
     if (tracker == NULL)
     {
         pthread_mutex_unlock(&mutex);
-        return NO_MORE_TRACKERS; // Indicate no more Trackers
+        return MT_NO_MORE_TRACKERS; // Indicate no more Trackers
     }
     // Initialize the tracker with the memory block's info.
     tracker->ptr = ptr;
@@ -83,7 +83,7 @@ int API_MT_add_tracker(void *ptr, size_t size, uint8_t isCSP)
         perror("mlock failed");
         return_tracker(tracker); // Return tracker to the free list
         pthread_mutex_unlock(&mutex);
-        return MEMORY_LOCK_FAIL; // Indicate failure
+        return MT_MEMORY_LOCK_FAIL; // Indicate failure
     }
 
     // Add the tracker to the used list.
@@ -105,7 +105,7 @@ int API_MT_verify_integrity(MemoryTracker *tracker)
     if (current_checksum == tracker->checksum)                           // Return whether the checksums match (if correct, MT_OK, if not MT_FAIL)
         return MT_OK;
     else
-        return MEMORYVIOLATION;
+        return MT_MEMORYVIOLATION;
 }
 
 // updates a tracker with a new content and CRC, suposed to be used!!!
@@ -128,7 +128,7 @@ int API_MT_update_tracker(MemoryTracker *tracker)
     if (mlock(tracker->ptr, tracker->size) != 0)
     {
         pthread_mutex_unlock(&mutex);
-        return MEMORY_LOCK_FAIL; // Indicate failure.
+        return MT_MEMORY_LOCK_FAIL; // Indicate failure.
     }
 
     pthread_mutex_unlock(&mutex);
@@ -160,7 +160,7 @@ int API_MT_change_tracker(MemoryTracker *tracker, void *new_ptr, size_t new_size
     if (mlock(new_ptr, new_size) != 0)
     {
         pthread_mutex_unlock(&mutex);
-        return MEMORY_LOCK_FAIL; // Indicate failure
+        return MT_MEMORY_LOCK_FAIL; // Indicate failure
     }
 
     pthread_mutex_unlock(&mutex);
@@ -189,7 +189,7 @@ int API_MT_remove_tracker(void *ptr)
     if (!integrity)
     {
         pthread_mutex_unlock(&mutex);                     // Unlock on integrity violation.
-        return MEMORYVIOLATION_BEFORE_DELETE;             // Indicate failure.
+        return MT_MEMORYVIOLATION_BEFORE_DELETE;             // Indicate failure.
     }
 
     // Clear memory if CSP, using secure scheme of Schneier Patron.

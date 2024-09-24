@@ -12,10 +12,10 @@ int API_SM_State_Change(State next_state){
                     return STATE_CHANGE_SUCCESS;  // Successful transition to ON
                 case STATE_SOFTERROR:
                     current_state = STATE_SOFTERROR;
-                    return STATE_CHANGE_SOFTERROR;  // Transition to soft error
+                    return SM_SOFTERROR;  // Transition to soft error
                 default:
                     current_state = STATE_ERROR;
-                    return STATE_CHANGE_ERROR;  // Any other transition is an error
+                    return SM_ERROR;  // Any other transition is an error
             }
         
         // When the system is on
@@ -26,10 +26,10 @@ int API_SM_State_Change(State next_state){
                     return STATE_CHANGE_SUCCESS;  // Successful transition to STATE_INITIALIZATION
                 case STATE_SOFTERROR:
                     current_state = STATE_SOFTERROR;
-                    return STATE_CHANGE_SOFTERROR;  // Transition to soft error
+                    return SM_SOFTERROR;  // Transition to soft error
                 default:
                     current_state = STATE_ERROR;
-                    return STATE_CHANGE_ERROR;  // Invalid transition, go to error state
+                    return SM_ERROR;  // Invalid transition, go to error state
             }
         // During secure initialization of the module
         case STATE_INITIALIZATION:
@@ -39,10 +39,10 @@ int API_SM_State_Change(State next_state){
                     return STATE_CHANGE_SUCCESS;  // Transition to STATE_SELF_TEST
                 case STATE_SOFTERROR:
                     current_state = STATE_SOFTERROR;
-                    return STATE_CHANGE_SOFTERROR;  // Transition to soft error
+                    return SM_SOFTERROR;  // Transition to soft error
                 default:
                     current_state = STATE_ERROR;
-                    return STATE_CHANGE_ERROR;  // Invalid transition, go to error state
+                    return SM_ERROR;  // Invalid transition, go to error state
             }
         // During the self-test
         case STATE_SELF_TEST:
@@ -55,10 +55,10 @@ int API_SM_State_Change(State next_state){
                     return STATE_CHANGE_SUCCESS;  // Direct transition to OPERATIONAL allowed
                 case STATE_SOFTERROR:
                     current_state = STATE_SOFTERROR;
-                    return STATE_CHANGE_SOFTERROR;  // Transition to soft error
+                    return SM_SOFTERROR;  // Transition to soft error
                 default:
                     current_state = STATE_ERROR;
-                    return STATE_CHANGE_ERROR;  // Invalid transition, go to error state
+                    return SM_ERROR;  // Invalid transition, go to error state
             }
         
         // During operational state
@@ -78,10 +78,10 @@ int API_SM_State_Change(State next_state){
                     return STATE_CHANGE_SUCCESS;  // Transition to OFF
                 case STATE_SOFTERROR:
                     current_state = STATE_SOFTERROR;
-                    return STATE_CHANGE_SOFTERROR;  // Transition to soft error
+                    return SM_SOFTERROR;  // Transition to soft error
                 default:
                     current_state = STATE_ERROR;
-                    return STATE_CHANGE_ERROR;  // Invalid transition, go to error state
+                    return SM_ERROR;  // Invalid transition, go to error state
             }
         
         // During cryptographic operations
@@ -95,10 +95,10 @@ int API_SM_State_Change(State next_state){
                     return STATE_CHANGE_SUCCESS;  // Transition to CSP
                 case STATE_SOFTERROR:
                     current_state = STATE_SOFTERROR;
-                    return STATE_CHANGE_SOFTERROR;  // Transition to soft error
+                    return SM_SOFTERROR;  // Transition to soft error
                 default:
                     current_state = STATE_ERROR;
-                    return STATE_CHANGE_ERROR;  // Invalid transition, go to error state
+                    return SM_ERROR;  // Invalid transition, go to error state
             }
         
         // During CSP handling
@@ -112,10 +112,10 @@ int API_SM_State_Change(State next_state){
                     return STATE_CHANGE_SUCCESS;  // Transition to CRYPTOGRAPHIC
                 case STATE_SOFTERROR:
                     current_state = STATE_SOFTERROR;
-                    return STATE_CHANGE_SOFTERROR;  // Transition to soft error
+                    return SM_SOFTERROR;  // Transition to soft error
                 default:
                     current_state = STATE_ERROR;
-                    return STATE_CHANGE_ERROR;  // Invalid transition, go to error state
+                    return SM_ERROR;  // Invalid transition, go to error state
             }
         
         // During a soft error
@@ -135,7 +135,7 @@ int API_SM_State_Change(State next_state){
         // Default case for invalid states
         default:
             current_state = STATE_ERROR;
-            return STATE_CHANGE_ERROR;  // Invalid state, enter hard error
+            return SM_ERROR;  // Invalid state, enter hard error
     }
 }
 

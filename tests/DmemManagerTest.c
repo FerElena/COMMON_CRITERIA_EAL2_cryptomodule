@@ -120,7 +120,7 @@ void test_API_MM_freeMem() {
     printf("  Freeing allocated memory: %s%s%s\n", result == SUCCESSMM ? GREEN : RED, result == SUCCESSMM ? "Passed" : "Failed", RESET);
 
     result = API_MM_freeMem(NULL); // Try to free NULL pointer
-    printf("  Freeing NULL pointer: %s%s%s\n", result == ERROR_NULL_POINTER ? GREEN : RED, result == ERROR_NULL_POINTER ? "Passed" : "Failed", RESET);
+    printf("  Freeing NULL pointer: %s%s%s\n", result == MM_ERROR_NULL_POINTER ? GREEN : RED, result == MM_ERROR_NULL_POINTER ? "Passed" : "Failed", RESET);
 }
 
 void test_API_MM_realloc() {

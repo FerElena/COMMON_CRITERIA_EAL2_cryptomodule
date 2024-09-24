@@ -27,7 +27,7 @@ int API_MC_Initialize_module(unsigned char *KEK_CERTIFICATE_file, unsigned char 
     else {
         // Initialization error handling
         API_LT_traceWrite("Initialization Error", API_EM_get_error_message(Operation_result), NULL);
-        return INITIALIZATION_ERROR;
+        return MC_INITIALIZATION_ERROR;
     }
 
     // Initialize error manager and set error counter
@@ -38,7 +38,7 @@ int API_MC_Initialize_module(unsigned char *KEK_CERTIFICATE_file, unsigned char 
     } 
     else {
         API_LT_traceWrite("Error_manager incorrect initialization:", API_EM_get_error_message(Operation_result), NULL);
-        return INITIALIZATION_ERROR;
+        return MC_INITIALIZATION_ERROR;
     }
 
     // Run self-tests
@@ -54,8 +54,8 @@ int API_MC_Initialize_module(unsigned char *KEK_CERTIFICATE_file, unsigned char 
     else {
         // Self-test failure handling
         API_LT_traceWrite("Self test failed:", API_EM_get_error_message(Operation_result), NULL);
-        API_SM_State_Change(STATE_CHANGE_ERROR); // FALTA IMPLEMENTAR LA LÓGICA PARA QUE ENTRE EN ERROR STATE SI REINICIA EL MODULO, también la zeroización
-        return Operation_result;
+        API_SM_State_Change(SM_ERROR); // FALTA IMPLEMENTAR LA LÓGICA PARA QUE ENTRE EN ERROR STATE SI REINICIA EL MODULO, también la zeroización
+        return MC_INITIALIZATION_ERROR;
     }
 
     // Set state to operational after successful initialization
@@ -68,7 +68,7 @@ int API_MC_Initialize_module(unsigned char *KEK_CERTIFICATE_file, unsigned char 
 
 int API_MC_Insert_Key(){
     if(API_SM_get_current_state() != STATE_OPERATIONAL){
-        return STATE_INCORRECTSTATE_ERROR;
+        return SM_ERROR_STATE;
     }
 }
 

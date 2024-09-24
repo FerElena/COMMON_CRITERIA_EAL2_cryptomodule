@@ -34,7 +34,7 @@ int API_LT_startTraceFile()
     sem_init(&TraceSem_empty, 0, 1);
     sem_init(&TraceSem_full, 0, 0); // Cambiado a 0 para que empiece vacío
     return (create1 == FILESYSTEM_OK && create2 == FILESYSTEM_OK) || 
-           (create1 == FILENAME_ALREADYEXIST_ERROR && create2 == FILENAME_ALREADYEXIST_ERROR) ? TRACER_OK : TRACER_ERROR;
+           (create1 == FS_FILENAME_ALREADYEXIST_ERROR && create2 == FS_FILENAME_ALREADYEXIST_ERROR) ? TRACER_OK : LT_TRACER_ERROR;
 }
 
 void API_LT_traceWrite(unsigned char *str, ...) {

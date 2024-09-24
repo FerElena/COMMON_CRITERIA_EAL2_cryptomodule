@@ -42,12 +42,12 @@
  * 
  * Code sent when a selftest does not passed
  */
-#define SELFTEST_FAILED -1600
-#define SHA256_SELFTEST_FAILED -1601
-#define HMAC_SHA256_SELFTEST_FAILED -1602
-#define ECDSAP256_SELFTEST_FAILED -1603
-#define AES256_CBC_SELFTEST_FAILED -1604
-#define MODULE_INTEGRITY_SELFTEST_FAILED -1605
+#define SFT_SELFTEST_FAILED -1600
+#define SFT_SHA256_SELFTEST_FAILED -1601
+#define SFT_HMAC_SHA256_SELFTEST_FAILED -1602
+#define SFT_ECDSAP256_SELFTEST_FAILED -1603
+#define SFT_AES256_CBC_SELFTEST_FAILED -1604
+#define SFT_MODULE_INTEGRITY_SELFTEST_FAILED -1605
 
 /****************************************************************************************************************
  * Function definition zone
