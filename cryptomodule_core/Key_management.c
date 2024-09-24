@@ -67,6 +67,9 @@ int API_KM_loadkey(unsigned char *Key_id, size_t Key_id_length)
 	unsigned int data_length;
 	int result = API_FS_read_file_data(keyname, strlen((char *)keyname), &key_data, &data_length);
 
+	if(result != FILESYSTEM_OK){ // error
+		return result;
+	}
 	// Check if the loaded key size matches the expected AES-256 key size
 	if (data_length != AES_KEY_SIZE_256)
 	{
@@ -90,4 +93,35 @@ int API_KM_loadkey(unsigned char *Key_id, size_t Key_id_length)
 	}
 
 	return KM_OK;
+}
+
+int API_KM_delete_key(unsigned char *Key_id, size_t Key_id_length)
+{
+    // Check if the current state is CSP, required for key management operations
+    if (API_SM_get_current_state() != STATE_CSP)
+    {
+        return SM_ERROR_STATE;
+    }
+
+    // Validate input parameters
+    if (Key_id == NULL || Key_id_length > MAXLENGTH_KEYID)
+    {
+        return KM_PARAMETERS_ERROR;
+    }
+
+    // Construct the file name with the prefix "KEY_"
+    unsigned char keyname[MAX_FILENAME_LENGTH] = {0};
+    const char *Keyname_initial = "KEY_";
+    strncat(keyname, Keyname_initial, sizeof(keyname) - strlen(keyname) - 1);  // Secure concatenation
+    strncat(keyname, (char *)Key_id, Key_id_length < (sizeof(keyname) - strlen(keyname) - 1) ? Key_id_length : (sizeof(keyname) - strlen(keyname) - 1));  // Secure concatenation with bounds check
+
+    // Delete the file corresponding to the key
+    int result = API_FS_delete_file(keyname, strlen((char *)keyname));
+
+    // Check if the file system deletion was successful
+    if (result != FILESYSTEM_OK) {
+        return result;
+    }
+
+    return KM_OK;
 }

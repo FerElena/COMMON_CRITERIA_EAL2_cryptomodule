@@ -72,4 +72,19 @@ int API_KM_storekey(unsigned char In_Key[32], size_t key_size, unsigned char *Ke
  */
 
 int API_KM_loadkey(unsigned char *Key_id, size_t Key_id_length);
+
+/**
+ * @brief Deletes a cryptographic key from the file system using the provided Key ID.
+ *
+ * This function securely deletes a key from the file system based on the given Key ID. The key is identified
+ * by its name, which is constructed with a "KEY_" prefix followed by the provided Key ID. It ensures that the 
+ * operation is performed in the correct state (`STATE_CSP`).
+ * 
+ * @param Key_id Pointer to the key identifier.
+ * @param Key_id_length Length of the key identifier.
+ * 
+ * @return `KM_OK` on success, error code otherwise.
+ */
+
+int API_KM_delete_key(unsigned char *Key_id, size_t Key_id_length);
 #endif
