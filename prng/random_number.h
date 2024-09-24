@@ -3,6 +3,10 @@
  * @brief Header file for functions that generate random bytes using secure sources.
  */
 
+/****************************************************************************************************************
+ * Compiler include files
+ ****************************************************************************************************************/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <fcntl.h>
@@ -11,9 +15,17 @@
 #include <sys/types.h>
 #include <errno.h>
 
+/****************************************************************************************************************
+ * Global variables/constants definition
+ ****************************************************************************************************************/
+
 #define RANDOM_OK 1400
 #define PSEUDORANDOM_OK 1401
 #define ERROR_RANDOM_GENERATION_FAILED -1401
+
+/****************************************************************************************************************
+ * Function definition zone
+ ****************************************************************************************************************/
 
 /**
  * @brief Fills a buffer with random bytes, attempting to use secure sources.

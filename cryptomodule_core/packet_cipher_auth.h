@@ -1,14 +1,20 @@
 /**
- * @file file_system.c
- * @brief File containing all the functions for the cryptographic library file system
+ * @file packet_cipher_auth.h
+ * @brief File containing the definition for packet cipherer/authenticator
  */
 #ifndef PACKET_CIPHER_AUTH_H
 #define PACKET_CIPHER_AUTH_H
+
+/****************************************************************************************************************
+ * Compiler include files
+ ****************************************************************************************************************/
+
+#include <stdlib.h>
+#include <string.h>
+
 /****************************************************************************************************************
  * Private include files
  ****************************************************************************************************************/
-#include <stdlib.h>
-#include <string.h>
 
 #include "../crypto/crypto.h"
 #include "../secure_memory_management/DmemManager.h"
@@ -17,6 +23,7 @@
 /****************************************************************************************************************
  * Global variables/constants definition
  ****************************************************************************************************************/
+
 #define HMAC_SHA256_key_size 32
 
 #define HMAC_SHA256_sign_size 32
@@ -33,13 +40,6 @@
 extern unsigned char PCA_data_buffer_sed[data_buffer_sign_encrypt_length]; // 256 kilobytes of static memory to avoid memory allocation every time CSP is used
 extern unsigned char PCA_data_buffer_sed_aux[data_buffer_sign_encrypt_length];
 
-typedef struct current_key_in_use{
-	uint8_t Main_key[32];
-	uint8_t Cipher_key[32];
-	uint8_t Auth_key[32];
-}current_key_in_use;
-
-extern current_key_in_use Current_key_in_use;
 /*
 Structure of the encrypted packet; the text and signature are encrypted using AES-CBC-256.
 

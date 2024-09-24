@@ -14,7 +14,6 @@
 unsigned char PCA_data_buffer_sed[data_buffer_sign_encrypt_length]; // 256 kilobytes of static memory to avoid memory allocation every time CSP is used
 unsigned char PCA_data_buffer_sed_aux[data_buffer_sign_encrypt_length];
 
-current_key_in_use Current_key_in_use;
 /****************************************************************************************************************
  * Function definition zone
  ****************************************************************************************************************/

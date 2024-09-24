@@ -15,7 +15,7 @@ int filename_hash_length = 11;
  * Function definition zone
  ****************************************************************************************************************/
 
-int API_SFT_initSelfTests()
+int API_SFT_initSelfTests() // FALTA POR IMPLEMENTAR EL TEST DE INTEGRIDAD, HACERLO LO ÚLTIMO!!!
 {
     if(API_SM_get_current_state() != STATE_SELF_TEST){
         return STATE_INCORRECTSTATE_ERROR;

@@ -16,6 +16,11 @@
 		"module_initialization.h": "c",
 		"state_machine.h": "c",
 		"log_manager.h": "c",
-		"error_manager.h": "c"
+		"error_manager.h": "c",
+		"crypto.h": "c",
+		"stdlib.h": "c",
+		"memory.h": "c",
+		"dmemmanager.h": "c",
+		"string.h": "c"
 	}
 }

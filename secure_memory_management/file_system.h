@@ -14,7 +14,10 @@
 #ifndef FILESYSTEM_H
 #define FILESYSTEM_H
 
-/* Compiler include files ............................................ */
+/****************************************************************************************************************
+ * Compiler include files
+ ****************************************************************************************************************/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -22,14 +25,18 @@
 #include <pthread.h>
 #include <stdint.h>
 
-/* Private include files ............................................ */
+/****************************************************************************************************************
+ * Private include files
+ ****************************************************************************************************************/
 
 #include "../crypto/CRC_Galileo.h"
 #include "../crypto/AES_OFB.h"
 #include "../crypto/AES_CORE.h"
 #include "../prng/random_number.h"
 
-/* Global variables definition ...................................... */
+/****************************************************************************************************************
+ * Global variables/constants definition
+ ****************************************************************************************************************/
 
 /**
  * @brief The maximum size of the file system , it can be modified accordingly to other constants , currently 40MB
@@ -168,7 +175,9 @@ typedef struct
 } File_System;
 
 
-/* Function declaration zone ........................................ */
+/****************************************************************************************************************
+ * Function definition zone
+ ****************************************************************************************************************/
 
 /**
  * @brief Partition the array during the quicksort process.

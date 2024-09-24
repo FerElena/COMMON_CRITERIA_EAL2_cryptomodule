@@ -7,21 +7,28 @@
 #ifndef SELFTESTS_H
 #define SELFTESTS_H
 
-/* Compile include files ............................................ */
+/****************************************************************************************************************
+ * Compiler include files
+ ****************************************************************************************************************/
+
 #include <stdio.h>
 
-/* Private include files ............................................ */
+/****************************************************************************************************************
+ * Private include files
+ ****************************************************************************************************************/
+
 #include "../crypto/crypto.h"
 #include "SHA256Tests.h"
 #include "HMACTests.h"
 #include "ECDSA256Tests.h"
 #include "AESTests.h"
-
 #include "../secure_memory_management/file_system.h"
 #include "../library_tracer/log_manager.h"
 #include "../state_machine/State_Machine.h"
 
-/* Global variables definition ...................................... */
+/****************************************************************************************************************
+ * Global variables/constants definition
+ ****************************************************************************************************************/
 
 /**
  * @brief Test passed code
@@ -42,7 +49,9 @@
 #define AES256_CBC_SELFTEST_FAILED -1604
 #define MODULE_INTEGRITY_SELFTEST_FAILED -1605
 
-/* Function declaration zone ........................................ */
+/****************************************************************************************************************
+ * Function definition zone
+ ****************************************************************************************************************/
 
 /**
  * @brief Selftests initialization function

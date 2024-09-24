@@ -9,19 +9,32 @@
 #ifndef MODULE_INITIALIZATION_H
 #define MODULE_INITIALIZATION_H
 
+/****************************************************************************************************************
+ * Compiler include files
+ ****************************************************************************************************************/
+
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
 
+/****************************************************************************************************************
+ * Private include files
+ ****************************************************************************************************************/
+
+#include "Key_management.h"
+#include "packet_cipher_auth.h"
 #include "../secure_memory_management/file_system.h"
 #include "../secure_memory_management/MemoryTracker.h"
 #include "../state_machine/State_Machine.h"
 #include "../library_tracer/log_manager.h"
-#include "packet_cipher_auth.h"
 #include "../crypto/AES_CBC.h"
 #include "../crypto/AES_OFB.h"
 #include "../crypto/ECDSA_256.h"
 #include "../crypto/SHA256.h"
+
+/****************************************************************************************************************
+ * Global variables/constants definition
+ ****************************************************************************************************************/
 
 // memorytracker initialization codes
 #define CORRECT_TRACKER_INIT 1700
@@ -70,6 +83,10 @@ extern int TI_HMAC256_sha256_struct; /**< HMAC-SHA256 context structure tracker 
 
 // SHA-256 parameters
 extern int TI_SHA256_ctx; /**< SHA-256 context tracker index */
+
+/****************************************************************************************************************
+ * Function definition zone
+ ****************************************************************************************************************/
 
 /**
  * @brief Initializes the memory tracking system and registers cryptographic components.

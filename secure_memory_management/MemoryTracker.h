@@ -1,5 +1,18 @@
+/**
+ * @file memorytracker.h
+ * @brief Memory tracking system for secure allocation and deallocation of memory.!!TRACKED MEMORY MUST BE STATIC/DYNAMIC MEMORY OR SEGFAULTS WILL OCCUR¡¡¡¡¡¡
+ *
+ * This file provides the declarations and functionality for tracking static/dynamic memory allocations, 
+ * verifying memory integrity, and securely deallocating memory blocks that contain Critical Security Parameters (CSP).
+ * It also includes secure zeroization techniques to prevent sensitive data recovery.
+ */
+
 #ifndef MEMORYTRACKER_H
 #define MEMORYTRACKER_H
+
+/****************************************************************************************************************
+ * Compiler include files
+ ****************************************************************************************************************/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -10,14 +23,9 @@
 #include <assert.h>
 #include <sys/mman.h>  // Para mlock() y munlock()
 
-/**
- * @file memorytracker.h
- * @brief Memory tracking system for secure allocation and deallocation of memory.!!TRACKED MEMORY MUST BE STATIC/DYNAMIC MEMORY OR SEGFAULTS WILL OCCUR¡¡¡¡¡¡
- *
- * This file provides the declarations and functionality for tracking static/dynamic memory allocations, 
- * verifying memory integrity, and securely deallocating memory blocks that contain Critical Security Parameters (CSP).
- * It also includes secure zeroization techniques to prevent sensitive data recovery.
- */
+/****************************************************************************************************************
+ * Global variables/constants definition
+ ****************************************************************************************************************/
 
 #define MT_FAIL -1100
 
@@ -61,6 +69,10 @@ extern MemoryTracker *Free_Tracker_List; // Linked list of available memory trac
 extern MemoryTracker *Used_Trackers_List; // Linked list of used memory trackers
 
 extern pthread_mutex_t mutex; // Mutex to ensure thread safety during memory operations
+
+/****************************************************************************************************************
+ * Function definition zone
+ ****************************************************************************************************************/
 
 /**
  * @brief Initializes the memory tracker system by linking all trackers in a free list.

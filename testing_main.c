@@ -23,7 +23,7 @@ int main(){
     unsigned char *KEK_CERT_fileroute = "/home/ninjahacker/Escritorio/COMMON_CRITERIA_EAL2_cryptomodule/scripts/certificate_manager/testing_cert"; // your route to cert
     int result = API_MC_Initialize_module(KEK_CERT_fileroute,cryptodata_filename);
     printf("el resultado de la inicialización del modulo es : %d\n",result);
-    usleep(10000);
+    usleep(10000);  
     API_FS_Close_filesystem(); 
     
     /*

@@ -31,8 +31,16 @@
 #ifndef _EASY_ECC_H_
 #define _EASY_ECC_H_
 
+/****************************************************************************************************************
+ * Compiler include files
+ ****************************************************************************************************************/
+
 #include <stdint.h>
 #include <stdio.h>
+
+/****************************************************************************************************************
+ * Global variables/constants definition
+ ****************************************************************************************************************/
 
 /** @def secp256r1 
  *  @brief Defines the SECP256R1 curve.
@@ -78,7 +86,7 @@ typedef struct EccPoint
     {0xCBB6406837BF51F5ull, 0x2BCE33576B315ECEull, 0x8EE7EB4A7C0F9E16ull, 0x4FE342E2FE1A7F9Bull}}
 #define Curve_N_32 {0xF3B9CAC2FC632551ull, 0xBCE6FAADA7179E84ull, 0xFFFFFFFFFFFFFFFFull, 0xFFFFFFFF00000000ull}
 
-//parameters which make operations with ECDSA-256 private key
+//parameters which make operations with ECDSA-256 private key, CSP PARAMETERS
 
 extern uint64_t ECDSA_curve_p[NUM_ECC_DIGITS];
 extern uint64_t ECDSA_curve_b[NUM_ECC_DIGITS];
@@ -88,6 +96,10 @@ extern uint64_t ECDSA_curve_n[NUM_ECC_DIGITS];
 extern uint64_t ECDSA_k[NUM_ECC_DIGITS];
 extern uint64_t ECDSA_l_tmp[NUM_ECC_DIGITS];
 extern uint64_t ECDSA_l_s[NUM_ECC_DIGITS];
+
+/****************************************************************************************************************
+ * Function definition zone
+ ****************************************************************************************************************/
 
 /**
  * @brief Generate a public/private key pair using ECDSA.

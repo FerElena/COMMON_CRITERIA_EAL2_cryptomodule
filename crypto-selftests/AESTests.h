@@ -7,16 +7,28 @@
 #pragma once
 
 
-/* Compiler include files ............................................ */
+/****************************************************************************************************************
+ * Compiler include files
+ ****************************************************************************************************************/
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 
+/****************************************************************************************************************
+ * Private include files
+ ****************************************************************************************************************/
+
 #include "../crypto/AES_CBC.h"
 
 
-/* Function declaration zone ........................................ */
+/****************************************************************************************************************
+ * Function definition zone
+ ****************************************************************************************************************/
+
+int SFT_AESCBC_256_encryptCompare(unsigned char *plaintext, int *len, unsigned char* expected_output, int lenExpected, unsigned char *key, unsigned char* iv);
+
+int SFT_AESCBC_256_decryptCompare(unsigned char *ciphertext, int *len, unsigned char* expected_output, int lenExpected, unsigned char *key, unsigned char* iv);
 
 int SFT_AESCBC_256_decryptCompareMC(unsigned char *ciphertext, int *len, unsigned char* expected_output, int lenExpected, unsigned char *key, unsigned char* iv);
 
@@ -27,10 +39,6 @@ int SFT_mmtTests();
 int SFT_katTests();
 
 int SFT_mcTests();
-
-int SFT_AESCBC_256_encryptCompare(unsigned char *plaintext, int *len, unsigned char* expected_output, int lenExpected, unsigned char *key, unsigned char* iv);
-
-int SFT_AESCBC_256_decryptCompare(unsigned char *ciphertext, int *len, unsigned char* expected_output, int lenExpected, unsigned char *key, unsigned char* iv);
 
 int API_SFT_AESTests();
 

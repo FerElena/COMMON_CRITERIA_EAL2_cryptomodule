@@ -6,7 +6,10 @@
 #ifndef LOG_MANAGER
 #define LOG_MANAGER
 
-/* Compiler include files ............................................ */
+/****************************************************************************************************************
+ * Compiler include files
+ ****************************************************************************************************************/
+
 #include <stdio.h>
 #include <stdarg.h>
 #include <stdlib.h>
@@ -15,11 +18,15 @@
 #include <pthread.h>
 #include <semaphore.h>
 
-/* Private include files ............................................ */
+/****************************************************************************************************************
+ * Private include files
+ ****************************************************************************************************************/
 
 #include "../secure_memory_management/file_system.h"
 
-/* Global variables definition ...................................... */
+/****************************************************************************************************************
+ * Global variables/constants definition
+ ****************************************************************************************************************/
 
 extern sem_t TraceSem_empty;
 extern sem_t TraceSem_full;
@@ -47,6 +54,9 @@ extern sem_t TraceSem_full;
 
 extern unsigned char concatenated_string[MAX_STRING];
 
+/****************************************************************************************************************
+ * Function definition zone
+ ****************************************************************************************************************/
 
 /**
  * @brief Initializes and starts the trace system by creating two trace files and launching the trace writing thread.

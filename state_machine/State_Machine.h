@@ -1,6 +1,3 @@
-#ifndef STATE_MACHINE_H
-#define STATE_MACHINE_H
-
 /**
  * @file state_machine.h
  * @brief Header file for the state machine of a cryptographic system.
@@ -19,6 +16,13 @@ ON ----> INITIALIZATION ----> SELF-TEST ----------->OPERATIONAL
                                                 v     v    v
                                                     ERROR
 */
+
+#ifndef STATE_MACHINE_H
+#define STATE_MACHINE_H
+
+/****************************************************************************************************************
+ * Global variables/constants definition
+ ****************************************************************************************************************/
 
 /**
  * @brief Define constants for state change return codes.
@@ -59,6 +63,10 @@ typedef enum {
  * This global variable holds the system's current state. It is initialized to `STATE_OFF`, 
  * indicating that the system is powered off at startup.
  */
+
+/****************************************************************************************************************
+ * Function definition zone
+ ****************************************************************************************************************/
 
 /**
  * @brief Handles state transitions in the cryptographic system.

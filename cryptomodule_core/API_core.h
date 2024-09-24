@@ -1,10 +1,18 @@
 #ifndef API_CORE_H
 #define API_CORE_H
 
+/****************************************************************************************************************
+ * Compiler include files
+ ****************************************************************************************************************/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+
+/****************************************************************************************************************
+ * Private include files
+ ****************************************************************************************************************/
 
 #include "module_initialization.h"
 #include "Error_Manager.h"
@@ -13,9 +21,24 @@
 #include "../library_tracer/log_manager.h"
 #include "../crypto-selftests/selftests.h"
 
+/****************************************************************************************************************
+ * Global variables/constants definition
+ ****************************************************************************************************************/
 
 #define INITIALIZATION_OK 2000
 #define INITIALIZATION_ERROR -2000
+
+/****************************************************************************************************************
+ * Function definition zone
+ ****************************************************************************************************************/
+
+/**
+ * @brief returns current cryptomodule state
+ * 
+ * @return int returns current_state
+ */
+
+int API_MC_getcurrent_state();
 
 /**
  * @brief Initializes the cryptographic module, setting up various subsystems and performing self-tests.

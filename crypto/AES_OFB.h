@@ -1,14 +1,30 @@
 #ifndef AESOFB_H
 #define AESOFB_H
 
+/****************************************************************************************************************
+ * Compiler include files
+ ****************************************************************************************************************/
+
 #include <string.h>
 #include <stdint.h>
 
+/****************************************************************************************************************
+ * Private include files
+ ****************************************************************************************************************/
+
 #include "AES_CORE.h"
+
+/****************************************************************************************************************
+ * Global variables/constants definition
+ ****************************************************************************************************************/
 
 extern uint8_t AESOFB_outputBlock[AES_BLOCK_SIZE]; //Buffer to store momentary output block, CSP
 extern uint8_t AESOFB_ivEnc[AES_BLOCK_SIZE];       // Buffer to store encrypted IV, CSP
-extern AesContext AESOFB_CTX;                      // AES AESOFB_CTX to store the derived AES-256 key
+extern AesContext AESOFB_CTX;                      // AES AESOFB_CTX to store the derived AES-256 key CSP
+
+/****************************************************************************************************************
+ * Function definition zone
+ ****************************************************************************************************************/
 
 /**
  * @brief AES-OFB (Output Feedback) encryption/decryption function.
