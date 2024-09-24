@@ -139,6 +139,9 @@ int API_SM_State_Change(State next_state){
     }
 }
 
+State API_SM_get_current_state() {
+    return current_state;
+}
 
 const char* API_SM_get_current_state_name() {
     switch (current_state) {

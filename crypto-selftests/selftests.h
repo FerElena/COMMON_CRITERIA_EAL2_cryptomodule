@@ -19,6 +19,7 @@
 
 #include "../secure_memory_management/file_system.h"
 #include "../library_tracer/log_manager.h"
+#include "../state_machine/State_Machine.h"
 
 /* Global variables definition ...................................... */
 

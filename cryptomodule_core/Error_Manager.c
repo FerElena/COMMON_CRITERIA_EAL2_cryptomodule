@@ -84,6 +84,7 @@ const char* API_EM_get_error_message(int error_code) {
         [TRACER_INIT_ERROR + 2000] = "Tracer initialization error",
         [STATE_CHANGE_ERROR + 2000] = "Hard error occurred",
         [STATE_CHANGE_SOFTERROR + 2000] = "Soft error occurred",
+        [STATE_INCORRECTSTATE_ERROR + 2000] = "Cannot perform this operation in current state",
         [Errormanager_thread_error + 2000] = "Thread error in error manager",
         [INITIALIZATION_ERROR + 2000] = "Initialization error",
     };

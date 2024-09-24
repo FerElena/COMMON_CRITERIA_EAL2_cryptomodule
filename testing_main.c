@@ -15,7 +15,6 @@
 #include "library_tracer/log_manager.h"
 #include "cryptomodule_core/packet_cipher_auth.h"
 
-    
 
 int main(){    
     system("clear");

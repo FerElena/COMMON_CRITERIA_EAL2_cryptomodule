@@ -48,6 +48,7 @@
 #define TRACER_INIT_ERROR -1705
 #define STATE_CHANGE_ERROR -1800         // Hard error state
 #define STATE_CHANGE_SOFTERROR -1801      // Soft error state
+#define STATE_INCORRECTSTATE_ERROR -1802
 #define Errormanager_thread_error -1900
 #define INITIALIZATION_ERROR -2000
 

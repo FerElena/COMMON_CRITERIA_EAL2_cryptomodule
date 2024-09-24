@@ -259,6 +259,9 @@ int file_exists(const char *filename)
 
 int API_INIT_initialize_module(unsigned char *KEK_CERTIFICATE_file, unsigned char *Cryptodata_filename)
 {
+    if(API_SM_get_current_state() != STATE_INITIALIZATION){
+        return STATE_INCORRECTSTATE_ERROR;
+    }
     int return_value;
     int result1 = Memory_tracking_initialization(); // Initialize memory tracking
     // Check if memory tracking initialized correctly

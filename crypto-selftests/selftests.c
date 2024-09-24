@@ -17,6 +17,9 @@ int filename_hash_length = 11;
 
 int API_SFT_initSelfTests()
 {
+    if(API_SM_get_current_state() != STATE_SELF_TEST){
+        return STATE_INCORRECTSTATE_ERROR;
+    }
     int CorrectTest = SELFTEST_PASSED; 
     if (!API_SFT_SHA256Tests()) // SHA256 selftests starts
     {

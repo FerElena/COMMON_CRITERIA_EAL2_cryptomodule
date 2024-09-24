@@ -27,9 +27,10 @@ ON ----> INITIALIZATION ----> SELF-TEST ----------->OPERATIONAL
  * tracking of whether the state transition was successful, or if an error (soft or hard) occurred.
  */
 
-#define STATE_CHANGE_SUCCESS 1800        // Successful state change
-#define STATE_CHANGE_ERROR -1800         // Hard error state
+#define STATE_CHANGE_SUCCESS 1800         // Successful state change
+#define STATE_CHANGE_ERROR -1800          // Hard error state
 #define STATE_CHANGE_SOFTERROR -1801      // Soft error state
+#define STATE_INCORRECTSTATE_ERROR -1802  //Invalid operation for this state
 
 /**
  * @enum State
@@ -75,6 +76,18 @@ typedef enum {
  */
 
 int API_SM_State_Change(State next_state);
+
+
+/**
+ * @brief Retrieves the current state of the system.
+ *
+ * This function returns the current state of the state machine
+ * as an enumerated value of type `State`.
+ *
+ * @return The current state of the system.
+ */
+
+State API_SM_get_current_state();
 
 /**
  * @brief Get the name of the current state.
