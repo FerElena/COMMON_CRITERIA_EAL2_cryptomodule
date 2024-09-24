@@ -138,7 +138,7 @@ int ecdsa_verify(const uint8_t p_publicKey[ECC_BYTES+1], const uint8_t p_hash[EC
  * @param[in]  r_len        Length of the r component.
  * @param[in]  s_len        Length of the s component.
  */
-void API_CP_compress_signature(uint8_t* ECDSA_sign, unsigned char* r, unsigned char* s, int r_len, int s_len);
+void API_ECDSA256_compress_signature(uint8_t* ECDSA_sign, unsigned char* r, unsigned char* s, int r_len, int s_len);
 
 /**
  * @brief Decompress an ECDSA signature.
@@ -150,7 +150,7 @@ void API_CP_compress_signature(uint8_t* ECDSA_sign, unsigned char* r, unsigned c
  * @param[out] s          Pointer to the buffer where the s component will be stored.
  * @param[in]  sign_len   Length of the compressed signature.
  */
-void CP_decompress_signature(unsigned char* ECDSA_sign, unsigned char* r, unsigned char* s, int sign_len);
+void API_ECDSA256_CP_decompress_signature(unsigned char* ECDSA_sign, unsigned char* r, unsigned char* s, int sign_len);
 
 /**
  * @brief Compress a public key.
@@ -163,7 +163,7 @@ void CP_decompress_signature(unsigned char* ECDSA_sign, unsigned char* r, unsign
  * @param[in]  length_qy     Length of the y coordinate.
  * @param[out] compressed_key Pointer to the buffer where the compressed key will be stored.
  */
-void API_CP_compress_key(unsigned char *Qx, int length_qx, unsigned char *Qy, int length_qy, uint8_t *compressed_key);
+void API_ECDSA256_API_CP_compress_key(unsigned char *Qx, int length_qx, unsigned char *Qy, int length_qy, uint8_t *compressed_key);
 
 #ifdef __cplusplus
 }

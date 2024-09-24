@@ -14,7 +14,6 @@
 #include <unistd.h>
 
 #include "../crypto/AES_CBC.h"
-#include "../crypto/crypto.h"
 
 
 /* Function declaration zone ........................................ */

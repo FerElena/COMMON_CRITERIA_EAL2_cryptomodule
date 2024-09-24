@@ -3461,6 +3461,6 @@ int API_SFT_HMACTest(){
 int SFT_HMAC_Compare(unsigned char *key, int lenKey, unsigned char *msg, int lenMsg, unsigned char *mac, int lenMac)
 {
 	uint8_t result;
-	API_CP_verify_HMAC_SHA256(msg, key, mac, lenMsg, lenKey, lenMac,&result);
+	result = API_verify_HMAC(msg,key,mac,lenMsg,lenKey,lenMac);
 	return result;
 }

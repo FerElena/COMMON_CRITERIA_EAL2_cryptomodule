@@ -19,18 +19,21 @@ int count = 0;
   * Function definition zone 
   ****************************************************************************************************************/
 
-int SFT_ECDSA256_verify_test(unsigned char *Qx, size_t Qx_length, unsigned char *Qy, size_t Qy_length, unsigned char *ECDSA_msg, int ECDSA_msg_len, unsigned char *r, size_t r_length,unsigned char *s, size_t s_length)
+int SFT_ECDSA256_verify_test(unsigned char *Qx, size_t Qx_length, unsigned char *Qy, size_t Qy_length, unsigned char *ECDSA_msg, int ECDSA_msg_len, unsigned char *r, size_t r_length, unsigned char *s, size_t s_length)
 {
-    // We compress the signature elements (r,s) by concatenating them in the signature sign
-    unsigned char sign[32 * 2];
-	uint8_t result ;
-    API_CP_compress_signature(sign, r, s, 32, 32);
+	// We compress the signature elements (r,s) by concatenating them in the signature sign
+	unsigned char sign[32 * 2];
+	uint8_t result;
+	API_ECDSA256_compress_signature(sign, r, s, 32, 32);
 
 	// We compress the points Qx and Qy in the point Q, the public keyLiLyum
-    unsigned char p_publicKey[32 + 1];
-    API_CP_compress_key(Qx,Qx_length,Qy,Qy_length,p_publicKey);
-	API_CP_verify_ECDSA256(p_publicKey, ECDSA_msg, sign, Qx_length + 1, ECDSA_msg_len, 64,&result);
-	
+	unsigned char p_publicKey[32 + 1];
+	API_ECDSA256_API_CP_compress_key(Qx, Qx_length, Qy, Qy_length, p_publicKey);
+
+	unsigned char hash[32];
+	API_sha256(ECDSA_msg, ECDSA_msg_len, hash);
+	result = ecdsa_verify(p_publicKey, hash, sign);
+
 	return result;
 }
 

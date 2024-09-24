@@ -1171,7 +1171,7 @@ int API_SFT_SHA256Tests()
             memcpy(concat + 32, hashMonte[i - 2], 32);
             memcpy(concat + 64, hashMonte[i - 1], 32);
 
-            API_CP_sha256(concat, 96, hashedconcat);
+            API_sha256(concat, 96, hashedconcat);
 
             memcpy(hashMonte[i], hashedconcat, 32);
         }
@@ -1193,8 +1193,8 @@ int API_SFT_SHA256Tests()
 int SFT_SHA256compare(unsigned char *hashvector1, int msglength, unsigned char *hashvector2)
 {
     unsigned char hash_out[32];
-    API_CP_sha256(hashvector1, msglength,hash_out);
-    int aux = memcmp(hash_out, hashvector2, HASH_SIZE);
+    API_sha256(hashvector1, msglength,hash_out);
+    int aux = memcmp(hash_out, hashvector2, SHA256_BLOCK_SIZE);
     if (aux == 0)
     {
 

@@ -1268,7 +1268,7 @@ int ecdsa_verify(const uint8_t p_publicKey[ECC_BYTES+1], const uint8_t p_hash[EC
     return (vli_cmp(rx, l_r) == 0);
 }
 
-void API_CP_compress_key(unsigned char *Qx, int length_qx, unsigned char *Qy, int length_qy, uint8_t *compressed_key){
+void API_ECDSA256_API_CP_compress_key(unsigned char *Qx, int length_qx, unsigned char *Qy, int length_qy, uint8_t *compressed_key){
     unsigned char last_byte= Qy[length_qy-1];
     unsigned char parity_byte = last_byte & 0x01;
     if(parity_byte == 0){
@@ -1281,12 +1281,12 @@ void API_CP_compress_key(unsigned char *Qx, int length_qx, unsigned char *Qy, in
     memcpy(compressed_key+1, Qx, length_qx);
 }
 
-void API_CP_compress_signature(uint8_t* ECDSA_sign, unsigned char* r, unsigned char* s, int r_len, int s_len){
+void API_ECDSA256_compress_signature(uint8_t* ECDSA_sign, unsigned char* r, unsigned char* s, int r_len, int s_len){
     memcpy(ECDSA_sign, r, r_len);
     memcpy(ECDSA_sign + r_len, s , s_len);
 }
 
-void CP_decompress_signature(unsigned char* ECDSA_sign, unsigned char* r, unsigned char* s, int sign_len){
+void API_ECDSA256_CP_decompress_signature(unsigned char* ECDSA_sign, unsigned char* r, unsigned char* s, int sign_len){
 	if (sign_len>100){
 		memcpy(r, ECDSA_sign, sign_len/2);
 		memcpy(s, ECDSA_sign + (sign_len/2), sign_len/2);

@@ -14,7 +14,7 @@
 
 /* Private include files ............................................ */
 
-#include "../crypto/crypto.h"
+#include "../crypto/HMAC_SHA256.h"
 
 /* Function declaration zone ........................................ */
 

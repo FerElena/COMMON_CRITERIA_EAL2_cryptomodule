@@ -18,6 +18,9 @@ void* reduce_error_counter(void* arg) {
 
 // Function to initialize the error counter and the reduction thread
 int API_EM_init_error_counter() {
+    if(API_SM_get_current_state() != STATE_INITIALIZATION){
+        return STATE_INCORRECTSTATE_ERROR;
+    }
     error_counter = 0;
     pthread_t reduction_thread;
 
