@@ -1,6 +1,6 @@
 #include "API_core.h"
 
-int API_MC_Initialize_module(unsigned char *KEK_CERTIFICATE_file, unsigned char *Cryptodata_filename) {
+int API_MC_Initialize_module(unsigned char *KEK_CERTIFICATE_file, unsigned char *Cryptodata_filename) { // FALTA IMPLEMENTAR MÁQUINA DE ESTADOS
     int Operation_result = 0;
     
     // Change the state to ON and begin initialization

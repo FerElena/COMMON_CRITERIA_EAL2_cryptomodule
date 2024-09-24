@@ -61,7 +61,6 @@ int API_MT_add_tracker(void *ptr, size_t size, uint8_t isCSP)
 {
     if (ptr == NULL || size > SIZE_MAX || size < 0 || isCSP > 1 || isCSP < 0) // if invalid input parameters
     {
-        printf("invalid parameters on API_MT_add_tracker \n"); // in the future substitute for a TraceWrite
         return INVALID_INPUT_MT;
     }
 
@@ -69,7 +68,6 @@ int API_MT_add_tracker(void *ptr, size_t size, uint8_t isCSP)
     MemoryTracker *tracker = get_free_tracker(); // Get a free tracker.
     if (tracker == NULL)
     {
-        printf("No more free trackers available\n"); // add a TraceWrite in future
         pthread_mutex_unlock(&mutex);
         return NO_MORE_TRACKERS; // Indicate no more Trackers
     }
@@ -100,7 +98,6 @@ int API_MT_verify_integrity(MemoryTracker *tracker)
 {
     if (tracker == NULL)
     {
-        printf("wrong input in API_MT_verify_integrity! \n"); // Tracewrite in future!
         return INVALID_INPUT_MT;
     }
 
@@ -116,17 +113,13 @@ int API_MT_update_tracker(MemoryTracker *tracker)
 {
     if (tracker == NULL)
     {
-        printf("invalid input in API_MT_update_tracker! \n"); // Future tracewrite!
         return INVALID_INPUT_MT;
     }
 
     pthread_mutex_lock(&mutex);
 
     // Unlock old memory if it's locked.
-    if (munlock(tracker->ptr, tracker->size) != 0)
-    {
-        perror("munlock failed");
-    }
+    munlock(tracker->ptr, tracker->size);
 
     // Update tracker checksum.
     tracker->checksum = crc_32(tracker->ptr, tracker->size); // Recalculate the checksum.
@@ -134,7 +127,6 @@ int API_MT_update_tracker(MemoryTracker *tracker)
     // Lock the new memory.
     if (mlock(tracker->ptr, tracker->size) != 0)
     {
-        perror("mlock failed");
         pthread_mutex_unlock(&mutex);
         return MEMORY_LOCK_FAIL; // Indicate failure.
     }
@@ -148,7 +140,6 @@ int API_MT_change_tracker(MemoryTracker *tracker, void *new_ptr, size_t new_size
 {
     if (tracker == NULL || new_ptr == NULL || new_size < 0 || new_size > SIZE_MAX)
     {
-        printf("invalid input in API_MT_change_tracker! \n"); // Tracewrite in future!
         return INVALID_INPUT_MT;
     }
 
@@ -168,7 +159,6 @@ int API_MT_change_tracker(MemoryTracker *tracker, void *new_ptr, size_t new_size
     // Lock the new memory.
     if (mlock(new_ptr, new_size) != 0)
     {
-        perror("mlock failed");
         pthread_mutex_unlock(&mutex);
         return MEMORY_LOCK_FAIL; // Indicate failure
     }
@@ -190,7 +180,6 @@ int API_MT_remove_tracker(void *ptr)
     if (*indirect == NULL)
     {
         pthread_mutex_unlock(&mutex); // Unlock if the tracker is not found.
-        printf("Tracker not found.\n");
         return INVALID_INPUT_MT; // Indicate failure.
     }
 
@@ -200,7 +189,6 @@ int API_MT_remove_tracker(void *ptr)
     if (!integrity)
     {
         pthread_mutex_unlock(&mutex);                     // Unlock on integrity violation.
-        printf("Memory integrity violation detected.\n"); // substitute Tracewrite
         return MEMORYVIOLATION_BEFORE_DELETE;             // Indicate failure.
     }
 
@@ -214,10 +202,7 @@ int API_MT_remove_tracker(void *ptr)
     }
 
     // Unlock memory before freeing it.
-    if (munlock(toRemove->ptr, toRemove->size) != 0)
-    {
-        perror("munlock failed");
-    }
+    munlock(toRemove->ptr, toRemove->size);
 
     // Remove the tracker from the used list.
     *indirect = toRemove->next;
@@ -245,11 +230,7 @@ void API_MT_zeroize_and_free_all()
         }
 
         // Unlock memory before freeing it.
-        if (munlock(current->ptr, current->size) != 0)
-        {
-            perror("munlock failed");
-        }
-
+        munlock(current->ptr, current->size);
         toFree = current;
         current = current->next; // advance in Used Trackers linked list
         return_tracker(toFree);  // Return each tracker to the free list.
@@ -257,5 +238,4 @@ void API_MT_zeroize_and_free_all()
 
     Used_Trackers_List = NULL; // Clear the used list.
     pthread_mutex_unlock(&mutex);
-    printf("ALL CSP TRACKED MEMORY ZEROIZED!\n"); // TRACE IN FUTURE
 }

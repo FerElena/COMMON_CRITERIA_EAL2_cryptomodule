@@ -215,22 +215,24 @@ int API_MM_freeMem(void *ptr);
 void *API_MM_reallocMem(void *ptr, size_t new_size);
 
 /**
- * @brief Zeroizes every block allocated in the library
- * 
+ * @brief Recursively wipes and frees all nodes in a subtree, securely deleting all associated memory.
+ *
+ * This function traverses a binary tree starting from the specified node and securely wipes
+ * the data stored in each node and its associated memory. It recursively processes both the 
+ * left and right subtrees before securely deleting the current node.
+ *
+ * @param current_node Pointer to the current node to be zeroized.
+ */
+void zeroize_tree(node *current_node);
+
+/**
+ * @brief Zeroizes the entire tree of nodes, starting from the root.
+ *
+ * This function initiates the process of securely wiping all nodes in the tree,
+ * starting from the root node.
  */
 
-void zeroize_tree(node *current_node);
-/**
- * @brief Removes all the storage blocks in the list
- * Zeroises and frees all the stored memroy blocks. 
- * 
- * 
- * @param id Identifier for the client that requires the ntPacket function. If the ID is 9999, there is no user, is the module zeroization for attacks
- * @return The result of the zeroization, 1 completed, 0 failed
- * 
- * @errors
- * @error{ ERROR 1, Returns -1 if the state is not CRYPTOOFFICER_STATE or ERROR_STATE}
- */
-int API_MM_zeroizeEntireModule(unsigned char* id);
+void API_MM_Zeroize_root();
+
 
 #endif

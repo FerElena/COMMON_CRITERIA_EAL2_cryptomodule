@@ -222,3 +222,8 @@ void zeroize_tree(node *current_node) {
         secure_zeroize(current_node, sizeof(node));  // Securely wipe the node structure.
     }
 }
+
+//zeroize entire tree of nodes, functions for complete zeroization
+void API_MM_Zeroize_root(){ 
+    zeroize_tree(ROOT);
+}
