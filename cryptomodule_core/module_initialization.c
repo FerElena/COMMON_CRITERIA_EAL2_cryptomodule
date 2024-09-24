@@ -32,7 +32,7 @@ int TI_SHA256_ctx;
 
 int Memory_tracking_initialization()
 {
-    int correct_tracker_init_result[64];
+    uint8_t correct_tracker_init_result[64];
     uint32_t counter = 0;
 
     // Initialize array with 1s to indicate success by default
@@ -261,7 +261,6 @@ int API_INIT_initialize_module(unsigned char *KEK_CERTIFICATE_file, unsigned cha
 {
     int return_value;
     int result1 = Memory_tracking_initialization(); // Initialize memory tracking
-
     // Check if memory tracking initialized correctly
     if (result1 != CORRECT_TRACKER_INIT)
     {
@@ -289,13 +288,13 @@ int API_INIT_initialize_module(unsigned char *KEK_CERTIFICATE_file, unsigned cha
         {
             return result1; // Return error code if initialization failed
         }
-        result1 = API_LT_startTraceFile();
+        return_value = INITIALIZE_OK_FIRST_INIT;
+    }
+    result1 = API_LT_startTraceFile();
         if (result1 == TRACER_ERROR)
         {
             return TRACER_INIT_ERROR;  // Return error code if tracer could not be initialized
         }
-        return_value = INITIALIZE_OK_FIRST_INIT;
-    }
-
+        
     return return_value; // Return success code if all initializations succeeded
 }

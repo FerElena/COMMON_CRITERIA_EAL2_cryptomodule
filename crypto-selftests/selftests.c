@@ -15,44 +15,24 @@ int filename_hash_length = 11;
  * Function definition zone
  ****************************************************************************************************************/
 
-void API_SFT_initSelfTests()
+int API_SFT_initSelfTests()
 {
-    int CorrectTest = TEST_PASSED; 
+    int CorrectTest = SELFTEST_PASSED; 
     if (!API_SFT_SHA256Tests()) // SHA256 selftests starts
     {
-        CorrectTest = TEST_FAILED;
-        printf("SHA-256 self-test failed\n");
+        return SHA256_SELFTEST_FAILED;
     }
-    else
-    {
-        printf("SHA-256 self-test passed successfully\n");
-    }
-
     if (!API_SFT_HMACTest()) // HMAC selftests starts
     {
-        CorrectTest = TEST_FAILED;
-        printf("HMAC-SHA-256 self-test failed\n");
+        return HMAC_SHA256_SELFTEST_FAILED;
     }
-    else
-    {
-        printf("HMAC-SHA-256 self-test passed successfully\n");
-    } 
-
     if (!API_SFT_ECDSA256Tests()) // ECDSA256 selftests starts
     {
-        CorrectTest = TEST_FAILED;
-        printf("ECDSA-P256 self-test failed\n");
-    }
-    else
-    {
-        printf("ECDSA-P256 self-test passed successfully\n");
+        return ECDSAP256_SELFTEST_FAILED;
     }
     if(!API_SFT_AESTests()) // COPERNICUS256 selftests starts
     {
-        CorrectTest = TEST_FAILED;
-        printf("AESCBC self-tests failed\n");
+        return AES256_CBC_SELFTEST_FAILED;
     }
-    else{
-        printf("AESCBC self-tests passed succesfully\n");
-    }
+    return SELFTEST_PASSED;
 }

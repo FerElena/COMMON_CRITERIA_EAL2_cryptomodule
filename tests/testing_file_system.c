@@ -219,7 +219,7 @@ void FS_testing()
     }
 
     // testing triying to create an already existing file
-    if (API_FS_create_file_data(filename5, strlen(filename5), data, sizeof(data), IS_CSP) != CREATE_FILENAME_ERROR)
+    if (API_FS_create_file_data(filename5, strlen(filename5), data, sizeof(data), IS_CSP) != FILENAME_ALREADYEXIST_ERROR)
     {
         failed_test[6]++;
         correct_test = 0;

@@ -2,7 +2,7 @@
 
 static State current_state = STATE_OFF;
 
-int State_Change(State next_state){
+int API_SM_State_Change(State next_state){
     switch (current_state) {
         // When the system is off
         case STATE_OFF:
@@ -136,5 +136,31 @@ int State_Change(State next_state){
         default:
             current_state = STATE_ERROR;
             return STATE_CHANGE_ERROR;  // Invalid state, enter hard error
+    }
+}
+
+
+const char* API_SM_get_current_state_name() {
+    switch (current_state) {
+        case STATE_OFF:
+            return "STATE_OFF";
+        case STATE_ON:
+            return "STATE_ON";
+        case STATE_INITIALIZATION:
+            return "STATE_INITIALIZATION";
+        case STATE_SELF_TEST:
+            return "STATE_SELF_TEST";
+        case STATE_OPERATIONAL:
+            return "STATE_OPERATIONAL";
+        case STATE_CRYPTOGRAPHIC:
+            return "STATE_CRYPTOGRAPHIC";
+        case STATE_CSP:
+            return "STATE_CSP";
+        case STATE_SOFTERROR:
+            return "STATE_SOFTERROR";
+        case STATE_ERROR:
+            return "STATE_ERROR";
+        default:
+            return "UNKNOWN_STATE";  // In case of an invalid state
     }
 }

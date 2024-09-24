@@ -113,7 +113,7 @@
 /**
  * @brief Filename creation error code
  */
-#define CREATE_FILENAME_ERROR -1006
+#define FILENAME_ALREADYEXIST_ERROR -1006
 
 /**
  * @brief Max size reached in file system error code
@@ -268,7 +268,7 @@ int API_FS_exists_file(unsigned char *filename, size_t filename_length);
  * @errors
  * @error{ ERROR 1, Returns MAX_FILENAMES_REACHED if the metadata cannot allocate more information}
  * @error{ ERROR 2, Returns INCORRECT_ARGUMENT_ERROR if the provided arguments are incorrect}
- * @error{ ERROR 3, Returns CREATE_FILENAME_ERROR if the filename is in the file system
+ * @error{ ERROR 3, Returns FILENAME_ALREADYEXIST_ERROR if the filename is in the file system
  * @error{ ERROR 4, Returns MAX_SIZE_REACHED if the file system cannot allocate more information}
  */
 int API_FS_create_file_data(unsigned char *filename, size_t filename_length, unsigned char *data, size_t data_size, uint8_t isCSP);

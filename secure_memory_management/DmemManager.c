@@ -77,7 +77,7 @@ void MM_insert_node(node *actualNode, node *newNode) {
             current = current->right;
             direction = 1;
         } else {
-            printf("COLLISION DETECTED IN SHA256 IN MEM MANAGER\n");  // Handle hash collision.
+             // Handle hash collision.
             return;
         }
     }
@@ -177,7 +177,7 @@ int API_MM_freeMem(void *ptr) {
     MM_hash_address(ptr, hash);  // Hash the pointer.
 
     node *node_to_delete = MM_find_node_by_hash(ROOT, hash);  // Find the node corresponding to the pointer.
-    if (!node_to_delete) return 0;  // Return 0 if node not found.
+    if (!node_to_delete) return ERROR_MEMORY_DEALLOCATION_FAILED;  // Return 0 if node not found.
 
     MM_delete_node(node_to_delete);  // Delete the node and free its memory.
     return SUCCESSMM;  // Return success.

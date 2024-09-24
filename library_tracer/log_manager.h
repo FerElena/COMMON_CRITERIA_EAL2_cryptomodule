@@ -83,7 +83,6 @@ void API_LT_traceWrite(unsigned char *str, ...);
  */
 void *WriteTrace();
 
-
 /**
  * @brief Retrieves the current system time in a formatted string.
  *

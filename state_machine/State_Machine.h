@@ -74,6 +74,14 @@ typedef enum {
  *  - `STATE_CHANGE_SOFTERROR`: Indicates the state change led to a soft error.
  */
 
-int State_Change(State next_state);
+int API_SM_State_Change(State next_state);
+
+/**
+ * @brief Get the name of the current state.
+ * 
+ * @return const char* A pointer to a static string representing the current state name.
+ */
+
+const char* API_SM_get_current_state_name();
 
 #endif

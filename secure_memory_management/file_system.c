@@ -258,7 +258,7 @@ int API_FS_create_file_data(unsigned char *filename, size_t filename_length, uns
     if (API_FS_exists_file(filename, filename_length) != NOT_EXISTANT_FILENAME)
     {
         pthread_mutex_unlock(&FS_mutex);
-        return CREATE_FILENAME_ERROR;
+        return FILENAME_ALREADYEXIST_ERROR;
     }
     // Check if the file can fit at offset 0. If the offset of the first descriptor is equal or larger than the new data size,
     // it means that the new file can fit at the beginning of the file (offset 0) (used for the case where file 0 have been erased at some point)
@@ -880,8 +880,8 @@ int API_FS_zeroize_file_system() // funtion to zeroize every single CSP in the f
 
 void API_FS_Close_filesystem()
 { // easy functions to force close the file_system, ignoring other threads
-    FS_saveall_metadatablock();
     MetadataBlock.filesystem_state = SYSTEM_CLOSE;
+    FS_saveall_metadatablock();
     fclose(MetadataBlock.FS_data_descriptor);
 }
 
