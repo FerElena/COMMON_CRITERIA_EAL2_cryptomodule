@@ -48,7 +48,7 @@ extern sem_t TraceSem_full;
  * The maximum number of bytes allowed written in the logfile text
  */
 #define MAX_BYTES_TRACER_LOW 2000000
-#define MAX_BYTES_TRACER_HIGH 1000000
+#define MAX_BYTES_TRACER_HIGH 200000
 
 #define MAX_STRING 300
 

@@ -22,6 +22,7 @@
 		"memory.h": "c",
 		"dmemmanager.h": "c",
 		"string.h": "c",
-		"aes_core.h": "c"
+		"aes_core.h": "c",
+		"key_management.h": "c"
 	}
 }

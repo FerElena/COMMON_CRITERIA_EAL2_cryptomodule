@@ -1,9 +1,10 @@
 #include "Key_management.h"
 
-current_key_in_use Current_key_in_use;
-const char *Keyname_initial = "KEY_";
+current_key_in_use Current_key_in_use = {.IsLoaded = 0};
+const char *Keyname_initial = "KEY_ID:";
 
-int API_KM_storekey(unsigned char In_Key[32], size_t key_size, unsigned char *Key_id, size_t Key_id_length)
+
+int API_KM_storekey(uint8_t In_Key[32], size_t key_size, unsigned char *Key_id, size_t Key_id_length)
 {
 	// Check if the current state is CSP, required for key management operations
 	if (API_SM_get_current_state() != STATE_CSP)
@@ -25,7 +26,6 @@ int API_KM_storekey(unsigned char In_Key[32], size_t key_size, unsigned char *Ke
 			return KM_PARAMETERS_ERROR;
 		}
 	}
-
 	// Construct the file name with the prefix "KEY_"
 	unsigned char keyname[MAX_FILENAME_LENGTH] = {0};
 	strncat(keyname, Keyname_initial, sizeof(keyname) - strlen(keyname) - 1);									     // Secure concatenation
@@ -58,7 +58,6 @@ int API_KM_loadkey(unsigned char *Key_id, size_t Key_id_length)
 
 	// Construct the file name with the prefix "KEY_"
 	unsigned char keyname[MAX_FILENAME_LENGTH] = {0};
-	const char *Keyname_initial = "KEY_";
 	strncat(keyname, Keyname_initial, sizeof(keyname) - strlen(keyname) - 1);									     // Secure concatenation
 	strncat(keyname, (char *)Key_id, Key_id_length < (sizeof(keyname) - strlen(keyname) - 1) ? Key_id_length : (sizeof(keyname) - strlen(keyname) - 1)); // Secure concatenation with bounds check
 
@@ -83,7 +82,7 @@ int API_KM_loadkey(unsigned char *Key_id, size_t Key_id_length)
 	API_KDF_derive_complex_key(Current_key_in_use.Main_key, Current_key_in_use.Cipher_key, Current_key_in_use.Auth_key);
 
 	// Store the key name in the current key structure
-	memcpy(Current_key_in_use.keyname, keyname, strlen((char *)keyname));
+	memcpy(Current_key_in_use.keyname, Key_id, Key_id_length);
 
 	// Update the memory tracker for the current key in use
 	result = API_MT_update_tracker(&trackers[TI_Current_Key_In_Use]);
@@ -91,7 +90,7 @@ int API_KM_loadkey(unsigned char *Key_id, size_t Key_id_length)
 	{
 		return result;
 	}
-
+	Current_key_in_use.IsLoaded = 1;
 	return KM_OK;
 }
 
@@ -111,7 +110,6 @@ int API_KM_delete_key(unsigned char *Key_id, size_t Key_id_length)
 
     // Construct the file name with the prefix "KEY_"
     unsigned char keyname[MAX_FILENAME_LENGTH] = {0};
-    const char *Keyname_initial = "KEY_";
     strncat(keyname, Keyname_initial, sizeof(keyname) - strlen(keyname) - 1);  // Secure concatenation
     strncat(keyname, (char *)Key_id, Key_id_length < (sizeof(keyname) - strlen(keyname) - 1) ? Key_id_length : (sizeof(keyname) - strlen(keyname) - 1));  // Secure concatenation with bounds check
 
@@ -121,6 +119,10 @@ int API_KM_delete_key(unsigned char *Key_id, size_t Key_id_length)
     // Check if the file system deletion was successful
     if (result != FILESYSTEM_OK) {
         return result;
+    }
+    if(memcmp(Key_id,Current_key_in_use.keyname,Key_id_length) == 0){
+	API_MM_secure_zeroize(&Current_key_in_use,sizeof(Current_key_in_use));
+	Current_key_in_use.IsLoaded = 0;
     }
 
     return KM_OK;

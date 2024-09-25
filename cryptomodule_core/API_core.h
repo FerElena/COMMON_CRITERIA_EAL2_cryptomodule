@@ -17,6 +17,7 @@
 #include "module_initialization.h"
 #include "Error_Manager.h"
 #include "packet_cipher_auth.h"
+#include "Key_management.h"
 #include "../state_machine/State_Machine.h"
 #include "../library_tracer/log_manager.h"
 #include "../crypto-selftests/selftests.h"
@@ -26,6 +27,7 @@
  ****************************************************************************************************************/
 
 #define INITIALIZATION_OK 2000
+#define KEY_OPERATION_OK 2001
 #define MC_INITIALIZATION_ERROR -2000
 
 /****************************************************************************************************************
@@ -70,5 +72,66 @@ int API_MC_getcurrent_state();
  */
 
 int API_MC_Initialize_module(unsigned char *KEK_CERTIFICATE_file,unsigned char *Cryptodata_filename);
+
+/**
+ * @brief Inserts a cryptographic key into the key management system.
+ * 
+ * This function ensures the system is in an operational state, switches to
+ * cryptographic service provider (CSP) mode, and attempts to store the provided key.
+ * It handles errors by logging the issue and incrementing the error counter. Upon
+ * success or failure, it switches the system state back to operational.
+ * 
+ * @param[in] In_Key       The 32-byte cryptographic key to be inserted.
+ * @param[in] key_size     The size of the key in bytes. Typically 32 bytes for AES-256.
+ * @param[in] Key_id       The identifier for the key, used to reference it in future operations.
+ * @param[in] Key_id_length The length of the key identifier in bytes.
+ * 
+ * @return int             Returns `KEY_OPERATION_OK` on success, or an error code 
+ *                         (e.g., `SM_ERROR_STATE` or a key management error code) if the operation fails.
+ * 
+ * @pre The system must be in the `STATE_OPERATIONAL` state for this function to execute.
+ * @post If successful, the key is stored and the system state is reverted to `STATE_OPERATIONAL`.
+ * 
+ * @note This function changes the system state to `STATE_CSP` during execution and logs the process.
+ */
+int API_MC_Insert_Key(uint8_t In_Key[32], size_t key_size, unsigned char *Key_id, size_t Key_id_length);
+
+/**
+ * @brief Loads a cryptographic key from the key management system into memory.
+ * 
+ * This function verifies that the system is in an operational state, switches to CSP mode, 
+ * and attempts to load the key identified by `Key_id` from storage into RAM. It logs the result 
+ * and manages errors by incrementing the error counter and restoring the system state to operational.
+ * 
+ * @param[in] Key_id       The identifier of the key to load.
+ * @param[in] Key_id_length The length of the key identifier in bytes.
+ * 
+ * @return int             Returns `KEY_OPERATION_OK` on success, or an error code if the operation fails.
+ * 
+ * @pre The system must be in the `STATE_OPERATIONAL` state before this function is called.
+ * @post On success, the key is loaded into RAM and the system state is reverted to `STATE_OPERATIONAL`.
+ * 
+ * @note This function logs both successful and failed key loading attempts and switches to `STATE_CSP` during execution.
+ */
+int API_MC_Load_Key(unsigned char *Key_id, size_t Key_id_length);
+
+/**
+ * @brief Deletes a cryptographic key from the key management system.
+ * 
+ * This function ensures that the system is in an operational state, switches to CSP mode, 
+ * and attempts to delete the key identified by `Key_id` from both the filesystem and RAM. 
+ * Errors are logged, and the system state is reverted to operational afterward.
+ * 
+ * @param[in] Key_id       The identifier of the key to delete.
+ * @param[in] Key_id_length The length of the key identifier in bytes.
+ * 
+ * @return int             Returns `KEY_OPERATION_OK` on success, or an error code if the operation fails.
+ * 
+ * @pre The system must be in the `STATE_OPERATIONAL` state before this function is invoked.
+ * @post If successful, the key is removed from both the filesystem and RAM, and the system state is restored to `STATE_OPERATIONAL`.
+ * 
+ * @note The system switches to `STATE_CSP` during execution and logs key deletion activities.
+ */
+int API_MC_Delete_Key(unsigned char *Key_id, size_t Key_id_length);
 
 #endif

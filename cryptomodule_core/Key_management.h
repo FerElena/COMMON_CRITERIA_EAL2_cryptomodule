@@ -34,6 +34,7 @@ typedef struct current_key_in_use{
 	uint8_t Cipher_key[32];
 	uint8_t Auth_key[32];
 	unsigned char keyname[MAX_FILENAME_LENGTH];
+	uint8_t IsLoaded;
 }current_key_in_use;
 
 extern current_key_in_use Current_key_in_use;
@@ -56,7 +57,7 @@ extern current_key_in_use Current_key_in_use;
  * @return `KM_OK` on success, error code otherwise.
  */
 
-int API_KM_storekey(unsigned char In_Key[32], size_t key_size, unsigned char *Key_id, size_t Key_id_length);
+int API_KM_storekey(uint8_t In_Key[32], size_t key_size, unsigned char *Key_id, size_t Key_id_length);
 
 /**
  * @brief Loads a cryptographic key from the file system using the provided Key ID.

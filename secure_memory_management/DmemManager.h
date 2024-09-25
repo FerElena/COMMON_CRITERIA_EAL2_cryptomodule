@@ -145,6 +145,17 @@ void MM_insert_node(node *actualNode, node *newNode);
 node *MM_find_minimum(node *current_node);
 
 /**
+ * @brief Secure zeroize a buffer
+ * 
+ * The purpose of this function is to secure zeroize a buffer, completly eliminating the data
+ * 
+ * 
+ * @param data data to zeroize
+ * @param size size of the data to zeroize
+ */
+
+void API_MM_secure_zeroize(void *data, size_t size) ;
+/**
  * @brief Move a node to another one
  * 
  * The purpose of this function is to move a hash-tree node to a new position

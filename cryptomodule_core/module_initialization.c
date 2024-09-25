@@ -260,6 +260,7 @@ int file_exists(const char *filename)
 int API_INIT_initialize_module(unsigned char *KEK_CERTIFICATE_file, unsigned char *Cryptodata_filename)
 {
     if(API_SM_get_current_state() != STATE_INITIALIZATION){
+        API_SM_State_Change(SM_ERROR);
         return SM_ERROR_STATE;
     }
     int return_value;

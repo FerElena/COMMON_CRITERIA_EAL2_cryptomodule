@@ -18,6 +18,7 @@ int filename_hash_length = 11;
 int API_SFT_initSelfTests() // FALTA POR IMPLEMENTAR EL TEST DE INTEGRIDAD, HACERLO LO ÚLTIMO!!!
 {
     if(API_SM_get_current_state() != STATE_SELF_TEST){
+        API_SM_State_Change(SM_ERROR);
         return SM_ERROR_STATE;
     }
     int CorrectTest = SELFTEST_PASSED; 
