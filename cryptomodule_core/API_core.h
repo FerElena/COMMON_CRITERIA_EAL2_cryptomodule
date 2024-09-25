@@ -28,6 +28,7 @@
 
 #define INITIALIZATION_OK 2000
 #define KEY_OPERATION_OK 2001
+#define CIPHER_AUTH_OPERATION_OK 2002
 #define MC_INITIALIZATION_ERROR -2000
 
 /****************************************************************************************************************
@@ -133,5 +134,35 @@ int API_MC_Load_Key(unsigned char *Key_id, size_t Key_id_length);
  * @note The system switches to `STATE_CSP` during execution and logs key deletion activities.
  */
 int API_MC_Delete_Key(unsigned char *Key_id, size_t Key_id_length);
+
+/**
+ * @brief Signs and encrypts a data packet.
+ *
+ * This function performs a secure signing and encryption operation on the input data.
+ * It checks the system's operational state and loaded key integrity before processing. If the
+ * system is not in the correct state or the key is not loaded, appropriate error codes
+ * are returned. The resulting signed and encrypted data is stored in `packet_out`, and
+ * the length of the data is stored in `packet_out_length`.
+ *
+ * @warning The memory pointed to by `unsigned char *packet_out` must be at least 72 bytes 
+ * larger than the input data size (`data_size`). Failure to allocate enough memory will result 
+ * in undefined behavior.
+ *
+ * @param[in]  data_in           Pointer to the input data to be signed and encrypted.
+ * @param[in]  data_size         Size of the input data in bytes.
+ * @param[out] packet_out        Pointer to the output buffer where the signed and encrypted
+ *                               packet will be stored. **Must be at least 72 bytes larger than 
+ *                               `data_size`.**
+ * @param[out] packet_out_length Pointer to store the length of the output data after encryption 
+ *                               and signing.
+ *
+ * @return int 
+ *         - CIPHER_AUTH_OPERATION_OK on success.
+ *         - SM_ERROR_STATE if the system is not in an operational state.
+ *         - KM_KEY_NOT_LOADED if the cryptographic key is not loaded.
+ *         - Various other error codes depending on the result of the key integrity check.
+ */
+
+int API_CP_Sing_Cipher_Packet(unsigned char *data_in, size_t data_size, unsigned char *packet_out, size_t *packet_out_length);
 
 #endif

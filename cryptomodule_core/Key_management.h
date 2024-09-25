@@ -25,6 +25,7 @@
 #define KM_OK 1300
 
 #define KM_PARAMETERS_ERROR -1300
+#define KM_KEY_NOT_LOADED -1301
 
 
 #define MAXLENGTH_KEYID 50

@@ -72,6 +72,7 @@ const char* API_EM_get_error_message(int error_code) {
         [MM_ERROR_HASH_COLLISION + 2000] = "Hash collision detected",
         [MM_MEMORY_DEALLOCATION_FAILED + 2000] = "Memory deallocation failed",
         [KM_PARAMETERS_ERROR + 2000] = "Incorrect key parameters!",
+        [KM_KEY_NOT_LOADED + 2000] = "No Key loaded in RAM at the moment!",
         [RNG_RANDOM_GENERATION_FAILED + 2000] = "Random generation failed",
         [LT_TRACER_ERROR + 2000] = "Tracer error",
         [SFT_SELFTEST_FAILED + 2000] = "Self-testS FAILED",

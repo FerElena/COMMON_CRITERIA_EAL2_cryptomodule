@@ -28,6 +28,9 @@ int main(){
     uint8_t key1[32],key2[32];
     API_RNG_fill_buffer_random((unsigned char*)key1,32);
     API_RNG_fill_buffer_random((unsigned char*)key2,32);
+    for(int i = 0 ; i < 32 ; i++){
+        printf("%02x ",key1[i]);
+    }
     unsigned char *key_name1 = "Key1";
     unsigned char *key_name2 = "Key2";
 

@@ -159,3 +159,54 @@ int API_MC_Delete_Key(unsigned char *Key_id, size_t Key_id_length)
     return KEY_OPERATION_OK; // Success
 }
 
+int API_CP_Sing_Cipher_Packet(unsigned char *data_in, size_t data_size, unsigned char *packet_out, size_t *packet_out_length)
+{
+    // Check if the system is in an operational state
+    if (API_SM_get_current_state() != STATE_OPERATIONAL)
+    {
+        return SM_ERROR_STATE; // Return error if not operational
+    }
+    // Check if the current key is loaded
+    if (Current_key_in_use.IsLoaded == 0)
+    {
+        return KM_KEY_NOT_LOADED; // Return error if key is not loaded
+    }
+
+    // Switch system state to CSP mode for cryptographic operations
+    API_SM_State_Change(STATE_CSP);
+    API_LT_traceWrite("Current state: ", API_SM_get_current_state_name(), NULL);
+
+    // Verify the integrity of the key in use
+    int Operation_result = API_MT_verify_integrity(&trackers[TI_Current_Key_In_Use]);
+    if (Operation_result != MT_OK)
+    {
+        // If integrity check fails, switch to error state and return the result
+        API_LT_traceWrite("Key integrity compromised, switching to error state: ", API_SM_get_current_state_name(), NULL);
+        API_SM_State_Change(SM_ERROR);
+        return Operation_result;
+    }
+
+    // Key integrity is verified, proceed to sign and encrypt the data
+    API_LT_traceWrite("Key Integrity checked", "proceeding to sign and cipher");
+    API_SM_State_Change(STATE_CRYPTOGRAPHIC); // Switch to cryptographic state
+    API_LT_traceWrite("Current state: ", API_SM_get_current_state_name(), NULL);
+
+    // Perform the sign and encrypt operation
+    unsigned char *out_data;
+    size_t out_length;
+    Operation_result = API_PCA_sign_encrypt_packet(data_in, data_size, Current_key_in_use.Cipher_key, Current_key_in_use.Auth_key, &out_data, &out_length);
+    
+    // Copy the signed and encrypted data to the output buffer
+    memcpy(packet_out, out_data, out_length);
+    *packet_out_length = out_length; // Update the output length
+
+    // Free the allocated memory if necessary
+    if(Operation_result == ALLOCATED_MEMORY){
+        API_MM_freeMem(out_data);
+    }
+
+    // Return system state to operational
+    API_SM_State_Change(STATE_OPERATIONAL); 
+    return CIPHER_AUTH_OPERATION_OK; // Return success code
+}
+
