@@ -19,6 +19,7 @@
 #include "../crypto/crypto.h"
 #include "../secure_memory_management/DmemManager.h"
 #include "../prng/random_number.h"
+#include "../state_machine/State_Machine.h"
 
 /****************************************************************************************************************
  * Global variables/constants definition

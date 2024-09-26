@@ -37,6 +37,8 @@ extern sem_t TraceSem_full;
 #define TRACERLOW_LENGTH (sizeof(TRACERLOW))
 #define TRACERHIGH_LENGTH (sizeof(TRACERHIGH))
 
+#define MAX_ARGUMENTS 10
+
 #define TRACER_OK 1500
 
 #define LT_TRACER_ERROR -1500

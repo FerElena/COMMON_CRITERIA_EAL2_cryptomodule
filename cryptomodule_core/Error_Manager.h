@@ -65,6 +65,7 @@
 #define SM_ERROR_STATE -1802
 #define EM_THREAD_ERROR -1900
 #define MC_INITIALIZATION_ERROR -2000
+#define MC_PACKET_INTEGRITY_COMPROMISED -2001
 
 /****************************************************************************************************************
  * Function definition zone

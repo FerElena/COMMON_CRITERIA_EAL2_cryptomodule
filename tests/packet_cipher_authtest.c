@@ -29,7 +29,7 @@ int test_encrypt_decrypt(unsigned char *plaintext, size_t plaintext_length, unsi
         printf("Fallo en la función de descifrado y verificación\n");
         return 0;
     }
-    memcpy(aux_test_buff,decrypted_plaintext + 32,plaintext_length_aux);
+    memcpy(aux_test_buff,decrypted_plaintext ,plaintext_length_aux);
     if(result2 == ALLOCATED_MEMORY)
         API_MM_freeMem(decrypted_plaintext);
 

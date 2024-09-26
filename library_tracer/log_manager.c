@@ -46,6 +46,7 @@ void API_LT_traceWrite(unsigned char *str, ...) {
     int total_length = 0;
     int current_arg_length;
     int arg_count = 1; // Inicia en 1 para contar el primer argumento 'str'
+    int count = 0;
 
     // Concatenar y contar argumentos
     do {
@@ -54,8 +55,9 @@ void API_LT_traceWrite(unsigned char *str, ...) {
         current_arg = va_arg(args, unsigned char *);
         if (current_arg != NULL) {
             arg_count++;
+            count++;
         }
-    } while (current_arg != NULL);
+    } while (current_arg != NULL && count <= MAX_ARGUMENTS);
 
     va_end(args);
     total_length++; // Para el carácter de nueva línea

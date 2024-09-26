@@ -29,7 +29,10 @@
 #define INITIALIZATION_OK 2000
 #define KEY_OPERATION_OK 2001
 #define CIPHER_AUTH_OPERATION_OK 2002
+#define DECIPHER_AUTH_OPERATION_OK 2003
+
 #define MC_INITIALIZATION_ERROR -2000
+#define MC_PACKET_INTEGRITY_COMPROMISED -2001
 
 /****************************************************************************************************************
  * Function definition zone
@@ -163,6 +166,35 @@ int API_MC_Delete_Key(unsigned char *Key_id, size_t Key_id_length);
  *         - Various other error codes depending on the result of the key integrity check.
  */
 
-int API_CP_Sing_Cipher_Packet(unsigned char *data_in, size_t data_size, unsigned char *packet_out, size_t *packet_out_length);
+int API_MC_Sing_Cipher_Packet(unsigned char *data_in, size_t data_size, unsigned char *packet_out, size_t *packet_out_length);
+
+/**
+ * @brief Decrypts and authenticates an encrypted data packet.
+ *
+ * This function decrypts an input data packet and verifies its authenticity. 
+ * It checks whether the system is in an operational state and validates the integrity of the key in use.
+ * If the system is not operational or the key is not loaded, the function returns appropriate error codes.
+ * After successful decryption and authentication, the resulting data is stored in `out_data`, 
+ * and the length of the data is stored in `out_data_length`.
+ *
+ * @warning The `out_data` buffer must have sufficient space to store the decrypted data. 
+ *          Ensure that `out_data_length` points to a valid variable to capture the output size.
+ *
+ * @param[in]  data_in           Pointer to the encrypted input data to be decrypted and authenticated.
+ * @param[in]  data_in_length    Size of the input data in bytes.
+ * @param[out] out_data          Pointer to the buffer where the decrypted data will be stored.
+ * @param[out] out_data_length   Pointer to store the length of the decrypted data.
+ *
+ * @return int 
+ *         - DECIPHER_AUTH_OPERATION_OK on success.
+ *         - SM_ERROR_STATE if the system is not in an operational state.
+ *         - KM_KEY_NOT_LOADED if the cryptographic key is not loaded.
+ *         - KM_PARAMETERS_ERROR if the input parameters are invalid (null).
+ *         - MC_PACKET_INTEGRITY_COMPROMISED if the packet's authenticity check fails.
+ *         - Other error codes depending on the result of the key integrity check.
+ */
+
+
+int API_MC_Decipher_auth_packet(unsigned char *data_in, size_t data_in_length,unsigned char *out_data, size_t *out_data_length);
 
 #endif

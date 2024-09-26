@@ -21,6 +21,11 @@ unsigned char PCA_data_buffer_sed_aux[data_buffer_sign_encrypt_length];
 // Function to encrypt and sign a data packet.
 int API_PCA_sign_encrypt_packet(unsigned char *data_in, size_t data_in_length, unsigned char *key_AES, unsigned char *key_HMAC, unsigned char **out_data, size_t *out_data_length)
 {
+	if (API_SM_get_current_state() != STATE_CRYPTOGRAPHIC)
+	{
+		return SM_ERROR_STATE; // Return error if not operational
+	}
+
 	int error_management = 0;					   // Variable for error handling (not actively used in this fragment).
 	unsigned char allocated_memory = NOT_ALLOCATED_MEMORY;		   // Flag to manage dynamically allocated memory release.
 	unsigned char AES_IV[16];					   // Buffer for AES initialization vector.
@@ -66,7 +71,7 @@ int API_PCA_sign_encrypt_packet(unsigned char *data_in, size_t data_in_length, u
 	int result3 = API_CP_AESCBC_encrypt(aux_buffer_pointer, &data_in_len_aux, key_AES, AES_KEY_SIZE_256, AES_IV, out_buffer_pointer + 24);
 
 	// Copy the total size and IV to the beginning of the output buffer.
-	memcpy(out_buffer_pointer, &out_buffer_length, 8);
+	memcpy(out_buffer_pointer, &out_buffer_length, sizeof(out_buffer_length));
 	memcpy(out_buffer_pointer + 8, AES_IV, 16);
 
 	// Assign the output buffer and its length to the output pointers.
@@ -83,6 +88,10 @@ int API_PCA_sign_encrypt_packet(unsigned char *data_in, size_t data_in_length, u
 // Function to decrypt a data packet and verify its signature.
 int API_PCA_decrypt_verify_packet(unsigned char *data_in, size_t data_in_length, unsigned char *key_AES, unsigned char *key_HMAC, unsigned char **out_data, size_t *out_data_length, unsigned char *verify)
 {
+	if (API_SM_get_current_state() != STATE_CRYPTOGRAPHIC)
+	{
+		return SM_ERROR_STATE; // Return error if not operational
+	}
 	unsigned char *out_buffer_pointer;		       // Pointer to the output buffer.
 	unsigned char allocated_memory = NOT_ALLOCATED_MEMORY; // Flag for memory management.
 	size_t data_len_plaintext;			       // Length of the plaintext after decryption.
@@ -106,8 +115,8 @@ int API_PCA_decrypt_verify_packet(unsigned char *data_in, size_t data_in_length,
 	int result2 = API_CP_verify_HMAC_SHA256(out_buffer_pointer + HMAC_SHA256_sign_size, key_HMAC, out_buffer_pointer, data_in_len_aux - HMAC_SHA256_sign_size, HMAC_SHA256_key_size, HMAC_SHA256_sign_size, verify);
 
 	// Assign the output pointer to the start of the useful data in the buffer.
-	*out_data = out_buffer_pointer;
-	*out_data_length = data_in_len_aux;
+	*out_data = out_buffer_pointer + HMAC_SHA256_sign_size;
+	*out_data_length = data_in_len_aux - HMAC_SHA256_sign_size;
 
 	return allocated_memory; // Return success.
 }
