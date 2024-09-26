@@ -43,7 +43,7 @@ int API_CP_verify_ECDSA256(unsigned char *pubkey, unsigned char *msg, unsigned c
 {
 	unsigned char hash[32];
 	API_sha256(msg, msg_length, hash);
-	*result = ecdsa_verify(pubkey, hash, sign);
+	*result = API_ecdsa_verify(pubkey, hash, sign);
 
 	return 1; // Success
 }

@@ -84,6 +84,9 @@ extern int TI_HMAC256_sha256_struct; /**< HMAC-SHA256 context structure tracker 
 // SHA-256 parameters
 extern int TI_SHA256_ctx; /**< SHA-256 context tracker index */
 
+#define CONF_FILENAME "Configuration_file"
+#define CERT_FILENAME "Auth_certificate_file"
+
 /****************************************************************************************************************
  * Function definition zone
  ****************************************************************************************************************/

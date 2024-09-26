@@ -22,6 +22,7 @@
 #include "HMACTests.h"
 #include "ECDSA256Tests.h"
 #include "AESTests.h"
+#include "Integrity_test.h"
 #include "../secure_memory_management/file_system.h"
 #include "../library_tracer/log_manager.h"
 #include "../state_machine/State_Machine.h"

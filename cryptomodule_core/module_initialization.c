@@ -30,6 +30,7 @@ int TI_HMAC256_k_opad;
 int TI_HMAC256_sha256_struct;
 int TI_SHA256_ctx;
 
+
 int Memory_tracking_initialization()
 {
     uint8_t correct_tracker_init_result[64];
@@ -169,12 +170,10 @@ int File_system_first_initialization(unsigned char *KEK_CERTIFICATE_file, unsign
     // Update the memory tracker with the new key.
     API_MT_update_tracker(&trackers[TI_FS_cipher_key]);
 
-    unsigned char *conf_filename = "Configuration_file";
     uint8_t previus_state = 1;
-    int result1 = API_FS_create_file_data(conf_filename, strlen(conf_filename), &previus_state, 1, NOT_CSP);
+    int result1 = API_FS_create_file_data(CONF_FILENAME, strlen(CONF_FILENAME), &previus_state, 1, NOT_CSP);
 
-    unsigned char *cert_filename = "Auth_certificate_file";
-    int result2 = API_FS_create_file_data(cert_filename, strlen(cert_filename), key_AES256_certificate + 32, sizeof(key_AES256_certificate) - 32, CSP); // store the 97 bytes of sign and pubkey of ecdsa
+    int result2 = API_FS_create_file_data(CERT_FILENAME, strlen(CERT_FILENAME), key_AES256_certificate + 32, sizeof(key_AES256_certificate) - 32, CSP); // store the 97 bytes of sign and pubkey of ecdsa
 
     unsigned char Schneier_patterns[] = {0x00, 0xFF, 0xAA, 0x55, 0xAA, 0x55}; // zeroize old memory space for key
     for (int i = 0; i < 6; i++)

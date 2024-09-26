@@ -32,7 +32,7 @@ int SFT_ECDSA256_verify_test(unsigned char *Qx, size_t Qx_length, unsigned char 
 
 	unsigned char hash[32];
 	API_sha256(ECDSA_msg, ECDSA_msg_len, hash);
-	result = ecdsa_verify(p_publicKey, hash, sign);
+	result = API_ecdsa_verify(p_publicKey, hash, sign);
 
 	return result;
 }

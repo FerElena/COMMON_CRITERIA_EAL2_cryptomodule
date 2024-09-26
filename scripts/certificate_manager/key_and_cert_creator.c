@@ -166,7 +166,7 @@ int main(int argc, char *argv[])
 		FILE *f = fopen(argv[2],"rb");
 		fread(key_AES256_certificate,sizeof(key_AES256_certificate),1,f);
 		fclose(f);
-		int result = ecdsa_verify(key_AES256_certificate + 96,hash,key_AES256_certificate + 32);
+		int result = API_ecdsa_verify(key_AES256_certificate + 96,hash,key_AES256_certificate + 32);
 		if(result == 1){
 			printf("certificado validado correctamente\n");
 		}

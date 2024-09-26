@@ -137,7 +137,7 @@ int ecdsa_sign(const uint8_t p_privateKey[ECC_BYTES], const uint8_t p_hash[ECC_B
  * @param[in] p_signature Pointer to the ECDSA signature (r and s components).
  * @return 1 if the signature is valid, 0 if it is invalid.
  */
-int ecdsa_verify(const uint8_t p_publicKey[ECC_BYTES+1], const uint8_t p_hash[ECC_BYTES], const uint8_t p_signature[ECC_BYTES*2]);
+int API_ecdsa_verify(const uint8_t p_publicKey[ECC_BYTES+1], const uint8_t p_hash[ECC_BYTES], const uint8_t p_signature[ECC_BYTES*2]);
 
 /**
  * @brief Compress an ECDSA signature.

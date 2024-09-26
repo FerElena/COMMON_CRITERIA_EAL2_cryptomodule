@@ -28,6 +28,8 @@
 		"array": "c",
 		"tuple": "c",
 		"type_traits": "c",
-		"utility": "c"
+		"utility": "c",
+		"stdio.h": "c",
+		"integrity_test.h": "c"
 	}
 }

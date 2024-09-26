@@ -38,5 +38,8 @@ int API_SFT_initSelfTests() // FALTA POR IMPLEMENTAR EL TEST DE INTEGRIDAD, HACE
     {
         return SFT_AES256_CBC_SELFTEST_FAILED;
     }
+    if(!API_SFT_check_module_integrity()){
+        return SFT_MODULE_INTEGRITY_SELFTEST_FAILED;
+    }
     return SELFTEST_PASSED;
 }

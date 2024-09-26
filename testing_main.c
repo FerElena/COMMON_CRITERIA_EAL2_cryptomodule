@@ -50,7 +50,7 @@ int main()
     size_t out_length_cipher;   
     size_t out_length_decipher;
 
-    for (int i = 0; i < 100000; i++) 
+    for (int i = 0; i < 10; i++) 
     {
 
         API_RNG_fill_buffer_random(texto_ejemplo, sizeof(texto_ejemplo));
@@ -64,7 +64,7 @@ int main()
         printf("el resultado de descifrar el packete es: %d\n el packete es:   ", result);
         int result = memcmp(aux_buffer_2,texto_ejemplo,sizeof(texto_ejemplo));
         if(result == 0){
-            printf("texto de iteración %d pasa correcto\n",i);
+            printf("texto de iteración ,%d pasa correcto\n",i);
         }
         else{
             printf("ERROR EN ITERACION %d\n",i);

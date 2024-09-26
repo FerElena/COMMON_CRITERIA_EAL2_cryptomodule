@@ -182,7 +182,7 @@ void CP_sha256_final(SHA256_STRUCT *SHA256_ctx, SHA256_BYTE hash[]);
  * @param out [out] Pointer to an array where the final SHA-256 hash value will be stored.
  */
 
-void API_sha256(unsigned char *node,int lenght_node , unsigned char *out);
+void API_sha256(unsigned char *msg,int length_msg , unsigned char *out);
 
 
 #endif

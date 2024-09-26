@@ -1190,7 +1190,7 @@ int ecdsa_sign(const uint8_t p_privateKey[ECC_BYTES], const uint8_t p_hash[ECC_B
     return 1;
 }
 
-int ecdsa_verify(const uint8_t p_publicKey[ECC_BYTES+1], const uint8_t p_hash[ECC_BYTES], const uint8_t p_signature[ECC_BYTES*2])
+int API_ecdsa_verify(const uint8_t p_publicKey[ECC_BYTES+1], const uint8_t p_hash[ECC_BYTES], const uint8_t p_signature[ECC_BYTES*2])
 {
     uint64_t u1[NUM_ECC_DIGITS], u2[NUM_ECC_DIGITS];
     uint64_t z[NUM_ECC_DIGITS];
