@@ -32,6 +32,7 @@ int API_MC_Initialize_module(unsigned char *KEK_CERTIFICATE_file, unsigned char 
     {
         // Initialization error handling
         API_LT_traceWrite("Initialization Error", API_EM_get_error_message(Operation_result), NULL);
+         API_SM_State_Change(STATE_ERROR);
         return MC_INITIALIZATION_ERROR;
     }
 
@@ -45,6 +46,7 @@ int API_MC_Initialize_module(unsigned char *KEK_CERTIFICATE_file, unsigned char 
     else
     {
         API_LT_traceWrite("Error_manager incorrect initialization:,", API_EM_get_error_message(Operation_result), NULL);
+        API_SM_State_Change(STATE_ERROR);
         return MC_INITIALIZATION_ERROR;
     }
 
@@ -63,7 +65,7 @@ int API_MC_Initialize_module(unsigned char *KEK_CERTIFICATE_file, unsigned char 
     {
         // Self-test failure handling
         API_LT_traceWrite("Self test failed:", API_EM_get_error_message(Operation_result), NULL);
-        API_SM_State_Change(SM_ERROR); // FALTA IMPLEMENTAR LA LÓGICA PARA QUE ENTRE EN ERROR STATE SI REINICIA EL MODULO, también la zeroización
+        API_SM_State_Change(STATE_ERROR); // FALTA IMPLEMENTAR LA LÓGICA PARA QUE ENTRE EN ERROR STATE SI REINICIA EL MODULO, también la zeroización
         return MC_INITIALIZATION_ERROR;
     }
 
@@ -72,7 +74,7 @@ int API_MC_Initialize_module(unsigned char *KEK_CERTIFICATE_file, unsigned char 
     API_SM_State_Change(STATE_OPERATIONAL);
     API_LT_traceWrite("Current state: ", API_SM_get_current_state_name(), NULL);
 
-    return INITIALIZATION_OK;
+    return INITIALIZATION_OK;  
 }
 
 int API_MC_Insert_Key(uint8_t In_Key[32], size_t key_size, unsigned char *Key_id, size_t Key_id_length)
@@ -80,7 +82,7 @@ int API_MC_Insert_Key(uint8_t In_Key[32], size_t key_size, unsigned char *Key_id
     if (API_SM_get_current_state() != STATE_OPERATIONAL)
     {
         API_LT_traceWrite("incorrect state to insert key, returning error", NULL);
-        API_EM_increment_error_counter(5);
+        API_EM_increment_error_counter(10);
         return SM_ERROR_STATE; // Not in operational state
     }
 
@@ -140,7 +142,7 @@ int API_MC_Delete_Key(unsigned char *Key_id, size_t Key_id_length)
     if (API_SM_get_current_state() != STATE_OPERATIONAL)
     {
         API_LT_traceWrite("incorrect state to delete key, returning error", NULL);
-        API_EM_increment_error_counter(5);
+        API_EM_increment_error_counter(10);
         return SM_ERROR_STATE; // Not in operational state
     }
 
@@ -323,7 +325,7 @@ int API_MC_Shutdown_module(){
         return SM_ERROR_STATE; // Return error code for incorrect state
     }
     // Log the shutdown action
-    API_LT_traceWrite("Shutting the cryptomodule: ", "POWER OFF", NULL);
+    API_LT_traceWrite("Shutting down the cryptomodule: ", "POWER OFF", NULL);
 
     // Zeroize and free all sensitive data
     API_MT_zeroize_and_free_all();

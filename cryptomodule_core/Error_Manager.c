@@ -40,11 +40,22 @@ int API_EM_init_error_counter() {
 // Function to increment the error counter from another thread or context
 void API_EM_increment_error_counter(int increment_value) {
     pthread_mutex_lock(&error_counter_mutex);
-    error_counter += increment_value;
+    char str[32];
 
+    error_counter += increment_value;
+    snprintf(str,32,"%d",increment_value);
+
+    API_LT_traceWrite("Incorrect operation, incrementing error counter in:",str,NULL);
     // Check if error counter exceeds the maximum allowed value
-    if (error_counter > MAX_ERRORS) {
-        API_SM_State_Change(SM_SOFTERROR);
+    if (error_counter > MAX_ERRORS_SOFT) {
+        API_LT_traceWrite("Maximum error umbral reached","proceeding to SOFT_error_state");
+        API_SM_State_Change(STATE_SOFTERROR);
+        API_LT_traceWrite("Current state: ", API_SM_get_current_state_name(), NULL);
+    }
+    if (error_counter > MAX_ERRORS_HARD) {
+        API_LT_traceWrite("Maximum error umbral reached","proceeding to HARD_error_state");
+        API_SM_State_Change(STATE_ERROR);
+        API_LT_traceWrite("Current state: ", API_SM_get_current_state_name(), NULL);
     }
     pthread_mutex_unlock(&error_counter_mutex);
 }

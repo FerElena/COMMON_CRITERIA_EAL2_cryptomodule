@@ -47,7 +47,7 @@ int main()
     unsigned char texto_ejemplo[2000000];
     unsigned char aux_buffer[sizeof(texto_ejemplo) + 72];
     unsigned char aux_buffer_2[sizeof(texto_ejemplo)]; 
-    size_t out_length_cipher;   
+    size_t out_length_cipher;     
     size_t out_length_decipher;
 
     for (int i = 0; i < 10; i++) 

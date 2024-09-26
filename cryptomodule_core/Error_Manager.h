@@ -20,8 +20,9 @@
  * Global variables/constants definition
  ****************************************************************************************************************/
 
-#define REDUCTION_INTERVAL 600 // 600 seconds (10 minutes)
-#define MAX_ERRORS 50          // Maximum error threshold
+#define REDUCTION_INTERVAL 60       // 60 seconds (1 minute)
+#define MAX_ERRORS_SOFT 50          // Maximum SOFT error threshold
+#define MAX_ERRORS_HARD 100         // Maximum HARD error threshhold
 
 #define Errormanager_OK 1900
 
@@ -102,7 +103,7 @@ int API_EM_init_error_counter();
  * @brief Increments the error counter by a specified value.
  * 
  * This function increments the error counter by a given value. If the error counter 
- * exceeds the `MAX_ERRORS` threshold after the increment, it triggers a state change 
+ * exceeds the `MAX_ERRORS_SOFT` threshold after the increment, it triggers a state change 
  * indicating a soft error. The function uses a mutex to ensure thread-safe access 
  * to the error counter.
  * 
