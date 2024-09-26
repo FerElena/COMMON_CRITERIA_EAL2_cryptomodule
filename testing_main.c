@@ -43,18 +43,18 @@ int main()
 
     result = API_MC_Load_Key(key_name1, strlen(key_name1));
     printf("el resultado de cargar la clave es : %d\n", result);
-
+  
     unsigned char texto_ejemplo[2000000];
     unsigned char aux_buffer[sizeof(texto_ejemplo) + 72];
-    unsigned char aux_buffer_2[sizeof(texto_ejemplo)];
-    size_t out_length_cipher;
+    unsigned char aux_buffer_2[sizeof(texto_ejemplo)]; 
+    size_t out_length_cipher;   
     size_t out_length_decipher;
 
-    for (int i = 0; i < 100000; i++)
+    for (int i = 0; i < 100000; i++) 
     {
 
         API_RNG_fill_buffer_random(texto_ejemplo, sizeof(texto_ejemplo));
-
+  
         result = API_MC_Sing_Cipher_Packet(texto_ejemplo, sizeof(texto_ejemplo), aux_buffer, &out_length_cipher);
 
         printf("el resultado de cifrar el packete es:  %d\n", result);

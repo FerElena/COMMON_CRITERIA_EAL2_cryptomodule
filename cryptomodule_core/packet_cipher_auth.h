@@ -31,6 +31,8 @@
 
 #define AESCBC_key_size 32
 
+#define IV_size_header_length 24
+
 #define data_buffer_sign_encrypt_length 262144 //256 kilobytes of static memory so it is not necesary to allocate memory all time CSP
 
 

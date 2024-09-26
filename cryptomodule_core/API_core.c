@@ -293,7 +293,7 @@ int API_MC_Decipher_Auth_Packet(unsigned char *data_in, size_t data_in_length, u
      // Free memory if necessary
     if (Operation_result == ALLOCATED_MEMORY)
     {
-        int free_result = API_MM_freeMem(out_data_aux - HMAC_SHA256_sign_size );
+        int free_result = API_MM_freeMem(out_data_aux - HMAC_SHA256_sign_size ); //go back in pointer arithmetic to free the dynamic hmac too
         printf("el resultado de liberar memoria es : %d\n",free_result);
     }
 

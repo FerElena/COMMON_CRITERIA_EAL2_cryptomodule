@@ -37,8 +37,8 @@ int API_PCA_sign_encrypt_packet(unsigned char *data_in, size_t data_in_length, u
 	data_in_len_aux = data_in_length;
 	out_buffer_pointer = PCA_data_buffer_sed;
 	aux_buffer_pointer = PCA_data_buffer_sed_aux;
-	aux_buffer_length = data_in_len_aux + HMAC_SHA256_sign_size; // Aux buffer size, includes signature size.
-	out_buffer_length = aux_buffer_length + 24;		     // Output buffer length, includes extra space for IV and length.
+	aux_buffer_length = data_in_len_aux + HMAC_SHA256_sign_size;   // Aux buffer size, includes signature size.
+	out_buffer_length = aux_buffer_length + IV_size_header_length; // Output buffer length, includes extra space for IV and length.
 
 	// Calculate the padding needed to align the size to a multiple of 16.
 	padding = 16 - (aux_buffer_length % 16);
@@ -68,7 +68,7 @@ int API_PCA_sign_encrypt_packet(unsigned char *data_in, size_t data_in_length, u
 	int result2 = API_RNG_fill_buffer_random(AES_IV, 16);
 
 	// Encrypt the data and signature using AES in CBC mode.
-	int result3 = API_CP_AESCBC_encrypt(aux_buffer_pointer, &data_in_len_aux, key_AES, AES_KEY_SIZE_256, AES_IV, out_buffer_pointer + 24);
+	int result3 = API_CP_AESCBC_encrypt(aux_buffer_pointer, &data_in_len_aux, key_AES, AES_KEY_SIZE_256, AES_IV, out_buffer_pointer + IV_size_header_length);
 
 	// Copy the total size and IV to the beginning of the output buffer.
 	size_t copysize = out_buffer_length;
@@ -112,7 +112,7 @@ int API_PCA_decrypt_verify_packet(unsigned char *data_in, size_t data_in_length,
 		return SM_ERROR_STATE; // Return error if not operational
 	}
 	// Adjust the input data length, excluding the size and IV.
-	data_in_len_aux = data_in_length - 24;
+	data_in_len_aux = data_in_length - IV_size_header_length;
 
 	// Use default buffer or allocate memory if necessary.
 	out_buffer_pointer = PCA_data_buffer_sed;
@@ -123,7 +123,7 @@ int API_PCA_decrypt_verify_packet(unsigned char *data_in, size_t data_in_length,
 	}
 
 	// Decrypt the data.
-	int result1 = API_CP_AESCBC_decrypt(data_in + 24, &data_in_len_aux, key_AES, AES_KEY_SIZE_256, data_in + 8, out_buffer_pointer); // +24 to skip the size and IV parts.
+	int result1 = API_CP_AESCBC_decrypt(data_in + IV_size_header_length, &data_in_len_aux, key_AES, AES_KEY_SIZE_256, data_in + 8, out_buffer_pointer); // +24 to skip the size and IV parts.
 
 	// Verify the HMAC signature.
 	int result2 = API_CP_verify_HMAC_SHA256(out_buffer_pointer + HMAC_SHA256_sign_size, key_HMAC, out_buffer_pointer, data_in_len_aux - HMAC_SHA256_sign_size, HMAC_SHA256_key_size, HMAC_SHA256_sign_size, verify);
