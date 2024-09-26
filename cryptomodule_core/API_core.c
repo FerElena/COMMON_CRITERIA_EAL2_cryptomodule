@@ -79,8 +79,8 @@ int API_MC_Insert_Key(uint8_t In_Key[32], size_t key_size, unsigned char *Key_id
 {
     if (API_SM_get_current_state() != STATE_OPERATIONAL)
     {
-        API_LT_traceWrite("incorrect state to insert key, returning error",NULL);
-        API_EM_increment_error_counter(5);  
+        API_LT_traceWrite("incorrect state to insert key, returning error", NULL);
+        API_EM_increment_error_counter(5);
         return SM_ERROR_STATE; // Not in operational state
     }
 
@@ -109,8 +109,8 @@ int API_MC_Load_Key(unsigned char *Key_id, size_t Key_id_length)
 {
     if (API_SM_get_current_state() != STATE_OPERATIONAL)
     {
-        API_LT_traceWrite("incorrect state to load key, returning error",NULL);
-        API_EM_increment_error_counter(5);  
+        API_LT_traceWrite("incorrect state to load key, returning error", NULL);
+        API_EM_increment_error_counter(5);
         return SM_ERROR_STATE; // Not in operational state
     }
 
@@ -139,8 +139,8 @@ int API_MC_Delete_Key(unsigned char *Key_id, size_t Key_id_length)
 {
     if (API_SM_get_current_state() != STATE_OPERATIONAL)
     {
-        API_LT_traceWrite("incorrect state to delete key, returning error",NULL);
-        API_EM_increment_error_counter(5);  
+        API_LT_traceWrite("incorrect state to delete key, returning error", NULL);
+        API_EM_increment_error_counter(5);
         return SM_ERROR_STATE; // Not in operational state
     }
 
@@ -170,22 +170,25 @@ int API_MC_Sing_Cipher_Packet(unsigned char *data_in, size_t data_size, unsigned
     // Check if the system is in an operational state
     if (API_SM_get_current_state() != STATE_OPERATIONAL)
     {
-        API_LT_traceWrite("incorrect state to cipher packet",NULL);
-        API_EM_increment_error_counter(10);  
+        API_LT_traceWrite("incorrect state to cipher packet", NULL);
+        API_EM_increment_error_counter(10);
         return SM_ERROR_STATE; // Return error if not operational
     }
+
     // Check if the current key is loaded
     if (Current_key_in_use.IsLoaded == 0)
     {
-        API_LT_traceWrite("Error:",API_EM_get_error_message(KM_KEY_NOT_LOADED) , NULL);
-        API_EM_increment_error_counter(5);      // Log error and increment counter
-        return KM_KEY_NOT_LOADED;               // Return error if key is not loaded
-    }
-    if(data_in == NULL || packet_out == NULL || packet_out_length == NULL){
-        API_LT_traceWrite("Error:",API_EM_get_error_message(KM_PARAMETERS_ERROR) , NULL);
-        return KM_PARAMETERS_ERROR;
+        API_LT_traceWrite("Error:", API_EM_get_error_message(KM_KEY_NOT_LOADED), NULL);
+        API_EM_increment_error_counter(5); // Log error and increment counter
+        return KM_KEY_NOT_LOADED;          // Return error if key is not loaded
     }
 
+    // Validate input parameters
+    if (data_in == NULL || packet_out == NULL || packet_out_length == NULL)
+    {
+        API_LT_traceWrite("Error:", API_EM_get_error_message(KM_PARAMETERS_ERROR), NULL);
+        return KM_PARAMETERS_ERROR;
+    }
 
     // Switch system state to CSP mode for cryptographic operations
     API_SM_State_Change(STATE_CSP);
@@ -195,99 +198,109 @@ int API_MC_Sing_Cipher_Packet(unsigned char *data_in, size_t data_size, unsigned
     int Operation_result = API_MT_verify_integrity(&trackers[TI_Current_Key_In_Use]);
     if (Operation_result != MT_OK)
     {
-        // If integrity check fails, switch to error state and return the result
         API_LT_traceWrite("Key integrity compromised, switching to error state: ", API_EM_get_error_message(Operation_result), NULL);
         API_SM_State_Change(SM_ERROR);
         return Operation_result;
     }
+
     // Key integrity is verified, proceed to sign and encrypt the data
-    API_LT_traceWrite("Key Integrity checked,", "proceeding to sign and cipher",NULL);
-    API_SM_State_Change(STATE_CRYPTOGRAPHIC); // Switch to cryptographic state
+    API_LT_traceWrite("Key Integrity checked,", "proceeding to sign and cipher", NULL);
+    API_SM_State_Change(STATE_CRYPTOGRAPHIC);
     API_LT_traceWrite("Current state: ", API_SM_get_current_state_name(), NULL);
 
     // Perform the sign and encrypt operation
     unsigned char *out_data;
     size_t out_length;
     Operation_result = API_PCA_sign_encrypt_packet(data_in, data_size, Current_key_in_use.Cipher_key, Current_key_in_use.Auth_key, &out_data, &out_length);
+
     // Copy the signed and encrypted data to the output buffer
     memcpy(packet_out, out_data, out_length);
-    *packet_out_length = out_length; // Update the output length
+    *packet_out_length = out_length;
 
     // Free the allocated memory if necessary
-    if(Operation_result == ALLOCATED_MEMORY){
+    if (Operation_result == ALLOCATED_MEMORY)
+    {
         API_MM_freeMem(out_data);
     }
 
     // Return system state to operational
-    API_LT_traceWrite("Sign and cipher operation: ","OK", NULL);
-    API_SM_State_Change(STATE_OPERATIONAL); 
+    API_LT_traceWrite("Sign and cipher operation: ", "OK", NULL);
+    API_SM_State_Change(STATE_OPERATIONAL);
     API_LT_traceWrite("Current state: ", API_SM_get_current_state_name(), NULL);
+
     return CIPHER_AUTH_OPERATION_OK; // Return success code
 }
 
-int API_MC_Decipher_auth_packet(unsigned char *data_in, size_t data_in_length, unsigned char *out_data, size_t *out_data_length) {
+int API_MC_Decipher_auth_packet(unsigned char *data_in, size_t data_in_length, unsigned char *out_data, size_t *out_data_length)
+{
     // Check if system is operational
-    if (API_SM_get_current_state() != STATE_OPERATIONAL) {
+    if (API_SM_get_current_state() != STATE_OPERATIONAL)
+    {
         API_LT_traceWrite("incorrect state to decipher packet", NULL);
         API_EM_increment_error_counter(10);
         return SM_ERROR_STATE;
     }
 
     // Check if key is loaded
-    if (Current_key_in_use.IsLoaded == 0) {
+    if (Current_key_in_use.IsLoaded == 0)
+    {
         API_LT_traceWrite("Error:", API_EM_get_error_message(KM_KEY_NOT_LOADED), NULL);
         API_EM_increment_error_counter(5);
         return KM_KEY_NOT_LOADED;
     }
 
     // Validate input parameters
-    if (data_in == NULL || out_data == NULL || out_data_length == NULL) {
+    if (data_in == NULL || out_data == NULL || out_data_length == NULL)
+    {
         API_LT_traceWrite("Error:", API_EM_get_error_message(KM_PARAMETERS_ERROR), NULL);
         return KM_PARAMETERS_ERROR;
     }
 
-    // Switch to CSP state for cryptographic operations
+    // Switch to CSP state for cryptoparameters operations
     API_SM_State_Change(STATE_CSP);
     API_LT_traceWrite("Current state: ", API_SM_get_current_state_name(), NULL);
 
     // Verify key integrity
     int Operation_result = API_MT_verify_integrity(&trackers[TI_Current_Key_In_Use]);
-    if (Operation_result != MT_OK) {
-        API_LT_traceWrite("Key integrity compromised", API_SM_get_current_state_name(),NULL);
+    if (Operation_result != MT_OK)
+    {
+        API_LT_traceWrite("Key integrity compromised", API_EM_get_error_message(Operation_result), NULL);
         API_SM_State_Change(SM_ERROR);
         return Operation_result;
     }
     // Key integrity is verified, proceed to sign and encrypt the data
-    API_LT_traceWrite("Key Integrity checked,", "proceeding to sign and cipher",NULL);
+    API_LT_traceWrite("Key Integrity checked,", "proceeding to sign and cipher", NULL);
     API_SM_State_Change(STATE_CRYPTOGRAPHIC); // Switch to cryptographic state
     API_LT_traceWrite("Current state: ", API_SM_get_current_state_name(), NULL);
 
     // Proceed to decrypt and verify packet
-    API_SM_State_Change(STATE_CRYPTOGRAPHIC);
     unsigned char *out_data_aux;
     size_t out_length_aux;
     unsigned char verify;
     Operation_result = API_PCA_decrypt_verify_packet(data_in, data_in_length, Current_key_in_use.Cipher_key, Current_key_in_use.Auth_key, &out_data_aux, &out_length_aux, &verify);
 
+    // Copy the decrypted and verified data to the output buffer
     memcpy(out_data, out_data_aux, out_length_aux);
     *out_data_length = out_length_aux;
-
-    // Free memory if necessary
-    if (Operation_result == ALLOCATED_MEMORY) {
+    // Handle packet integrity failure before copying the data
+     // Free memory if necessary
+    if (Operation_result == ALLOCATED_MEMORY)
+    {
         API_MM_freeMem(out_data_aux);
     }
 
-    // Handle packet integrity failure
-    if (!verify) {
+    if (!verify)
+    {
         API_LT_traceWrite("Error:", API_EM_get_error_message(MC_PACKET_INTEGRITY_COMPROMISED), NULL);
         API_EM_increment_error_counter(3);
-        API_MM_secure_zeroize(out_data, *out_data_length);
+        API_MM_secure_zeroize(out_data, out_length_aux); // Zeroize decrypted data on failure
         return MC_PACKET_INTEGRITY_COMPROMISED;
     }
 
     // Return to operational state
-    API_LT_traceWrite("Decipher and auth operation: ","OK", NULL);
+    API_LT_traceWrite("Decipher and auth operation: ", "OK", NULL);
     API_SM_State_Change(STATE_OPERATIONAL);
     API_LT_traceWrite("Current state: ", API_SM_get_current_state_name(), NULL);
+
     return DECIPHER_AUTH_OPERATION_OK;
 }

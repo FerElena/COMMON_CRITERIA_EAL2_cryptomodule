@@ -44,12 +44,14 @@ extern unsigned char PCA_data_buffer_sed_aux[data_buffer_sign_encrypt_length];
 /*
 Structure of the encrypted packet; the text and signature are encrypted using AES-CBC-256.
 
+
+
 +-----------------------+-----------------------+--------------------------+---------------------------+
-|   8-byte Packet       |   AES IV (16 bytes)   |      Text (length n)     | HMAC Signature (32 bytes) |
+|   8-byte Packet       |   AES IV (16 bytes)   | HMAC Signature (32 bytes)|       Text (length n)     |
 +-----------------------+-----------------------+--------------------------+---------------------------+
 |                       |                       |                          |                           |
-|   [Packet Size]       |   [16-byte AES IV]    |   [Text of length n]     |   [32-byte HMAC Signature]|
-|        (8 B)          |        (16 B)         |         (n B)            |         (32 B)            |
+|   [Packet Size]       |   [16-byte AES IV]    | [32-byte HMAC Signature] |     [Text of length n]    |
+|        (8 B)          |        (16 B)         |           (32 B)         |           (n B)           |
 |                       |                       |                          |                           |
 +-----------------------+-----------------------+--------------------------+---------------------------+
 
