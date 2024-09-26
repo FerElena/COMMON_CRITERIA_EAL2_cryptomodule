@@ -195,7 +195,7 @@ int API_MC_Sing_Cipher_Packet(unsigned char *data_in, size_t data_size, unsigned
  */
 
 
-int API_MC_Decipher_auth_packet(unsigned char *data_in, size_t data_in_length,unsigned char *out_data, size_t *out_data_length);
+int API_MC_Decipher_Auth_Packet(unsigned char *data_in, size_t data_in_length,unsigned char *out_data, size_t *out_data_length);
 
 
 /**
