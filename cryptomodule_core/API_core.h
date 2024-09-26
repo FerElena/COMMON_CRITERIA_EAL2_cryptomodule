@@ -197,4 +197,18 @@ int API_MC_Sing_Cipher_Packet(unsigned char *data_in, size_t data_size, unsigned
 
 int API_MC_Decipher_auth_packet(unsigned char *data_in, size_t data_in_length,unsigned char *out_data, size_t *out_data_length);
 
+
+/**
+ * @brief Shuts down the cryptographic module.
+ *
+ * This function checks the current state of the system to ensure it is either operational
+ * or in a soft error state before proceeding with the shutdown sequence. If the state is
+ * incorrect, it logs the state, increments the error counter, and returns an error code.
+ *
+ * @return int Returns SM_ERROR_STATE if the current state is not valid. Returns 0 if the
+ * shutdown process is successful.
+ */
+
+int API_MC_Shutdown_module();
+
 #endif

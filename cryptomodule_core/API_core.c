@@ -170,7 +170,7 @@ int API_MC_Sing_Cipher_Packet(unsigned char *data_in, size_t data_size, unsigned
     // Check if the system is in an operational state
     if (API_SM_get_current_state() != STATE_OPERATIONAL)
     {
-        API_LT_traceWrite("incorrect state to cipher packet", NULL);
+        API_LT_traceWrite("incorrect state to cipher packet",API_SM_get_current_state_name() ,NULL);
         API_EM_increment_error_counter(10);
         return SM_ERROR_STATE; // Return error if not operational
     }
@@ -239,7 +239,7 @@ int API_MC_Decipher_auth_packet(unsigned char *data_in, size_t data_in_length, u
     // Check if system is operational
     if (API_SM_get_current_state() != STATE_OPERATIONAL)
     {
-        API_LT_traceWrite("incorrect state to decipher packet", NULL);
+        API_LT_traceWrite("incorrect state to decipher packet",API_SM_get_current_state_name(), NULL);
         API_EM_increment_error_counter(10);
         return SM_ERROR_STATE;
     }
@@ -310,4 +310,29 @@ int API_MC_Decipher_auth_packet(unsigned char *data_in, size_t data_in_length, u
     API_LT_traceWrite("Current state: ", API_SM_get_current_state_name(), NULL);
 
     return DECIPHER_AUTH_OPERATION_OK;
+}
+
+int API_MC_Shutdown_module(){
+    // Check if the current state is not operational or in a soft error state
+    if (API_SM_get_current_state() != STATE_OPERATIONAL && API_SM_get_current_state() != STATE_SOFTERROR)
+    {
+        // Log the incorrect state and increment the error counter
+        API_LT_traceWrite("incorrect state ", API_SM_get_current_state_name(), NULL);
+        API_EM_increment_error_counter(10);
+        return SM_ERROR_STATE; // Return error code for incorrect state
+    }
+    // Log the shutdown action
+    API_LT_traceWrite("Shutting the cryptomodule: ", "POWER OFF", NULL);
+
+    // Zeroize and free all sensitive data
+    API_MT_zeroize_and_free_all();
+    
+    // Zeroize the root key
+    API_MM_Zeroize_root();
+    
+    // Close the filesystem
+    API_FS_Close_filesystem();
+    
+    // Change the state to OFF
+    API_SM_State_Change(STATE_OFF);
 }

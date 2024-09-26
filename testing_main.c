@@ -72,6 +72,8 @@ int main()
     {
         putchar(aux_buffer_2[i]);
     }
+
+    API_MC_Shutdown_module();
     usleep(1000000);
     printf("\n");
 
