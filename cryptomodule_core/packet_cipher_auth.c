@@ -71,7 +71,12 @@ int API_PCA_sign_encrypt_packet(unsigned char *data_in, size_t data_in_length, u
 	int result3 = API_CP_AESCBC_encrypt(aux_buffer_pointer, &data_in_len_aux, key_AES, AES_KEY_SIZE_256, AES_IV, out_buffer_pointer + 24);
 
 	// Copy the total size and IV to the beginning of the output buffer.
-	memcpy(out_buffer_pointer, &out_buffer_length, sizeof(out_buffer_length));
+	size_t copysize = out_buffer_length;
+	for (int i = 7; i >= 0; i--)
+	{
+		out_buffer_pointer[i] = (unsigned char)(copysize & 0xFF);
+		copysize >>= 8;
+	}
 	memcpy(out_buffer_pointer + 8, AES_IV, 16);
 
 	// Assign the output buffer and its length to the output pointers.
@@ -94,9 +99,18 @@ int API_PCA_decrypt_verify_packet(unsigned char *data_in, size_t data_in_length,
 	}
 	unsigned char *out_buffer_pointer;		       // Pointer to the output buffer.
 	unsigned char allocated_memory = NOT_ALLOCATED_MEMORY; // Flag for memory management.
-	size_t data_len_plaintext;			       // Length of the plaintext after decryption.
+	size_t data_len_packet;				       // Length of the plaintext after decryption.
 	size_t data_in_len_aux;				       // Adjusted input data length.
 
+	for (int i = 0; i < 8; i++)
+	{
+		data_len_packet = (data_len_packet << 8) | data_in[i];
+	}
+
+	if (data_len_packet != data_in_length)
+	{
+		return SM_ERROR_STATE; // Return error if not operational
+	}
 	// Adjust the input data length, excluding the size and IV.
 	data_in_len_aux = data_in_length - 24;
 

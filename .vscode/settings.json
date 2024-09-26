@@ -23,6 +23,11 @@
 		"dmemmanager.h": "c",
 		"string.h": "c",
 		"aes_core.h": "c",
-		"key_management.h": "c"
+		"key_management.h": "c",
+		"system_error": "c",
+		"array": "c",
+		"tuple": "c",
+		"type_traits": "c",
+		"utility": "c"
 	}
 }
