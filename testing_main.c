@@ -44,33 +44,32 @@ int main()
     result = API_MC_Load_Key(key_name1, strlen(key_name1));
     printf("el resultado de cargar la clave es : %d\n", result);
 
-    unsigned char texto_ejemplo[] =
-        "Este es un ejemplo de texto aleatorio generado para ser utilizado como una cadena de prueba. El contenido de este "
-        "texto no tiene ningún significado particular, pero está diseñado para ser legible y tener un tamaño de exactamente "
-        "1000 bytes. En este fragmento se incluyen palabras en español, así como una combinación de letras, números y signos "
-        "de puntuación. La intención es demostrar cómo se puede construir un bloque de texto que sea completamente legible y "
-        "cumpla con los requisitos del tamaño solicitado. A medida que seguimos escribiendo, el texto se llena con oraciones "
-        "variadas que siguen una estructura coherente. Sin embargo, debido a la naturaleza de este ejercicio, no se espera "
-        "que el contenido sea informativo o útil más allá del propósito de prueba. Esta sección finaliza con más caracteres "
-        "para asegurarse de que se completa el número exacto de 1000 bytes, agregando algunas palabras adicionales que "
-        "rellenan el espacio necesario y finalizan con un punto.";
-
+    unsigned char texto_ejemplo[1000000];
     unsigned char aux_buffer[sizeof(texto_ejemplo) + 72];
     unsigned char aux_buffer_2[sizeof(texto_ejemplo)];
     size_t out_length_cipher;
     size_t out_length_decipher;
 
-    result = API_MC_Sing_Cipher_Packet(texto_ejemplo, sizeof(texto_ejemplo), aux_buffer, &out_length_cipher);
-
-    printf("el resultado de cifrar el packete es:  %d\n", result);
-
-    result = API_MC_Decipher_auth_packet(aux_buffer, out_length_cipher, aux_buffer_2, &out_length_decipher);
-
-    printf("el resultado de descifrar el packete es: %d\n el packete es:   ", result);
-
-    for (int i = 0; i < out_length_decipher; i++)
+    for (int i = 0; i < 1000; i++)
     {
-        putchar(aux_buffer_2[i]);
+
+        API_RNG_fill_buffer_random(texto_ejemplo, sizeof(texto_ejemplo));
+
+        result = API_MC_Sing_Cipher_Packet(texto_ejemplo, sizeof(texto_ejemplo), aux_buffer, &out_length_cipher);
+
+        printf("el resultado de cifrar el packete es:  %d\n", result);
+
+        result = API_MC_Decipher_auth_packet(aux_buffer, out_length_cipher, aux_buffer_2, &out_length_decipher);
+
+        printf("el resultado de descifrar el packete es: %d\n el packete es:   ", result);
+        int result = memcmp(aux_buffer_2,texto_ejemplo,sizeof(texto_ejemplo));
+        if(result == 0){
+            printf("texto de iteración %d pasa correcto\n",i);
+        }
+        else{
+            printf("ERROR EN ITERACION %d\n",i);
+            break;
+        }
     }
 
     API_MC_Shutdown_module();
