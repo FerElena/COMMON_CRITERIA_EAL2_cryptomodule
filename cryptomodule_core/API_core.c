@@ -213,6 +213,9 @@ int API_MC_Sing_Cipher_Packet(unsigned char *data_in, size_t data_size, unsigned
     size_t out_length;
     Operation_result = API_PCA_sign_encrypt_packet(data_in, data_size, Current_key_in_use.Cipher_key, Current_key_in_use.Auth_key, &out_data, &out_length);
 
+    if(Operation_result == SM_ERROR_STATE ){
+        return SM_ERROR_STATE;
+    }
     // Copy the signed and encrypted data to the output buffer
     memcpy(packet_out, out_data, out_length);
     *packet_out_length = out_length;
@@ -278,6 +281,10 @@ int API_MC_Decipher_auth_packet(unsigned char *data_in, size_t data_in_length, u
     size_t out_length_aux;
     unsigned char verify;
     Operation_result = API_PCA_decrypt_verify_packet(data_in, data_in_length, Current_key_in_use.Cipher_key, Current_key_in_use.Auth_key, &out_data_aux, &out_length_aux, &verify);
+
+    if(Operation_result == SM_ERROR_STATE ){
+        return SM_ERROR_STATE;
+    }
 
     // Copy the decrypted and verified data to the output buffer
     memcpy(out_data, out_data_aux, out_length_aux);

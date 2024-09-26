@@ -33,8 +33,10 @@ int main()
     unsigned char *key_name2 = "Key2";
 
     result = API_MC_Insert_Key(key1, 32, key_name1, strlen(key_name1));
+    printf("el resultado de insertar la clave 1 es : %d\n", result);
+
     result = API_MC_Insert_Key(key1, 32, key_name2, strlen(key_name2));
-    printf("el resultado de insertar la clave es : %d\n", result);
+    printf("el resultado de insertar la clave 2 es : %d\n", result);
 
     result = API_MC_Delete_Key(key_name2, strlen(key_name2));
     printf("el resultado de borrar la clave es : %d\n", result);
