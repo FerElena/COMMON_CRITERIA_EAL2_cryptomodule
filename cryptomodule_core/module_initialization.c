@@ -170,7 +170,7 @@ int File_system_first_initialization(unsigned char *KEK_CERTIFICATE_file, unsign
     // Update the memory tracker with the new key.
     API_MT_update_tracker(&trackers[TI_FS_cipher_key]);
 
-    uint8_t previus_state = 1;
+    uint8_t previus_state = PREVIUS_NORMAL_STATE;
     int result1 = API_FS_create_file_data(CONF_FILENAME, strlen(CONF_FILENAME), &previus_state, 1, NOT_CSP);
 
     int result2 = API_FS_create_file_data(CERT_FILENAME, strlen(CERT_FILENAME), key_AES256_certificate + 32, sizeof(key_AES256_certificate) - 32, CSP); // store the 97 bytes of sign and pubkey of ecdsa
@@ -226,9 +226,19 @@ int File_system_normal_initialization(unsigned char *KEK_CERTIFICATE_file, unsig
     {
         return INIT_INCORRECT_FILESYSTEM_INIT; // File system initialization failed.
     }
+    //Check for previus error states in the cryptomodule
+    uint8_t *previus_state;
+    uint32_t config_size;
+    int result = API_FS_read_file_data(CONF_FILENAME,strlen(CONF_FILENAME),&previus_state,&config_size);
+    if(*previus_state == PREVIUS_ERROR_STATE || result != FILESYSTEM_OK){
+        return INIT_PREVIUS_ERROR_STATE;
+    }
 
     // Set up AES encryption with the loaded key.
-    API_FS_setup_cipher(CIPHER_ON, key_AES256);
+    result = API_FS_setup_cipher(CIPHER_ON, key_AES256);
+    if(result == 0){
+        return INIT_INCORRECT_FILESYSTEM_INIT;
+    }
 
     // Update the memory tracker with the new key.
     API_MT_update_tracker(&trackers[TI_FS_cipher_key]);

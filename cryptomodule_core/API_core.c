@@ -20,25 +20,23 @@ int API_MC_Initialize_module(unsigned char *KEK_CERTIFICATE_file, unsigned char 
     {
         // Log first-time initialization success
         API_LT_traceWrite("Current state: ", API_SM_get_current_state_name(), NULL);
-        API_LT_traceWrite("Module first initialization:","CORRECT",NULL);
-        API_LT_traceWrite("Secure_memory_tracker first initialization:","CORRECT",NULL);
-        API_LT_traceWrite("Filesystem first initialization:","CORRECT",NULL);
+        API_LT_traceWrite("Module first initialization:", "CORRECT", NULL);
+        API_LT_traceWrite("Secure_memory_tracker first initialization:", "CORRECT", NULL);
+        API_LT_traceWrite("Filesystem first initialization:", "CORRECT", NULL);
     }
     else if (Operation_result == INITIALIZE_OK_NORMAL_INIT)
     {
         // Log normal initialization success
         API_LT_traceWrite("Current state: ", API_SM_get_current_state_name(), NULL);
-        API_LT_traceWrite("Module consecutive initialization:","CORRECT",NULL);
-        API_LT_traceWrite("Secure_memory_tracker consecutive initialization:","CORRECT",NULL);
-        API_LT_traceWrite("Filesystem consecutive initialization:","CORRECT",NULL);
+        API_LT_traceWrite("Module consecutive initialization:", "CORRECT", NULL);
+        API_LT_traceWrite("Secure_memory_tracker consecutive initialization:", "CORRECT", NULL);
+        API_LT_traceWrite("Filesystem consecutive initialization:", "CORRECT", NULL);
     }
     else
     {
-        // Initialization error handling
-        API_LT_traceWrite("Initialization Error", API_EM_get_error_message(Operation_result), NULL);
+        // Initialization error handling, cannot write traces cause Library tracer have not been correctly initialized
         API_SM_State_Change(STATE_ERROR);
         API_EM_zeroize_entire_module();
-        API_LT_traceWrite("Current state: ", API_SM_get_current_state_name(), NULL);
         return MC_INITIALIZATION_ERROR;
     }
 
@@ -82,7 +80,7 @@ int API_MC_Initialize_module(unsigned char *KEK_CERTIFICATE_file, unsigned char 
     API_SM_State_Change(STATE_OPERATIONAL);
     API_LT_traceWrite("Current state: ", API_SM_get_current_state_name(), NULL);
 
-    return INITIALIZATION_OK;  
+    return INITIALIZATION_OK;
 }
 
 int API_MC_Insert_Key(uint8_t In_Key[32], size_t key_size, unsigned char *Key_id, size_t Key_id_length)
@@ -102,7 +100,7 @@ int API_MC_Insert_Key(uint8_t In_Key[32], size_t key_size, unsigned char *Key_id
     if (Operation_result != KM_OK)
     {
         API_LT_traceWrite("Error in key insertion:", API_EM_get_error_message(Operation_result), NULL);
-        API_EM_increment_error_counter(5);      // Log error and increment counter
+        API_EM_increment_error_counter(10);     // Log error and increment counter
         API_SM_State_Change(STATE_OPERATIONAL); // Revert state
         API_LT_traceWrite("Current state: ", API_SM_get_current_state_name(), NULL);
         return Operation_result;
@@ -180,7 +178,7 @@ int API_MC_Sing_Cipher_Packet(unsigned char *data_in, size_t data_size, unsigned
     // Check if the system is in an operational state
     if (API_SM_get_current_state() != STATE_OPERATIONAL)
     {
-        API_LT_traceWrite("incorrect state to cipher packet",API_SM_get_current_state_name() ,NULL);
+        API_LT_traceWrite("incorrect state to cipher packet", API_SM_get_current_state_name(), NULL);
         API_EM_increment_error_counter(10);
         return SM_ERROR_STATE; // Return error if not operational
     }
@@ -225,7 +223,8 @@ int API_MC_Sing_Cipher_Packet(unsigned char *data_in, size_t data_size, unsigned
     size_t out_length;
     Operation_result = API_PCA_sign_encrypt_packet(data_in, data_size, Current_key_in_use.Cipher_key, Current_key_in_use.Auth_key, &out_data, &out_length);
 
-    if(Operation_result == SM_ERROR_STATE ){
+    if (Operation_result == SM_ERROR_STATE)
+    {
         return SM_ERROR_STATE;
     }
     // Copy the signed and encrypted data to the output buffer
@@ -251,7 +250,7 @@ int API_MC_Decipher_Auth_Packet(unsigned char *data_in, size_t data_in_length, u
     // Check if system is operational
     if (API_SM_get_current_state() != STATE_OPERATIONAL)
     {
-        API_LT_traceWrite("incorrect state to decipher packet",API_SM_get_current_state_name(), NULL);
+        API_LT_traceWrite("incorrect state to decipher packet", API_SM_get_current_state_name(), NULL);
         API_EM_increment_error_counter(10);
         return SM_ERROR_STATE;
     }
@@ -296,7 +295,8 @@ int API_MC_Decipher_Auth_Packet(unsigned char *data_in, size_t data_in_length, u
     unsigned char verify;
     Operation_result = API_PCA_decrypt_verify_packet(data_in, data_in_length, Current_key_in_use.Cipher_key, Current_key_in_use.Auth_key, &out_data_aux, &out_length_aux, &verify);
 
-    if(Operation_result == SM_ERROR_STATE ){
+    if (Operation_result == SM_ERROR_STATE)
+    {
         return SM_ERROR_STATE;
     }
 
@@ -304,10 +304,10 @@ int API_MC_Decipher_Auth_Packet(unsigned char *data_in, size_t data_in_length, u
     memcpy(out_data, out_data_aux, out_length_aux);
     *out_data_length = out_length_aux;
     // Handle packet integrity failure before copying the data
-     // Free memory if necessary
+    // Free memory if necessary
     if (Operation_result == ALLOCATED_MEMORY)
     {
-        int free_result = API_MM_freeMem(out_data_aux - HMAC_SHA256_sign_size ); //go back in pointer arithmetic to free the dynamic hmac too
+        int free_result = API_MM_freeMem(out_data_aux - HMAC_SHA256_sign_size); // go back in pointer arithmetic to free the dynamic hmac too
     }
 
     if (!verify)
@@ -326,27 +326,20 @@ int API_MC_Decipher_Auth_Packet(unsigned char *data_in, size_t data_in_length, u
     return DECIPHER_AUTH_OPERATION_OK;
 }
 
-int API_MC_Shutdown_module(){
-    // Check if the current state is not operational or in a soft error state
-    if (API_SM_get_current_state() != STATE_OPERATIONAL && API_SM_get_current_state() != STATE_SOFTERROR)
-    {
-        // Log the incorrect state and increment the error counter
-        API_LT_traceWrite("incorrect state ", API_SM_get_current_state_name(), NULL);
-        API_EM_increment_error_counter(10);
-        return SM_ERROR_STATE; // Return error code for incorrect state
-    }
+int API_MC_Shutdown_module()
+{
     // Log the shutdown action
     API_LT_traceWrite("Shutting down the cryptomodule: ", "POWER OFF", NULL);
 
     // Zeroize and free all sensitive data
     API_MT_zeroize_and_free_all();
-    
-    // Zeroize the root key
+
+    // Zeroize entire dynamic memory tree
     API_MM_Zeroize_root();
-    
+
     // Close the filesystem
     API_FS_Close_filesystem();
-    
+
     // Change the state to OFF
     API_SM_State_Change(STATE_OFF);
 }

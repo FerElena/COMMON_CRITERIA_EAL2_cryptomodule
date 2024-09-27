@@ -121,14 +121,17 @@ int API_SM_State_Change(State next_state){
         // During a soft error
         case STATE_SOFTERROR:
             switch (next_state) {
-                case STATE_OPERATIONAL:
-                    current_state = STATE_OPERATIONAL;
-                    return STATE_CHANGE_SUCCESS;  // Transition back to OPERATIONAL
+                case SM_SOFTERROR:
+                    current_state = SM_SOFTERROR;
+                    return STATE_CHANGE_SUCCESS;  // Transition to SOFTERROR
                 case STATE_SELF_TEST:
                     current_state = STATE_SELF_TEST;
-                    return STATE_CHANGE_SUCCESS;  // Transition to CRYPTOGRAPHIC
-                default:
+                    return STATE_CHANGE_SUCCESS;  // Transition to SELF-TESTS
+                case STATE_ERROR:
                     current_state = STATE_ERROR;
+                    return STATE_CHANGE_SUCCESS;  // Transition to SELF-TESTS
+                default:
+                    current_state = STATE_SOFTERROR;
                     return STATE_CHANGE_SUCCESS;  // Invalid transition, go to error state
             }
 

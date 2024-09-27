@@ -214,12 +214,14 @@ void *API_MM_reallocMem(void *ptr, size_t new_size) {
 
 // Recursively wipes and frees all nodes in a subtree, securely deleting all associated memory.
 void zeroize_tree(node *current_node) {
-    if (current_node) {
+    if (current_node != NULL) {
         zeroize_tree(current_node->left);  // Recursively clear the left subtree.
         zeroize_tree(current_node->right); // Recursively clear the right subtree.
 
         API_MM_secure_zeroize(current_node->ptr, current_node->size);  // Securely wipe the memory block.
-        API_MM_secure_zeroize(current_node, sizeof(node));  // Securely wipe the node structure.
+        if(current_node != ROOT){
+            API_MM_secure_zeroize(current_node, sizeof(node));  // Securely wipe the node structure, unless the node is ROOT
+        }
     }
 }
 

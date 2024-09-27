@@ -18,6 +18,7 @@
 #include "../secure_memory_management/DmemManager.h"
 #include "../secure_memory_management/file_system.h"
 #include "../secure_memory_management/MemoryTracker.h"
+#include "module_initialization.h"
 
 /****************************************************************************************************************
  * Global variables/constants definition
@@ -64,6 +65,7 @@
 #define INIT_INCORRECT_KEYFILE_READ -1703
 #define INIT_INCORRECT_FILESYSTEM_INIT -1704
 #define INIT_TRACER_INIT_ERROR -1705
+#define INIT_PREVIUS_ERROR_STATE -1706
 #define SM_ERROR -1800         // Hard error state
 #define SM_SOFTERROR -1801      // Soft error state
 #define SM_ERROR_STATE -1802

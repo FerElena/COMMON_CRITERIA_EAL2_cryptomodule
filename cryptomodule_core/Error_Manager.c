@@ -2,6 +2,7 @@
 
 pthread_mutex_t error_counter_mutex = PTHREAD_MUTEX_INITIALIZER;
 int error_counter;
+static uint8_t keep_normal_function = 1;
 
 // Function executed in a separate thread, reduces the counter every 10 minutes
 void* reduce_error_counter(void* arg) {
@@ -9,7 +10,8 @@ void* reduce_error_counter(void* arg) {
         sleep(REDUCTION_INTERVAL); // Wait for 10 minutes
         pthread_mutex_lock(&error_counter_mutex);
         if (error_counter > 0) {
-            error_counter--;
+            if(keep_normal_function)
+                error_counter--;
         }
         pthread_mutex_unlock(&error_counter_mutex);
     }
@@ -40,20 +42,23 @@ int API_EM_init_error_counter() {
 // Function to increment the error counter from another thread or context
 void API_EM_increment_error_counter(int increment_value) {
     pthread_mutex_lock(&error_counter_mutex);
-    char str[32];
+    char str[32] = {0};
 
-    error_counter += increment_value;
+    if(keep_normal_function){
+        error_counter += increment_value;
+    }
     snprintf(str,32,"%d",increment_value);
 
     API_LT_traceWrite("Incorrect operation, incrementing error counter in:",str,NULL);
     // Check if error counter exceeds the maximum allowed value
     if (error_counter > MAX_ERRORS_SOFT) {
-        API_LT_traceWrite("Maximum error umbral reached","proceeding to SOFT_error_state");
+        API_LT_traceWrite("Maximum error umbral reached","proceeding to SOFT_error_state",NULL);
         API_SM_State_Change(STATE_SOFTERROR);
         API_LT_traceWrite("Current state: ", API_SM_get_current_state_name(), NULL);
     }
     if (error_counter > MAX_ERRORS_HARD) {
-        API_LT_traceWrite("Maximum error umbral reached","proceeding to HARD_error_state");
+        keep_normal_function = 0;
+        API_LT_traceWrite("Maximum error umbral reached","proceeding to HARD_error_state",NULL);
         API_SM_State_Change(STATE_ERROR);
         API_LT_traceWrite("Current state: ", API_SM_get_current_state_name(), NULL);
         API_EM_zeroize_entire_module();
@@ -63,6 +68,10 @@ void API_EM_increment_error_counter(int increment_value) {
 
 
 void API_EM_zeroize_entire_module() {
+    /** <setup previus error state in filesystem */
+    uint8_t previus_state = 2;
+    int result = API_FS_update_file_data(CONF_FILENAME,strlen(CONF_FILENAME),&previus_state,sizeof(u_int8_t));
+
     API_MT_zeroize_and_free_all();   /**< Zeroize and free all memory tracked by the memory tracker. */
     API_MM_Zeroize_root();           /**< Zeroize the entire memory management tree. */
     API_FS_zeroize_file_system();    /**< Zeroize and wipe the file system. */
@@ -104,6 +113,7 @@ const char* API_EM_get_error_message(int error_code) {
         [INIT_INCORRECT_KEYFILE_FORMAT + 2010] = "Incorrect keyfile format",
         [INIT_INCORRECT_KEYFILE_READ + 2010] = "Incorrect keyfile read",
         [INIT_INCORRECT_FILESYSTEM_INIT + 2010] = "Incorrect filesystem initialization",
+        [INIT_PREVIUS_ERROR_STATE + 2010] = "Previus Error state detected, module already zeroized",
         [INIT_TRACER_INIT_ERROR + 2010] = "Tracer initialization error",
         [SM_ERROR + 2010] = "Hard error occurred",
         [SM_SOFTERROR + 2010] = "Soft error occurred",

@@ -68,7 +68,7 @@ extern MemoryTracker trackers[MAX_TRACKERS]; // Array of all memory tracker
 extern MemoryTracker *Free_Tracker_List; // Linked list of available memory trackers
 extern MemoryTracker *Used_Trackers_List; // Linked list of used memory trackers
 
-extern pthread_mutex_t mutex; // Mutex to ensure thread safety during memory operations
+extern pthread_mutex_t MT_mutex; // Mutex to ensure thread safety during memory operations
 
 /****************************************************************************************************************
  * Function definition zone
@@ -79,7 +79,7 @@ extern pthread_mutex_t mutex; // Mutex to ensure thread safety during memory ope
  *
  * This function sets up the `trackers` array by linking all available trackers in a free list,
  * and initializes the `Free_Tracker_List` pointer to the beginning of this list.
- * It also ensures thread safety by locking a mutex during the initialization process.
+ * It also ensures thread safety by locking a MT_mutex during the initialization process.
  *
  * @note Must be called before any other memory tracking functions are used.
  */
@@ -138,7 +138,7 @@ int API_MT_verify_integrity(MemoryTracker *tracker);
  *  - Recalculates the checksum of the memory block.
  *  - Locks the memory again to prevent it from being swapped out.
  *
- * The function is thread-safe, using a mutex to ensure exclusive access to the memory tracker during the update.
+ * The function is thread-safe, using a MT_mutex to ensure exclusive access to the memory tracker during the update.
  *
  * @param tracker Pointer to the MemoryTracker structure to be updated.
  *
@@ -177,7 +177,7 @@ int API_MT_remove_tracker(void *ptr);
  * @brief Zeroizes and frees all tracked memory allocations.
  *
  * This function iterates over all used memory trackers, securely zeroizes any memory that is marked as CSP,
- * and returns all trackers to the free list. It ensures thread safety by locking the mutex during the process.
+ * and returns all trackers to the free list. It ensures thread safety by locking the MT_mutex during the process.
  *
  * @note This function clears all tracked memory and should be used with caution.
  */

@@ -17,7 +17,6 @@ int API_KM_storekey(uint8_t In_Key[32], size_t key_size, unsigned char *Key_id, 
 	{
 		return KM_PARAMETERS_ERROR;
 	}
-
 	// Ensure the Key ID contains only alphanumeric characters
 	for (size_t i = 0; i < Key_id_length; i++)
 	{

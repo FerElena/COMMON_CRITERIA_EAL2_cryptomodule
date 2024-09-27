@@ -21,19 +21,19 @@ MemoryTracker *Free_Tracker_List = NULL;
 MemoryTracker *Used_Trackers_List = NULL;
 
 // Mutex for synchronizing access to the tracker structures.
-pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t MT_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 // Initialize the tracker system.
 void API_MT_initialize_trackers()
 {
-    pthread_mutex_lock(&mutex); // Lock to ensure thread safety.
+    pthread_mutex_lock(&MT_mutex); // Lock to ensure thread safety.
     for (int i = 0; i < MAX_TRACKERS - 1; i++)
     {
         trackers[i].next = &trackers[i + 1]; // Link all trackers in a free list.
     }
     trackers[MAX_TRACKERS - 1].next = NULL; // End of the free list.
     Free_Tracker_List = &trackers[0];       // Point to the first tracker as the start of the free list.
-    pthread_mutex_unlock(&mutex);           // Unlock the mutex.
+    pthread_mutex_unlock(&MT_mutex);           // Unlock the MT_mutex.
 }
 
 // Fetch a free tracker from the list, low level function.
@@ -64,11 +64,11 @@ int API_MT_add_tracker(void *ptr, size_t size, uint8_t isCSP)
         return INVALID_INPUT_MT;
     }
 
-    pthread_mutex_lock(&mutex);
+    pthread_mutex_lock(&MT_mutex);
     MemoryTracker *tracker = get_free_tracker(); // Get a free tracker.
     if (tracker == NULL)
     {
-        pthread_mutex_unlock(&mutex);
+        pthread_mutex_unlock(&MT_mutex);
         return MT_NO_MORE_TRACKERS; // Indicate no more Trackers
     }
     // Initialize the tracker with the memory block's info.
@@ -82,14 +82,14 @@ int API_MT_add_tracker(void *ptr, size_t size, uint8_t isCSP)
     {
         perror("mlock failed");
         return_tracker(tracker); // Return tracker to the free list
-        pthread_mutex_unlock(&mutex);
+        pthread_mutex_unlock(&MT_mutex);
         return MT_MEMORY_LOCK_FAIL; // Indicate failure
     }
 
     // Add the tracker to the used list.
     tracker->next = Used_Trackers_List;
     Used_Trackers_List = tracker;
-    pthread_mutex_unlock(&mutex);
+    pthread_mutex_unlock(&MT_mutex);
     return (tracker - trackers); // Return the tracker's index as a success indicator, if positive, is successful
 }
 
@@ -116,7 +116,7 @@ int API_MT_update_tracker(MemoryTracker *tracker)
         return INVALID_INPUT_MT;
     }
 
-    pthread_mutex_lock(&mutex);
+    pthread_mutex_lock(&MT_mutex);
 
     // Unlock old memory if it's locked.
     munlock(tracker->ptr, tracker->size);
@@ -127,11 +127,11 @@ int API_MT_update_tracker(MemoryTracker *tracker)
     // Lock the new memory.
     if (mlock(tracker->ptr, tracker->size) != 0)
     {
-        pthread_mutex_unlock(&mutex);
+        pthread_mutex_unlock(&MT_mutex);
         return MT_MEMORY_LOCK_FAIL; // Indicate failure.
     }
 
-    pthread_mutex_unlock(&mutex);
+    pthread_mutex_unlock(&MT_mutex);
     return MT_OK;
 }
 
@@ -143,7 +143,7 @@ int API_MT_change_tracker(MemoryTracker *tracker, void *new_ptr, size_t new_size
         return INVALID_INPUT_MT;
     }
 
-    pthread_mutex_lock(&mutex);
+    pthread_mutex_lock(&MT_mutex);
 
     // Unlock old memory if it's locked.
     if (munlock(tracker->ptr, tracker->size) != 0)
@@ -159,18 +159,18 @@ int API_MT_change_tracker(MemoryTracker *tracker, void *new_ptr, size_t new_size
     // Lock the new memory.
     if (mlock(new_ptr, new_size) != 0)
     {
-        pthread_mutex_unlock(&mutex);
+        pthread_mutex_unlock(&MT_mutex);
         return MT_MEMORY_LOCK_FAIL; // Indicate failure
     }
 
-    pthread_mutex_unlock(&mutex);
+    pthread_mutex_unlock(&MT_mutex);
     return MT_OK;
 }
 
 // Remove a tracker from used list, zeroizing its memory if it is a CSP.
 int API_MT_remove_tracker(void *ptr)
 {
-    pthread_mutex_lock(&mutex);
+    pthread_mutex_lock(&MT_mutex);
     // Find the tracker for the given memory pointer.
     MemoryTracker **indirect = &Used_Trackers_List;
     while (*indirect && (*indirect)->ptr != ptr)
@@ -179,7 +179,7 @@ int API_MT_remove_tracker(void *ptr)
     }
     if (*indirect == NULL)
     {
-        pthread_mutex_unlock(&mutex); // Unlock if the tracker is not found.
+        pthread_mutex_unlock(&MT_mutex); // Unlock if the tracker is not found.
         return INVALID_INPUT_MT; // Indicate failure.
     }
 
@@ -188,7 +188,7 @@ int API_MT_remove_tracker(void *ptr)
     int integrity = API_MT_verify_integrity(toRemove);
     if (!integrity)
     {
-        pthread_mutex_unlock(&mutex);                     // Unlock on integrity violation.
+        pthread_mutex_unlock(&MT_mutex);                     // Unlock on integrity violation.
         return MT_MEMORYVIOLATION_BEFORE_DELETE;             // Indicate failure.
     }
 
@@ -207,14 +207,14 @@ int API_MT_remove_tracker(void *ptr)
     // Remove the tracker from the used list.
     *indirect = toRemove->next;
     return_tracker(toRemove); // Return it to the free list.
-    pthread_mutex_unlock(&mutex);
+    pthread_mutex_unlock(&MT_mutex);
     return MT_OK; // Indicate success.
 }
 
 // Clean up all tracked memory allocations.
 void API_MT_zeroize_and_free_all()
 {
-    pthread_mutex_lock(&mutex);
+    pthread_mutex_lock(&MT_mutex);
     MemoryTracker *current = Used_Trackers_List;
     MemoryTracker *toFree = NULL;
 
@@ -237,5 +237,5 @@ void API_MT_zeroize_and_free_all()
     }
 
     Used_Trackers_List = NULL; // Clear the used list.
-    pthread_mutex_unlock(&mutex);
+    pthread_mutex_unlock(&MT_mutex);
 }
