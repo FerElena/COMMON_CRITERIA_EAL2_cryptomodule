@@ -5,16 +5,7 @@
 #include <unistd.h>
 
 #include "cryptomodule_core/API_core.h"
-#include "crypto-selftests/selftests.h"
-#include "tests/testing_file_system.h"
-#include "tests/MemoryTrackerTest.h"
-#include "tests/DmemmanagerTest.h"
-#include "tests/packet_cipher_authtest.h"
-#include "crypto/AES_OFB.h"
-#include "secure_memory_management/file_system.h"
-#include "library_tracer/log_manager.h"
-#include "cryptomodule_core/packet_cipher_auth.h"
-#include "prng/random_number.h"
+
 
 int main()
 {
@@ -71,7 +62,7 @@ int main()
             break;
         }
     }
-
+ 
     API_MC_Shutdown_module();
     usleep(1000000);
     printf("\n");

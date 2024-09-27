@@ -15,6 +15,9 @@
 
 #include "../state_machine/State_Machine.h"
 #include "../library_tracer/log_manager.h"
+#include "../secure_memory_management/DmemManager.h"
+#include "../secure_memory_management/file_system.h"
+#include "../secure_memory_management/MemoryTracker.h"
 
 /****************************************************************************************************************
  * Global variables/constants definition
@@ -111,6 +114,16 @@ int API_EM_init_error_counter();
  */
 
 void API_EM_increment_error_counter(int increment_value);
+
+/**
+ * @brief Securely zeroizes all systems within the module.
+ *
+ * This function triggers the complete zeroization process for the entire module, 
+ * including memory tracking, the memory management tree, and the file system. 
+ * It ensures that all sensitive data across these subsystems is securely wiped.
+ */
+
+void API_EM_zeroize_entire_module();
 
 /**
  * @brief Get error message corresponding to the error code.

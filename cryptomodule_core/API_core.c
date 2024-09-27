@@ -20,19 +20,25 @@ int API_MC_Initialize_module(unsigned char *KEK_CERTIFICATE_file, unsigned char 
     {
         // Log first-time initialization success
         API_LT_traceWrite("Current state: ", API_SM_get_current_state_name(), NULL);
-        API_LT_traceWrite("Module first initialization", "Filesystem initialization correct", "Memory tracker initialization correct", NULL);
+        API_LT_traceWrite("Module first initialization:","CORRECT",NULL);
+        API_LT_traceWrite("Secure_memory_tracker first initialization:","CORRECT",NULL);
+        API_LT_traceWrite("Filesystem first initialization:","CORRECT",NULL);
     }
     else if (Operation_result == INITIALIZE_OK_NORMAL_INIT)
     {
         // Log normal initialization success
         API_LT_traceWrite("Current state: ", API_SM_get_current_state_name(), NULL);
-        API_LT_traceWrite("Module normal initialization", "Filesystem load correct", "Memory tracker initialization correct", NULL);
+        API_LT_traceWrite("Module consecutive initialization:","CORRECT",NULL);
+        API_LT_traceWrite("Secure_memory_tracker consecutive initialization:","CORRECT",NULL);
+        API_LT_traceWrite("Filesystem consecutive initialization:","CORRECT",NULL);
     }
     else
     {
         // Initialization error handling
         API_LT_traceWrite("Initialization Error", API_EM_get_error_message(Operation_result), NULL);
-         API_SM_State_Change(STATE_ERROR);
+        API_SM_State_Change(STATE_ERROR);
+        API_EM_zeroize_entire_module();
+        API_LT_traceWrite("Current state: ", API_SM_get_current_state_name(), NULL);
         return MC_INITIALIZATION_ERROR;
     }
 
@@ -66,6 +72,8 @@ int API_MC_Initialize_module(unsigned char *KEK_CERTIFICATE_file, unsigned char 
         // Self-test failure handling
         API_LT_traceWrite("Self test failed:", API_EM_get_error_message(Operation_result), NULL);
         API_SM_State_Change(STATE_ERROR); // FALTA IMPLEMENTAR LA LÓGICA PARA QUE ENTRE EN ERROR STATE SI REINICIA EL MODULO, también la zeroización
+        API_EM_zeroize_entire_module();
+        API_LT_traceWrite("Current state: ", API_SM_get_current_state_name(), NULL);
         return MC_INITIALIZATION_ERROR;
     }
 
@@ -112,7 +120,7 @@ int API_MC_Load_Key(unsigned char *Key_id, size_t Key_id_length)
     if (API_SM_get_current_state() != STATE_OPERATIONAL)
     {
         API_LT_traceWrite("incorrect state to load key, returning error", NULL);
-        API_EM_increment_error_counter(5);
+        API_EM_increment_error_counter(10);
         return SM_ERROR_STATE; // Not in operational state
     }
 
@@ -202,6 +210,8 @@ int API_MC_Sing_Cipher_Packet(unsigned char *data_in, size_t data_size, unsigned
     {
         API_LT_traceWrite("Key integrity compromised, switching to error state: ", API_EM_get_error_message(Operation_result), NULL);
         API_SM_State_Change(SM_ERROR);
+        API_EM_zeroize_entire_module();
+        API_LT_traceWrite("Current state: ", API_SM_get_current_state_name(), NULL);
         return Operation_result;
     }
 
@@ -271,6 +281,8 @@ int API_MC_Decipher_Auth_Packet(unsigned char *data_in, size_t data_in_length, u
     {
         API_LT_traceWrite("Key integrity compromised", API_EM_get_error_message(Operation_result), NULL);
         API_SM_State_Change(SM_ERROR);
+        API_EM_zeroize_entire_module();
+        API_LT_traceWrite("Current state: ", API_SM_get_current_state_name(), NULL);
         return Operation_result;
     }
     // Key integrity is verified, proceed to sign and encrypt the data
@@ -296,7 +308,6 @@ int API_MC_Decipher_Auth_Packet(unsigned char *data_in, size_t data_in_length, u
     if (Operation_result == ALLOCATED_MEMORY)
     {
         int free_result = API_MM_freeMem(out_data_aux - HMAC_SHA256_sign_size ); //go back in pointer arithmetic to free the dynamic hmac too
-        printf("el resultado de liberar memoria es : %d\n",free_result);
     }
 
     if (!verify)

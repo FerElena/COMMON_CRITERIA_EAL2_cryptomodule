@@ -56,10 +56,17 @@ void API_EM_increment_error_counter(int increment_value) {
         API_LT_traceWrite("Maximum error umbral reached","proceeding to HARD_error_state");
         API_SM_State_Change(STATE_ERROR);
         API_LT_traceWrite("Current state: ", API_SM_get_current_state_name(), NULL);
+        API_EM_zeroize_entire_module();
     }
     pthread_mutex_unlock(&error_counter_mutex);
 }
 
+
+void API_EM_zeroize_entire_module() {
+    API_MT_zeroize_and_free_all();   /**< Zeroize and free all memory tracked by the memory tracker. */
+    API_MM_Zeroize_root();           /**< Zeroize the entire memory management tree. */
+    API_FS_zeroize_file_system();    /**< Zeroize and wipe the file system. */
+}
 
 
 const char* API_EM_get_error_message(int error_code) {
