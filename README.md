@@ -22,7 +22,7 @@ make static_lib
 This command creates a static library of the code within the XLibrary_crypto directory, along with the API for the callable functions. It is important to note that this code will NOT be functional at this stage, as it will be necessary to generate a certificate for the binary before it can operate effectively. Subsequently, this certificate must be loaded into the cryptographic module. To facilitate the generation of these certificates, a script is available in the scripts/certificate_manager directory.
 
 ## Usage
-Only the functions within API_core.h should be called from outside the module. The first step is to initialize the module with a valid cryptographic certificate (a script for creating certificates, developed by me, is available in scripts/certificate_manager) and specify the desired name for the data file by invoking the following function:
+Only the functions within API_core.h should be called from outside the module. The first step is to initialize the module with a valid cryptographic certificate (a script for creating certificates, is available in scripts/certificate_manager) and specify the desired name for the data file by invoking the following function:
 
 API_MC_Initialize_module(unsigned char *KEK_CERTIFICATE_file, unsigned char *Cryptodata_filename);
 
