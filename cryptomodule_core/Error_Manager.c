@@ -43,6 +43,11 @@ int API_EM_init_error_counter() {
 void API_EM_increment_error_counter(int increment_value) {
     pthread_mutex_lock(&error_counter_mutex);
     char str[32] = {0};
+    if(API_SM_get_current_state() == STATE_ERROR){
+        API_LT_traceWrite("Current state: ", API_SM_get_current_state_name(), NULL);
+        pthread_mutex_unlock(&error_counter_mutex);
+        return;
+    }
 
     if(keep_normal_function){
         error_counter += increment_value;
