@@ -13,16 +13,17 @@ testing_cryptomodule: Code_testing.c crypto/*.c crypto-selftests/*.c state_machi
 	echo "($(ts)) key_cert_generator executed successfully for executable\n";
 
 # Compile the static library without testing_main.c
-static_lib: crypto/*.c crypto-selftests/*.c state_machine/*.c library_tracer/*.c secure_memory_management/*.c tests/*.c prng/*.c cryptomodule_core/*.c
+static_lib: crypto/*.c crypto-selftests/*.c state_machine/*.c library_tracer/*.c secure_memory_management/*.c prng/*.c cryptomodule_core/*.c
+	@mkdir -p XLibrary_crypto  # Crear el directorio si no existe
 	@echo "($(ts)) Compiling static library..."; \
 	gcc -pthread -c $^ -g; \
-	ar rcs libcryptomodule.a *.o; \
+	ar rcs XLibrary_crypto/libcryptomodule.a *.o; \
 	rm -f *.o; \
-	echo "($(ts)) Static library libcryptomodule.a created\n"; \
+	echo "($(ts)) Static library XLibrary_crypto/libcryptomodule.a created\n"; \
 	echo "($(ts)) Running key_cert_generator for static library..."; \
-	cd scripts/certificate_manager && ./key_cert_generator -cg ecdsa_keypair ../../libcryptomodule.a static_cert; \
+	cd scripts/certificate_manager && ./key_cert_generator -cg ecdsa_keypair ../../XLibrary_crypto/libcryptomodule.a static_cert; \
 	echo "($(ts)) key_cert_generator executed successfully for static library\n";
 
 # Clean generated files
 clean:
-	rm -f testing_cryptomodule libcryptomodule.a *.o
+	rm -f testing_cryptomodule XLibrary_crypto/libcryptomodule.a *.o
