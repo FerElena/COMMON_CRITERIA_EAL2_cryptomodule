@@ -8,7 +8,7 @@
 
 
 int main()
-{
+{ 
     system("clear");
     printf("prueba inicio modulo\n");
     unsigned char *cryptodata_filename = "cryptodata_test";
@@ -41,7 +41,7 @@ int main()
     size_t out_length_cipher;     
     size_t out_length_decipher;
 
-    for (int i = 0; i < 10; i++) 
+    for (int i = 0; i < 200000; i++) 
     {
 
         API_RNG_fill_buffer_random(texto_ejemplo, sizeof(texto_ejemplo));
