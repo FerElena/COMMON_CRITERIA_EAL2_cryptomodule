@@ -72,7 +72,7 @@ int main(int argc, char *argv[])
 		printf("  -ek <filepath> for generate an ecdsa key pair\n");
 		printf("  -cg <key_filepath> <file_tosign> <keycert_name> for create a new certificate given a keypair and a file\n");
 		printf("  -ap <cert_file> <file_to_apply> to apply a certificate to a file\n");
-		printf("  -wh <file> to what a cert file in hex\n"); 
+		printf("  -wh <file> to watch a cert file in hex\n"); 
 		return 1;
 	}
 
