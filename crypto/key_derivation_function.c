@@ -1,3 +1,8 @@
+/**
+ * @file key_derivation_function.h
+ * @brief File containing the implementation of the KDF.
+ */
+
 #include "key_derivation_function.h"
 
 // A buffer used for intermediate data in the key derivation process

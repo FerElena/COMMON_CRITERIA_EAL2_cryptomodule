@@ -1,3 +1,8 @@
+/**
+ * @file CRC_Galileo.c
+ * @brief File containing implementation of CRC.
+ */
+
 #include "CRC_Galileo.h"
 
 static const unsigned int crc32tab[256] = {

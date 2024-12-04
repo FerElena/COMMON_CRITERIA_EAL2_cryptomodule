@@ -1,3 +1,8 @@
+/**
+ * @file API_core.c
+ * @brief File containing all the function implementations of the API_core
+ */
+
 #include "API_core.h"
 
 int API_MC_getcurrent_state()

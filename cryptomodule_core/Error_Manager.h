@@ -1,3 +1,8 @@
+/**
+ * @file Error_Manager.h
+ * @brief File containing the heade functions of the error manager
+ */
+
 #ifndef ERROR_MANAGER_H
 #define ERROR_MANAGER_H
 

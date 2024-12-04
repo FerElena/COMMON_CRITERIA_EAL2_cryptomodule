@@ -1,14 +1,14 @@
-/*
-este código está pensado para un caso de uso en el que la función API_MT_add_tracker(eficiente, busqueda de complejidad O 1)
-es usada al principio de la ejecución de un programa con todas las estructuras de datos de las cuales hay que llevar un tracking
-dado que son CSP o PSP en nuestro contexto. Primero este debe ser inicializado con initialice_tracker, las
-funciones de update y remove tracker son mas costosas(busqueda de complejidad O n), y están pensadas para ser utilizadas en casos
-más excepcionales, la función de verify se debe usar durante toda la ejecución del programa en contextos anteriores a la
-utilización de una de las estructuras de datos Trackeadas. la función de zeroize zeroiza todos los CSPs, y solo se debe
-usar bajo situaciones extremas, ya que esto zeroizara con el patrón de Schneier toda la memoria trackeada como CSP.
-para checkear integridad utilizamos CRC-32 ya que es una función muy rápida, y para este caso no es necesario usar una
-función certificada
-*/
+/**
+ * @file Memory_Tracker.c
+ * @brief This code is designed for a use case where the `API_MT_add_tracker` function (efficient, O(1) complexity search) is used at the beginning of
+ *  a program's execution with all the data structures that require tracking, as they are CSP or PSP in our context. 
+ *  First, it must be initialized using `initialize_tracker`. The `update` and `remove` tracker functions are more costly (O(n) complexity search) 
+ *  and are intended for more exceptional cases. The `verify` function should be used throughout the program's execution in contexts prior to using one of 
+ *  the tracked data structures. The `zeroize` function zeroizes all CSPs and should only be used in extreme situations,
+ *  as it applies the Schneier pattern to zeroize all memory tracked as CSP. For integrity checking, we use CRC-32 because it is a very fast function, 
+ *  and in this case, it is not necessary to use a certified function.
+ */
+
 
 #include "MemoryTracker.h"
 #include "../crypto/CRC_Galileo.h"

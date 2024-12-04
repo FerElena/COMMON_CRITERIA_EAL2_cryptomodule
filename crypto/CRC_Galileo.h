@@ -1,3 +1,8 @@
+/**
+ * @file CRC_Galileo.h
+ * @brief File containing all the function headers of CRC.
+ */
+
 #ifndef CRC_GALILEO
 #define CRC_GALILEO
 

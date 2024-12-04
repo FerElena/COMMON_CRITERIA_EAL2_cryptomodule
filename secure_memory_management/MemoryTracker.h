@@ -1,5 +1,5 @@
 /**
- * @file memorytracker.h
+ * @file MemoryTracker.h
  * @brief Memory tracking system for secure allocation and deallocation of memory.!!TRACKED MEMORY MUST BE STATIC/DYNAMIC MEMORY OR SEGFAULTS WILL OCCUR¡¡¡¡¡¡
  *
  * This file provides the declarations and functionality for tracking static/dynamic memory allocations, 

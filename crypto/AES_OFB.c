@@ -1,3 +1,8 @@
+/**
+ * @file AES_CBC.h
+ * @brief File containing the implementation of AES_OFB
+ */
+
 #include "AES_OFB.h"
 
 uint8_t AESOFB_outputBlock[AES_BLOCK_SIZE]; //Buffer to store momentary output block, CSP

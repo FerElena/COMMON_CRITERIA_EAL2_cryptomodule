@@ -1,5 +1,5 @@
 /**
- * @file hmac.c
+ * @file HMAC_SHA256.c
  * @brief File containing all the function definitions of the HMAC message hashing.
  */
 

@@ -1,5 +1,5 @@
 /**
- * @file easy_ecc.h
+ * @file ECDSA_256.h
  * @brief Header file for ECDSA 256-bit implementation using SECPK256 curve.
  *
  * This file provides the function declarations for ECDSA key generation, 

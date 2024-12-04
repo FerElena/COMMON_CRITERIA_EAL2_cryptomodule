@@ -1,3 +1,8 @@
+/**
+ * @file CRC_Galileo.h
+ * @brief File containing all the function headers of the KDF.
+ */
+
 #ifndef KEY_DERIVATION_FUNCTION_H
 #define KEY_DERIVATION_FUNCTION_H
 

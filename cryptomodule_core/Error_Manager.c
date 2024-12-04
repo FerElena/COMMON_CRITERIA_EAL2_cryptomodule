@@ -1,3 +1,8 @@
+/**
+ * @file Error_Manager.c
+ * @brief File containing the implementation of the Error manager
+ */
+
 #include "Error_Manager.h"
 
 pthread_mutex_t error_counter_mutex = PTHREAD_MUTEX_INITIALIZER;

@@ -1,3 +1,8 @@
+/**
+ * @file State_Machine.h
+ * @brief File containing all the function implementations of the state machine
+ */
+
 #include "State_Machine.h"
 
 static State current_state = STATE_OFF;

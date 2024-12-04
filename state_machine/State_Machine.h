@@ -1,5 +1,5 @@
 /**
- * @file state_machine.h
+ * @file State_Machine.h
  * @brief Header file for the state machine of a cryptographic system.
  *
  * This file contains the definition of the states and the function for handling state transitions.

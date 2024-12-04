@@ -1,3 +1,8 @@
+/**
+ * @file Integrity_test.c
+ * @brief File containing the implementation of the integrity test.
+ */
+
 #include "Integrity_test.h"
 
 #include <stdio.h>

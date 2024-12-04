@@ -1,3 +1,8 @@
+/**
+ * @file Integrity_test.h
+ * @brief File containing all the function headers of the integrity test.
+ */
+
 #ifndef INTEGRITY_TEST_H
 #define INTEGRITY_TEST_H
 

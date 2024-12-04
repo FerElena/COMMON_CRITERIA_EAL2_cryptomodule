@@ -1,6 +1,6 @@
 /**
- * @file sha256.h
- * @brief File containing all the function headers of the SHA_2_256 message hashing.
+ * @file SHA256.h
+ * @brief File containing all the function headers of the SHA_256 message hashing.
  */
 
 #ifndef SHA_H

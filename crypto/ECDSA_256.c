@@ -1,3 +1,8 @@
+/**
+ * @file ECDSA_256.c
+ * @brief File containing all the function headers of the AES_CBC.
+ */
+
 /* Copyright (c) 2013, Kenneth MacKay
 All rights reserved.
 

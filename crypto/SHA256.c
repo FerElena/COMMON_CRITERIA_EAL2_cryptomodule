@@ -1,6 +1,6 @@
 /**
- * @file sha256.c
- * @brief File containing all the definitions for the SHA message hashing functions.
+ * @file SHA256.c
+ * @brief File containing all the definitions for the SHA-256 message hashing functions.
  */
 
 

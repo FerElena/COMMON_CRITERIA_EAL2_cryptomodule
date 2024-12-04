@@ -1,3 +1,8 @@
+/**
+ * @file Key_management.c
+ * @brief File containing the Key_management functions implementation
+ */
+
 #include "Key_management.h"
 
 current_key_in_use Current_key_in_use = {.IsLoaded = 0};

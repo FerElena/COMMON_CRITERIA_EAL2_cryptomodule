@@ -1,3 +1,8 @@
+/**
+ * @file API_core.h
+ * @brief File containing all the function headers of the API_core of the cryptographic module.
+ */
+
 #ifndef API_CORE_H
 #define API_CORE_H
 

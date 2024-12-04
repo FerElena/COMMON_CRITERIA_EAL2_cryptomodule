@@ -1,3 +1,9 @@
+/**
+ * @file Key_management.h
+ * @brief File containing the Key_management functions headers
+ */
+
+
 #ifndef KEY_MANAGEMENT_H
 #define KEY_MANAGEMENT_H
 

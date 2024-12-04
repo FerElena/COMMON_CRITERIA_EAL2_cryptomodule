@@ -1,3 +1,8 @@
+/**
+ * @file AES_OFB.h
+ * @brief File containing all the function headers of the AES_OFB.
+ */
+
 #ifndef AESOFB_H
 #define AESOFB_H
 

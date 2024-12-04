@@ -1,3 +1,9 @@
+/**
+ * @file random_number.c
+ * @brief 
+ * implementation of the random generation function
+ */
+
 #include "random_number.h"
 
 int API_RNG_fill_buffer_random(unsigned char *buffer, size_t size) {
