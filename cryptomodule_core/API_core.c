@@ -173,6 +173,26 @@ int API_MC_Delete_Key(unsigned char *Key_id, size_t Key_id_length)
     return KEY_OPERATION_OK; // Success
 }
 
+int API_MC_fill_buffer_random(unsigned char *buffer, size_t size){ // wrapper of rng function, tbd make it more optimal
+    // Check if the system is in an operational state
+    if (API_SM_get_current_state() != STATE_OPERATIONAL)
+    {
+        API_LT_traceWrite("incorrect state to ask forr andom numbers", API_SM_get_current_state_name(), NULL);
+        API_EM_increment_error_counter(10);
+        return SM_ERROR_STATE; // Return error if not operational
+    }
+    // Validate input parameters
+    if (buffer == NULL || size > 4 * 1024 * 1024) // max random is 4MB
+    {
+        API_LT_traceWrite("Error:", API_EM_get_error_message(KM_PARAMETERS_ERROR), NULL);
+        return RNG_RANDOM_GENERATION_FAILED;
+    }
+
+    int result = API_RNG_fill_buffer_random(buffer,size);
+
+    return result;
+}
+
 int API_MC_Sing_Cipher_Packet(unsigned char *data_in, size_t data_size, unsigned char *packet_out, size_t *packet_out_length)
 {
     // Check if the system is in an operational state
