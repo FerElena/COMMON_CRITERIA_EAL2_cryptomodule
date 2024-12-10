@@ -25,8 +25,7 @@ int API_PCA_sign_encrypt_packet(unsigned char *data_in, size_t data_in_length, u
 		return SM_ERROR_STATE; // Return error if not operational
 	}
 
-	unsigned char allocated_memory = NOT_ALLOCATED_MEMORY;		   // Flag to manage dynamically allocated memory release.
-	
+	unsigned char allocated_memory ;     		   // Flag to manage dynamically allocated memory release.
 	unsigned char AES_IV[16];					   // Buffer for AES initialization vector.
 	unsigned char *sign_out, *out_buffer_pointer;  // Pointers for the signature and output buffers.
 	unsigned int padding;						   // Variable for padding calculation.
@@ -34,6 +33,7 @@ int API_PCA_sign_encrypt_packet(unsigned char *data_in, size_t data_in_length, u
 
 	// Initialize variables and temporary buffer pointers.
 	out_buffer_pointer = PCA_data_buffer_sed;
+	allocated_memory = NOT_ALLOCATED_MEMORY;
 	
 	data_in_len_aux = data_in_length;
 	out_buffer_length = data_in_length + IV_SIZE_HEADER_LENGTH + HMAC_SHA256_SIGN_SIZE; // Output buffer length, includes extra space for IV and length.
@@ -90,10 +90,14 @@ int API_PCA_decrypt_verify_packet(unsigned char *data_in, size_t data_in_length,
 	{
 		return SM_ERROR_STATE; // Return error if not operational
 	}
-	unsigned char *out_buffer_pointer;		       // Pointer to the output buffer.
-	unsigned char allocated_memory = NOT_ALLOCATED_MEMORY; // Flag for memory management.
+	unsigned char *out_buffer_pointer;	       // Pointer to the output buffer.
+	unsigned char allocated_memory ;           // Flag for memory management.
 	size_t data_len_packet;				       // Length of the plaintext after decryption.
 	size_t data_in_len_aux;				       // Adjusted input data length.
+
+	// Initialize variables and temporary buffer pointers.
+	out_buffer_pointer = PCA_data_buffer_sed;
+	allocated_memory = NOT_ALLOCATED_MEMORY; 
 
 	for (int i = 0; i < 8; i++)
 	{
@@ -120,7 +124,7 @@ int API_PCA_decrypt_verify_packet(unsigned char *data_in, size_t data_in_length,
 	//allocate more memory if necesary for decryption
 	if (data_in_len_aux > data_buffer_sign_encrypt_length)
 	{
-		out_buffer_pointer = API_MM_allocateMem(data_in_length); // Allocate memory for the output buffer.
+		out_buffer_pointer = API_MM_allocateMem(data_in_len_aux); // Allocate memory for the output buffer.
 		allocated_memory = ALLOCATED_MEMORY;
 	}
 

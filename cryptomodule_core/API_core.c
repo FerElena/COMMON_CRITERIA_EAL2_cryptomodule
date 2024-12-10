@@ -327,7 +327,7 @@ int API_MC_Decipher_Auth_Packet(unsigned char *data_in, size_t data_in_length, u
     {
         return SM_ERROR_STATE;
     }
-    else if(Operation_result = MAC_NOT_VERIFIED){
+    else if(Operation_result == MAC_NOT_VERIFIED){
         API_LT_traceWrite("Error:", API_EM_get_error_message(MC_PACKET_INTEGRITY_COMPROMISED), NULL);
         API_EM_increment_error_counter(3);
         API_MM_secure_zeroize(out_data, out_length_aux); // Zeroize decrypted data on failure
@@ -341,7 +341,7 @@ int API_MC_Decipher_Auth_Packet(unsigned char *data_in, size_t data_in_length, u
     // Free memory if necessary
     if (Operation_result == ALLOCATED_MEMORY)
     {
-        int free_result = API_MM_freeMem(out_data_aux - HMAC_SHA256_SIGN_SIZE); // go back in pointer arithmetic to free the dynamic hmac too
+        int free_result = API_MM_freeMem(out_data_aux); //zeroize the data
     }
 
     // Return to operational state
