@@ -83,9 +83,9 @@ int API_CP_crc(unsigned char *msg, size_t lenght_msg, CRC type_crc, unsigned int
  */
 int API_CP_AESCBC_encrypt(unsigned char *plaintext, size_t *len, unsigned char *key, unsigned int AES_KEY_SIZE, unsigned char *iv, unsigned char *ciphertext)
 {
-
+	// updates length if padding is required
 	CP_addPaddingAes(plaintext, len, plaintext);
-
+	//just encrypt with CBC mode
 	API_AESCBC_encrypt(plaintext, len, key, AES_KEY_SIZE, iv, ciphertext);
 
 	return 1;

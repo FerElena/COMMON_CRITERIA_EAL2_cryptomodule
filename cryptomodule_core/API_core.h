@@ -165,7 +165,7 @@ int API_MC_fill_buffer_random(unsigned char *buffer, size_t size);
 /**
  * @brief Signs and encrypts a data packet.
  *
- * This function performs a secure signing and encryption operation on the input data.
+ * This function performs a secure encryption and sign operation on the input data.
  * It checks the system's operational state and loaded key integrity before processing. If the
  * system is not in the correct state or the key is not loaded, appropriate error codes
  * are returned. The resulting signed and encrypted data is stored in `packet_out`, and
@@ -193,9 +193,9 @@ int API_MC_fill_buffer_random(unsigned char *buffer, size_t size);
 int API_MC_Sing_Cipher_Packet(unsigned char *data_in, size_t data_size, unsigned char *packet_out, size_t *packet_out_length);
 
 /**
- * @brief Decrypts and authenticates an encrypted data packet.
+ * @brief Authenticates an decrypt an encrypted data packet.
  *
- * This function decrypts an input data packet and verifies its authenticity. 
+ * This function verifies the integrity of a packet, and decrypts it. 
  * It checks whether the system is in an operational state and validates the integrity of the key in use.
  * If the system is not operational or the key is not loaded, the function returns appropriate error codes.
  * After successful decryption and authentication, the resulting data is stored in `out_data`, 

@@ -9,7 +9,6 @@
 int TI_FS_cipher_key;
 int TI_FS_data_buffer;
 int TI_PCA_data_buffer_sed;
-int TI_PCA_data_buffer_sed_aux;
 int TI_Current_Key_In_Use;
 int TI_AES_CBC_ctx;
 int TI_AESOFB_CTX;
@@ -52,9 +51,6 @@ int Memory_tracking_initialization()
 
     TI_PCA_data_buffer_sed = API_MT_add_tracker(PCA_data_buffer_sed, sizeof(PCA_data_buffer_sed), CSP); // Packet cipher and auth buffer
     correct_tracker_init_result[counter++] = (TI_PCA_data_buffer_sed >= 0) ? 1 : 0;
-
-    TI_PCA_data_buffer_sed_aux = API_MT_add_tracker(PCA_data_buffer_sed_aux, sizeof(PCA_data_buffer_sed_aux), CSP); // Packet cipher and auth auxiliary buffer
-    correct_tracker_init_result[counter++] = (TI_PCA_data_buffer_sed_aux >= 0) ? 1 : 0;
 
     TI_Current_Key_In_Use = API_MT_add_tracker(&Current_key_in_use, sizeof(Current_key_in_use), CSP); // Packet cipher and auth auxiliary buffer
     correct_tracker_init_result[counter++] = (TI_Current_Key_In_Use >= 0) ? 1 : 0;
