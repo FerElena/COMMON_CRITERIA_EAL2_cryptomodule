@@ -5,8 +5,8 @@
  *  First, it must be initialized using `initialize_tracker`. The `update` and `remove` tracker functions are more costly (O(n) complexity search) 
  *  and are intended for more exceptional cases. The `verify` function should be used throughout the program's execution in contexts prior to using one of 
  *  the tracked data structures. The `zeroize` function zeroizes all CSPs and should only be used in extreme situations,
- *  as it applies the Schneier pattern to zeroize all memory tracked as CSP. For integrity checking, we use CRC-32 because it is a very fast function, 
- *  and in this case, it is not necessary to use a certified function.
+ *  as it applies the Schneier pattern to zeroize all memory tracked as CSP. For integrity checking, we use SHA256 NIST certified function, 
+ *  
  */
 
 
@@ -107,7 +107,7 @@ int API_MT_verify_integrity(MemoryTracker *tracker)
         return MT_MEMORYVIOLATION;
 }
 
-// updates a tracker with a new content and CRC, suposed to be used!!!
+// updates a tracker with a new content and hash_sign, suposed to be used!!!
 int API_MT_update_tracker(MemoryTracker *tracker)
 {
     if (tracker == NULL)
