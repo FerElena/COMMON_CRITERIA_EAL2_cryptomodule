@@ -250,9 +250,11 @@ int API_MC_Sing_Cipher_Packet(unsigned char *data_in, size_t data_size, unsigned
 
     if (Operation_result == SM_ERROR_STATE)
     {
+        API_SM_State_Change(STATE_OPERATIONAL);
         return SM_ERROR_STATE;
     }
     else if(Operation_result == RNG_RANDOM_GENERATION_FAILED){
+        API_SM_State_Change(STATE_OPERATIONAL);
         return RNG_RANDOM_GENERATION_FAILED;
     }
     // Copy the signed and encrypted data to the output buffer
@@ -325,12 +327,14 @@ int API_MC_Decipher_Auth_Packet(unsigned char *data_in, size_t data_in_length, u
 
     if (Operation_result == SM_ERROR_STATE)
     {
+        API_SM_State_Change(STATE_OPERATIONAL);
         return SM_ERROR_STATE;
     }
     else if(Operation_result == MAC_NOT_VERIFIED){
         API_LT_traceWrite("Error:", API_EM_get_error_message(MC_PACKET_INTEGRITY_COMPROMISED), NULL);
         API_EM_increment_error_counter(3);
         API_MM_secure_zeroize(out_data, out_length_aux); // Zeroize decrypted data on failure
+        API_SM_State_Change(STATE_OPERATIONAL);
         return MC_PACKET_INTEGRITY_COMPROMISED;
     }
 

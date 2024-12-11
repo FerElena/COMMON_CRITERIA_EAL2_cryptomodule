@@ -106,7 +106,7 @@ int API_PCA_decrypt_verify_packet(unsigned char *data_in, size_t data_in_length,
 
 	if (data_len_packet != data_in_length)
 	{
-		return SM_ERROR_STATE; // Return error if not operational
+		return MAC_NOT_VERIFIED; // Return error if not operational
 	}
 	// auxiliar length corresponding to the entire packet excluding HMAC signature
 	data_in_len_aux = data_len_packet - HMAC_SHA256_SIGN_SIZE;
