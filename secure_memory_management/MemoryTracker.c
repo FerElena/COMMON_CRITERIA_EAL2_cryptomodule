@@ -11,7 +11,6 @@
 
 
 #include "MemoryTracker.h"
-#include "../crypto/CRC_Galileo.h"
 
 // Array of trackers for efficient management.
 MemoryTracker trackers[MAX_TRACKERS];
@@ -74,7 +73,7 @@ int API_MT_add_tracker(void *ptr, size_t size, uint8_t isCSP)
     // Initialize the tracker with the memory block's info.
     tracker->ptr = ptr;
     tracker->size = size;
-    tracker->checksum = crc_32(ptr, size); // Calculate the CRC_32 for the memory block.
+    API_sha256(ptr,size,tracker->hash_sign); // Calculate the SHA256 hash for the memory block.
     tracker->IsCSP = isCSP;
 
     // Lock the memory to prevent swapping.
@@ -100,9 +99,9 @@ int API_MT_verify_integrity(MemoryTracker *tracker)
     {
         return INVALID_INPUT_MT;
     }
-
-    unsigned int current_checksum = crc_32(tracker->ptr, tracker->size); // Recalculate the current checksum.
-    if (current_checksum == tracker->checksum)                           // Return whether the checksums match (if correct, MT_OK, if not MT_FAIL)
+    uint8_t aux_hash[32];
+    API_sha256(tracker->ptr,tracker->size,aux_hash); //recalculate the hash
+    if (memcmp(tracker->hash_sign,aux_hash,32) == 0)      // Return whether the hashes match (if correct, MT_OK, if not MT_FAIL)
         return MT_OK;
     else
         return MT_MEMORYVIOLATION;
@@ -121,8 +120,8 @@ int API_MT_update_tracker(MemoryTracker *tracker)
     // Unlock old memory if it's locked.
     munlock(tracker->ptr, tracker->size);
 
-    // Update tracker checksum.
-    tracker->checksum = crc_32(tracker->ptr, tracker->size); // Recalculate the checksum.
+    // Update tracker hash.
+    API_sha256(tracker->ptr,tracker->size , tracker->hash_sign);
 
     // Lock the new memory.
     if (mlock(tracker->ptr, tracker->size) != 0)
@@ -154,7 +153,9 @@ int API_MT_change_tracker(MemoryTracker *tracker, void *new_ptr, size_t new_size
     // Update the memory pointer and size.
     tracker->ptr = new_ptr;
     tracker->size = new_size;
-    tracker->checksum = crc_32(new_ptr, new_size); // Recalculate the checksum.
+
+    // Update tracker hash.
+    API_sha256(tracker->ptr,tracker->size , tracker->hash_sign);
 
     // Lock the new memory.
     if (mlock(new_ptr, new_size) != 0)
