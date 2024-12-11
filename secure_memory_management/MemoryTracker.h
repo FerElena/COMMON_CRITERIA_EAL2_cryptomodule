@@ -21,7 +21,13 @@
 #include <stdint.h>
 #include <limits.h>
 #include <assert.h>
-#include <sys/mman.h>  // Para mlock() y munlock()
+#include <sys/mman.h>  // for mlock() and munlock()
+
+/****************************************************************************************************************
+ * Private include files
+ ****************************************************************************************************************/
+
+#include "../crypto/SHA256.h"
 
 /****************************************************************************************************************
  * Global variables/constants definition
@@ -58,9 +64,9 @@ typedef struct MemoryTracker
 {
     void *ptr;                  // Pointer to the allocated memory block.
     struct MemoryTracker *next; // Pointer to the next tracker in the list.
-    unsigned int checksum;      // Checksum for verifying memory integrity.
     size_t size;                // Size of the allocated memory block.s
     uint8_t IsCSP;              // Flag to indicate if memory should be cleared on deletion.
+    uint8_t hash_sign[32];      // Hash for verifying memory integrity.
 } MemoryTracker;
 
 extern MemoryTracker trackers[MAX_TRACKERS]; // Array of all memory tracker
