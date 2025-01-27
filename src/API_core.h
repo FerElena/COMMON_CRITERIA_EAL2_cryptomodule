@@ -19,14 +19,14 @@
  * Private include files
  ****************************************************************************************************************/
 
-#include "module_initialization.h"
-#include "Error_Manager.h"
-#include "packet_cipher_auth.h"
-#include "Key_management.h"
-#include "../state_machine/State_Machine.h"
-#include "../library_tracer/log_manager.h"
-#include "../crypto-selftests/selftests.h"
-#include "../prng/random_number.h"
+#include "cryptomodule_core/module_initialization.h"
+#include "cryptomodule_core/Error_Manager.h"
+#include "cryptomodule_core/packet_cipher_auth.h"
+#include "cryptomodule_core/Key_management.h"
+#include "state_machine/State_Machine.h"
+#include "library_tracer/log_manager.h"
+#include "crypto-selftests/selftests.h"
+#include "prng/random_number.h"
 
 /****************************************************************************************************************
  * Global variables/constants definition
@@ -87,7 +87,7 @@ int API_MC_Initialize_module(unsigned char *KEK_CERTIFICATE_file,unsigned char *
  * @brief Inserts a cryptographic key into the key management system.
  * 
  * This function ensures the system is in an operational state, switches to
- * cryptographic service provider (CSP) mode, and attempts to store the provided key.
+ * critical security paratemers (CSP) mode, and attempts to store the provided key.
  * It handles errors by logging the issue and incrementing the error counter. Upon
  * success or failure, it switches the system state back to operational.
  * 

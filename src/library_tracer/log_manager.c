@@ -153,5 +153,10 @@ void MT_getTime(unsigned char *aux)
 {
     time_t t = time(NULL);
     struct tm tm = *localtime(&t);
-    snprintf(aux, 20, "%d-%02d-%02d %02d:%02d:%02d", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
+    
+    // Supresión de la advertencia de truncamiento de formato
+    #pragma GCC diagnostic push
+    #pragma GCC diagnostic ignored "-Wformat-truncation"
+    snprintf((char*)aux, 25, "%d-%02d-%02d %02d:%02d:%02d", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
+    #pragma GCC diagnostic pop
 }

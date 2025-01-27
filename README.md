@@ -1,7 +1,7 @@
 # Common Cryptographic Library
 
 ## Name
-Development of a certifiable EAL2 cryptographic module following the design guidelines of the FIPS standards.
+Development of a certifiable EAL2 cryptographic module following the design guidelines of the FIPS standards (This does not mean that the module is certified, nor that it has any guarantee, as I do not have the time or the money to go through this certification.).
 
 ## Description
 The objective of this project is threefold. First, it aims to serve as a foundational project for my Bachelor’s Thesis (TFG) in the field of Software Engineering. Second, it seeks to enhance my programming skills, particularly in the domain of cryptography. Third, and most importantly, this endeavor is designed to develop a functional cryptographic module capable of securely encrypting and authenticating data packets in compliance with FIPS standards, the subsystems that compose the module are as independent between them as possible, so they cant be taken out, and implemented in othe software.
@@ -15,18 +15,22 @@ The module can be compiled in two distinct ways: as code directly injected into 
 
 make testing_cryptomodule
 
-This command compiles the code and generates a small test version based on the functions defined in the file Code_testing.c.
+This command compiles the code and generates a small test version based on the functions defined in the file Code_testing.c. (intended for inmmediate easy tests)
 
 make static_lib
 
-This command creates a static library of the code within the XLibrary_crypto directory, along with the API for the callable functions. It is important to note that this code will NOT be functional at this stage, as it will be necessary to generate a certificate for the binary before it can operate effectively. Subsequently, this certificate must be loaded into the cryptographic module. To facilitate the generation of these certificates, a script is available in the scripts/certificate_manager directory.
+This command creates a static library of the code within the XLibrary_crypto directory, along with the API for the callable functions. It is important to note that this code will NOT be functional at this stage, as it will be necessary to generate a certificate for the binary before it can operate effectively
+(there is a script in the directory utils/certificate_manager). Subsequently, this certificate must be loaded into the cryptographic module. To facilitate the generation of these certificates.
 
 ## Usage
-Only the functions within API_core.h should be called from outside the module. The first step is to initialize the module with a valid cryptographic certificate (a script for creating certificates, is available in scripts/certificate_manager) and specify the desired name for the data file by invoking the following function:
+Only the functions within API_core.h should be called from outside the module. The first step is to initialize the module with a valid cryptographic certificate (a script for creating certificates, is available in utils/certificate_manager) and specify the desired name for the data file by invoking the following function:
 
 API_MC_Initialize_module(unsigned char *KEK_CERTIFICATE_file, unsigned char *Cryptodata_filename);
 
 After initialization, if all required tests are passed and the certificates are validated, the module will enter the operational state. In this state, the following actions can be performed:
+
+Get the current state of the cryptomodule:
+int API_MC_getcurrent_state();
 
 Introduce 256-bit keys using:
 API_MC_Insert_Key(uint8_t In_Key[32], size_t key_size, unsigned char *Key_id, size_t Key_id_length);
@@ -36,6 +40,9 @@ API_MC_Delete_Key(unsigned char *Key_id, size_t Key_id_length);
 
 Load a key from the data system for use with:
 API_MC_Load_Key(unsigned char *Key_id, size_t Key_id_length);
+
+Generate Pseudorandom numbers:
+int API_MC_fill_buffer_random(unsigned char *buffer, size_t size);
 
 Sign and encrypt a data packet with:
 API_MC_Sing_Cipher_Packet(unsigned char *data_in, size_t data_size, unsigned char *packet_out, size_t *packet_out_length);
