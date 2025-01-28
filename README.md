@@ -13,45 +13,66 @@ To facilitate understanding, the code is thoroughly documented, ensuring that an
 ## Installation
 The module can be compiled in two distinct ways: as code directly injected into a code repository or as a static library. The Makefile includes the necessary commands to accomplish both tasks.
 
+```bash
 make testing_cryptomodule
+```
 
-This command compiles the code and generates a small test version based on the functions defined in the file Code_testing.c. (intended for inmmediate easy tests)
+This command compiles the code and generates a small test version based on the functions defined in the file Code_testing.c. (intended for inmmediate easy tests),
 
+```bash
 make static_lib
+```
 
-This command creates a static library of the code within the XLibrary_crypto directory, along with the API for the callable functions. It is important to note that this code will NOT be functional at this stage, as it will be necessary to generate a certificate for the binary before it can operate effectively
-(there is a script in the directory utils/certificate_manager). Subsequently, this certificate must be loaded into the cryptographic module. To facilitate the generation of these certificates.
+This command creates a static library of the code within the XLibrary_crypto directory, along with the API for the callable functions. It is important to note that this code will NOT be functional at this stage, as it will be necessary to generate a certificate for the binary before it can operate effectively, this certificate must sign both the binary of the static library that implements the functionality of the cryptographic module and the binary of the program that uses the static library. For this reason a certificate is associated with a binary that uses the library.  (there is a script in the directory utils/certificate_manager for generate a certificate). Subsequently, this certificate must be loaded into the cryptographic module in the initialization. 
 
 ## Usage
 Only the functions within API_core.h should be called from outside the module. The first step is to initialize the module with a valid cryptographic certificate (a script for creating certificates, is available in utils/certificate_manager) and specify the desired name for the data file by invoking the following function:
 
+```c
 API_MC_Initialize_module(unsigned char *KEK_CERTIFICATE_file, unsigned char *Cryptodata_filename);
+```
 
 After initialization, if all required tests are passed and the certificates are validated, the module will enter the operational state. In this state, the following actions can be performed:
 
 Get the current state of the cryptomodule:
+```c
 int API_MC_getcurrent_state();
+```
 
 Introduce 256-bit keys using:
+```c
 API_MC_Insert_Key(uint8_t In_Key[32], size_t key_size, unsigned char *Key_id, size_t Key_id_length);
+```
 
 Delete 256-bit keys using:
+```c
 API_MC_Delete_Key(unsigned char *Key_id, size_t Key_id_length);
+```
 
 Load a key from the data system for use with:
+```c
 API_MC_Load_Key(unsigned char *Key_id, size_t Key_id_length);
+```
 
 Generate Pseudorandom numbers:
+```c
 int API_MC_fill_buffer_random(unsigned char *buffer, size_t size);
+```
 
 Sign and encrypt a data packet with:
+```c
 API_MC_Sing_Cipher_Packet(unsigned char *data_in, size_t data_size, unsigned char *packet_out, size_t *packet_out_length);
+```
 
 Decrypt and authenticate a data packet with:
+```c
 int API_MC_Decipher_Auth_Packet(unsigned char *data_in, size_t data_in_length, unsigned char *out_data, size_t *out_data_length);
+```
 
 Safely shut down the module with:
+```c
 int API_MC_Shutdown_module();
+```
 
 The code is thoroughly documented, so for any doubts, please refer to the comments in the header files and within the code itself.
 
