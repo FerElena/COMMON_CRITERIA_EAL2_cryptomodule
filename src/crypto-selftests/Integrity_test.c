@@ -21,7 +21,7 @@ int load_self_binary_to_buffer(unsigned char **buffer, size_t *buffer_size)
 		return -1;
 	}
 	// Allocate memory for the buffer
-	*buffer = (unsigned char *)API_MM_allocateMem(max_size);
+	*buffer = (unsigned char *)API_MM_allocateMem(max_size,ROOT);
 	if (*buffer == NULL)
 	{
 		fclose(file);

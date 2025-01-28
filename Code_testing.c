@@ -3,8 +3,7 @@
 #include <time.h>
 #include <string.h>
 #include <unistd.h>
-
-#include "cryptomodule_core/API_core.h"
+#include "src/API_core.h"
 
 
 int main()
@@ -12,7 +11,7 @@ int main()
     system("clear");
     printf("prueba inicio modulo\n");
     unsigned char *cryptodata_filename = "cryptodata_test";
-    unsigned char *KEK_CERT_fileroute = "/home/ninjahacker/Escritorio/COMMON_CRITERIA_EAL2_cryptomodule/scripts/certificate_manager/testing_cert"; // your route to cert
+    unsigned char *KEK_CERT_fileroute = "/home/ninjasaurio/repos_git/COMMON_CRITERIA_EAL2_cryptomodule/utils/certificate_manager/testing_cert"; // your route to cert
     int result = API_MC_Initialize_module(KEK_CERT_fileroute, cryptodata_filename);
     printf("el resultado de la inicialización del modulo es : %d\n", result);
 
@@ -41,7 +40,7 @@ int main()
     size_t out_length_cipher;     
     size_t out_length_decipher;
 
-    for (int i = 0; i < 200000; i++) 
+    for (int i = 0; i < 20; i++) 
     {
 
         API_RNG_fill_buffer_random(texto_ejemplo, sizeof(texto_ejemplo));
@@ -63,9 +62,14 @@ int main()
         }
     }
  
-    API_MC_Shutdown_module();
+    
     usleep(1000000);
     printf("\n");
+
+    API_MM_Zeroize_root();
+    API_MC_Shutdown_module();
+
+	
 
     return 0;
 }

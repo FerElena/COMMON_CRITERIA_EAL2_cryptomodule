@@ -47,14 +47,14 @@ int API_PCA_sign_encrypt_packet(unsigned char *data_in, size_t data_in_length, u
 	// Allocate memory if necessary.
 	if (out_buffer_length > data_buffer_sign_encrypt_length )
 	{
-		out_buffer_pointer = API_MM_allocateMem(out_buffer_length); // Allocate memory for output buffer.
+		out_buffer_pointer = API_MM_allocateMem(out_buffer_length,ROOT); // Allocate memory for output buffer.
 		allocated_memory = ALLOCATED_MEMORY;
 	}
 	// Generate IV for AES encryption.
 	int result1 = API_RNG_fill_buffer_random(AES_IV, 16);
 	if(result1 == RNG_RANDOM_GENERATION_FAILED){
 		if(allocated_memory == ALLOCATED_MEMORY){
-			API_MM_freeMem(out_buffer_pointer);
+			API_MM_freeMem(out_buffer_pointer,ROOT);
 		}
 		return RNG_RANDOM_GENERATION_FAILED;
 	}
@@ -124,7 +124,7 @@ int API_PCA_decrypt_verify_packet(unsigned char *data_in, size_t data_in_length,
 	//allocate more memory if necesary for decryption
 	if (data_in_len_aux > data_buffer_sign_encrypt_length)
 	{
-		out_buffer_pointer = API_MM_allocateMem(data_in_len_aux); // Allocate memory for the output buffer.
+		out_buffer_pointer = API_MM_allocateMem(data_in_len_aux,ROOT); // Allocate memory for the output buffer.
 		allocated_memory = ALLOCATED_MEMORY;
 	}
 

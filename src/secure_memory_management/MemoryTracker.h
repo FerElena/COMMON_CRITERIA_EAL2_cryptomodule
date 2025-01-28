@@ -5,6 +5,8 @@
  * This file provides the declarations and functionality for tracking static/dynamic memory allocations, 
  * verifying memory integrity, and securely deallocating memory blocks that contain Critical Security Parameters (CSP).
  * It also includes secure zeroization techniques to prevent sensitive data recovery.
+ * 
+ * @warning ONLY STATIC / HEAP ZONE MEMORY CAN BE TRACKED, DO NOT TRY TRACK STACK MEMORY ZONE
  */
 
 #ifndef MEMORYTRACKER_H

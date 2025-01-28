@@ -264,7 +264,7 @@ int API_MC_Sing_Cipher_Packet(unsigned char *data_in, size_t data_size, unsigned
     // Free the allocated memory if necessary
     if (Operation_result == ALLOCATED_MEMORY)
     {
-        int free_result = API_MM_freeMem(out_data);
+        int free_result = API_MM_freeMem(out_data,ROOT);
     }
 
     // Return system state to operational
@@ -345,7 +345,7 @@ int API_MC_Decipher_Auth_Packet(unsigned char *data_in, size_t data_in_length, u
     // Free memory if necessary
     if (Operation_result == ALLOCATED_MEMORY)
     {
-        int free_result = API_MM_freeMem(out_data_aux); //zeroize the data
+        int free_result = API_MM_freeMem(out_data_aux,ROOT); //zeroize the data
     }
 
     // Return to operational state

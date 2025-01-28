@@ -1,9 +1,6 @@
 #testing cryptomodule file
 testing_cryptomodule
 
-#testing main file
-Code_testing.c
-
 #cryptodata testing file
 cryptodata_test
 

@@ -195,12 +195,13 @@ node *MM_find_node_by_hash(node *current_node, unsigned char hash[]);
  * After allocating the memory block, its information is stored in a storaged block that is added to the list.
  * 
  * @param size Size in bytes of the required memory block
+ * @param subtree_root subtree root node, from which we will insert the allocated memory
  * @return The address of the required memory block
  * 
  * @errors
  * @error{ ERROR 1, Returns NULL when allocating memory fails}
  */
-void *API_MM_allocateMem(size_t size);
+void *API_MM_allocateMem(size_t size, node *subtree_root);
 
 /**
  * @brief Frees a specific memory block.
@@ -211,12 +212,13 @@ void *API_MM_allocateMem(size_t size);
  * 
  * 
  * @param ptr Address of the memory block to remove
+ * @param subtree_root subtree root node, from which we will insert the allocated memory
  * @return The result of the task (0 if all goes good, other value means an error)
  * 
  * @errors
  * @error{ ERROR 1, Returns NULL when there is no item to remove}
  */
-int API_MM_freeMem(void *ptr);
+int API_MM_freeMem(void *ptr,node *subtree_root);
 
 /**
  * @brief Change the size of a specific memory block.
@@ -226,12 +228,13 @@ int API_MM_freeMem(void *ptr);
  * 
  * @param ptr Address of the memory block to edit
  * @param new_size Size in bytes to edit
+ * @param subtree_root subtree root node, from which we will insert the allocated memory
  * @return The address of the 'new' memory block
  * 
  * @errors
  * @error{ ERROR 1, Returns NULL when allocating new memory fails}
  */
-void *API_MM_reallocMem(void *ptr, size_t new_size);
+void *API_MM_reallocMem(void *ptr, size_t new_size,node *subtree_root);
 
 /**
  * @brief Recursively wipes and frees all nodes in a subtree, securely deleting all associated memory.
