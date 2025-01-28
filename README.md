@@ -29,7 +29,7 @@ This command creates a static library of the code within the XLibrary_crypto dir
 Only the functions within API_core.h should be called from outside the module. The first step is to initialize the module with a valid cryptographic certificate (a script for creating certificates, is available in utils/certificate_manager) and specify the desired name for the data file by invoking the following function:
 
 ```c
-API_MC_Initialize_module(unsigned char *KEK_CERTIFICATE_file, unsigned char *Cryptodata_filename);
+int API_MC_Initialize_module(unsigned char *KEK_CERTIFICATE_file, unsigned char *Cryptodata_filename);
 ```
 
 After initialization, if all required tests are passed and the certificates are validated, the module will enter the operational state. In this state, the following actions can be performed:
@@ -41,17 +41,17 @@ int API_MC_getcurrent_state();
 
 Introduce 256-bit keys using:
 ```c
-API_MC_Insert_Key(uint8_t In_Key[32], size_t key_size, unsigned char *Key_id, size_t Key_id_length);
+int API_MC_Insert_Key(uint8_t In_Key[32], size_t key_size, unsigned char *Key_id, size_t Key_id_length);
 ```
 
 Delete 256-bit keys using:
 ```c
-API_MC_Delete_Key(unsigned char *Key_id, size_t Key_id_length);
+int API_MC_Delete_Key(unsigned char *Key_id, size_t Key_id_length);
 ```
 
 Load a key from the data system for use with:
 ```c
-API_MC_Load_Key(unsigned char *Key_id, size_t Key_id_length);
+int API_MC_Load_Key(unsigned char *Key_id, size_t Key_id_length);
 ```
 
 Generate Pseudorandom numbers:
@@ -61,7 +61,7 @@ int API_MC_fill_buffer_random(unsigned char *buffer, size_t size);
 
 Sign and encrypt a data packet with:
 ```c
-API_MC_Sing_Cipher_Packet(unsigned char *data_in, size_t data_size, unsigned char *packet_out, size_t *packet_out_length);
+int API_MC_Sing_Cipher_Packet(unsigned char *data_in, size_t data_size, unsigned char *packet_out, size_t *packet_out_length);
 ```
 
 Decrypt and authenticate a data packet with:
