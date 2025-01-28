@@ -90,7 +90,7 @@ int API_KM_loadkey(unsigned char *Key_id, size_t Key_id_length)
 
 	// Update the memory tracker for the current key in use
 	Current_key_in_use.IsLoaded = 1;
-	result = API_MT_update_tracker(&trackers[TI_Current_Key_In_Use]);
+	result = API_MT_update_tracker(&MT_trackers[TI_Current_Key_In_Use]);
 	if (result != MT_OK)
 	{
 		Current_key_in_use.IsLoaded = 0;

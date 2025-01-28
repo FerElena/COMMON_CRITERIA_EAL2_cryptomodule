@@ -100,7 +100,7 @@ const char* API_EM_get_error_message(int error_code) {
         [FS_MAX_SIZE_REACHED + 2010] = "Max filesystem size reached",
         [FS_CORRUPTED_DATA + 2010] = "Filesystem data corruption detected",
         [MT_FAIL + 2010] = "Memory tracker failure",
-        [MT_NO_MORE_TRACKERS + 2010] = "No more trackers",
+        [MT_NO_MORE_MT_trackers + 2010] = "No more MT_trackers",
         [MT_MEMORYVIOLATION_BEFORE_DELETE + 2010] = "Memory violation before delete",
         [MT_MEMORYVIOLATION + 2010] = "Memory tracker violation detected",
         [MT_MEMORY_LOCK_FAIL + 2010] = "Memory lock failure",

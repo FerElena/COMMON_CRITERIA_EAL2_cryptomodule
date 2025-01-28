@@ -164,7 +164,7 @@ int File_system_first_initialization(unsigned char *KEK_CERTIFICATE_file, unsign
     API_FS_setup_cipher(CIPHER_ON, key_AES256_certificate);
 
     // Update the memory tracker with the new key.
-    API_MT_update_tracker(&trackers[TI_FS_cipher_key]);
+    API_MT_update_tracker(&MT_trackers[TI_FS_cipher_key]);
 
     uint8_t previus_state = PREVIUS_NORMAL_STATE;
     int result1 = API_FS_create_file_data(CONF_FILENAME, strlen(CONF_FILENAME), &previus_state, 1, NOT_CSP);
@@ -237,7 +237,7 @@ int File_system_normal_initialization(unsigned char *KEK_CERTIFICATE_file, unsig
     }
 
     // Update the memory tracker with the new key.
-    API_MT_update_tracker(&trackers[TI_FS_cipher_key]);
+    API_MT_update_tracker(&MT_trackers[TI_FS_cipher_key]);
 
     unsigned char Schneier_patterns[] = {0x00, 0xFF, 0xAA, 0x55, 0xAA, 0x55}; // zeroize old memory space for key
     for (int i = 0; i < 6; i++)

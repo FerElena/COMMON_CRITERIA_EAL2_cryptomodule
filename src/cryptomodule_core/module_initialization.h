@@ -2,7 +2,7 @@
  * @file module_initialization.h
  * @brief Header file for module initialization and memory tracking functionality.
  *
- * This file contains the declarations for initializing memory trackers
+ * This file contains the declarations for initializing memory MT_trackers
  * and managing cryptographic components such as AES, ECDSA, HMAC, and SHA-256.
  */
 

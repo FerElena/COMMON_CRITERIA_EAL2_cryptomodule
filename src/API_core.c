@@ -228,7 +228,7 @@ int API_MC_Sing_Cipher_Packet(unsigned char *data_in, size_t data_size, unsigned
     API_LT_traceWrite("Current state: ", API_SM_get_current_state_name(), NULL);
 
     // Verify the integrity of the key in use
-    int Operation_result = API_MT_verify_integrity(&trackers[TI_Current_Key_In_Use]);
+    int Operation_result = API_MT_verify_integrity(&MT_trackers[TI_Current_Key_In_Use]);
     if (Operation_result != MT_OK)
     {
         API_LT_traceWrite("Key integrity compromised, switching to error state: ", API_EM_get_error_message(Operation_result), NULL);
@@ -305,7 +305,7 @@ int API_MC_Decipher_Auth_Packet(unsigned char *data_in, size_t data_in_length, u
     API_LT_traceWrite("Current state: ", API_SM_get_current_state_name(), NULL);
 
     // Verify key integrity
-    int Operation_result = API_MT_verify_integrity(&trackers[TI_Current_Key_In_Use]);
+    int Operation_result = API_MT_verify_integrity(&MT_trackers[TI_Current_Key_In_Use]);
     if (Operation_result != MT_OK)
     {
         API_LT_traceWrite("Key integrity compromised", API_EM_get_error_message(Operation_result), NULL);
