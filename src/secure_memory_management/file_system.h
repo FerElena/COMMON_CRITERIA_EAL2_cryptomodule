@@ -137,7 +137,7 @@
 
 extern unsigned char FS_data_buffer[MAX_FILE_DATA]; // CSP
 
-extern unsigned char FS_cipher_key[32];
+extern unsigned char FS_cipher_key[32]; //CSP
 
 /* Type definitions ................................................. */
 

@@ -8,161 +8,108 @@
  ****************************************************************************************************************/
 #include "AES_CBC.h"
 
-AesCbcContext AES_CBC_ctx; //auxiliar ctx to store derives key, CSP!
+AesContext AES_CBC_ctx; // auxiliar ctx to store derives key, CSP!
 
 /****************************************************************************************************************
  * Function definition zone
  ****************************************************************************************************************/
 
-void CP_XorAesBlock(uint8_t *Block1, uint8_t const *Block2)
-{
-
-  uint32_t i;
-
-  for (i = 0; i < AES_BLOCK_SIZE; i++)
-  {
-    Block1[i] ^= Block2[i];
-  }
-}
-
-void CP_AesCbcInitialize(AesCbcContext *Context, AesContext const *InitializedAesContext, uint8_t const IV[AES_BLOCK_SIZE])
-{
-  // Setup context values
-  Context->Aes = *InitializedAesContext;
-  memcpy(Context->PreviousCipherBlock, IV, sizeof(Context->PreviousCipherBlock));
-}
-
-int CP_AesCbcInitializeWithKey(AesCbcContext *Context, uint8_t const *Key, uint32_t KeySize, uint8_t const IV[AES_BLOCK_SIZE])
-{
-
-  AesContext aes;
-  if (0 != API_CP_AesInitialize(&aes, Key, KeySize))
-  {
-    return -1;
-  }
-
-  // Now set-up AesCbcContext
-  CP_AesCbcInitialize(Context, &aes, IV);
-  return 0;
-}
-
-int CP_AesCbcEncrypt(AesCbcContext *Context, void const *InBuffer, void *OutBuffer, uint32_t Size)
-{
-
-  uint32_t numBlocks = Size / AES_BLOCK_SIZE;
-  uint32_t offset = 0;
-  uint32_t i;
-
-  if (0 != Size % AES_BLOCK_SIZE)
-  {
-    // Size not a multiple of AES block size (16 bytes).
-    return -1;
-  }
-
-  for (i = 0; i < numBlocks; i++)
-  {
-    // XOR on the next block of data onto the previous cipher block
-    CP_XorAesBlock(Context->PreviousCipherBlock, (uint8_t *)InBuffer + offset);
-
-    // Encrypt to make new cipher block
-    API_CP_AesEncryptInPlace(&Context->Aes, Context->PreviousCipherBlock);
-
-    // Output cipher block
-    memcpy((uint8_t *)OutBuffer + offset, Context->PreviousCipherBlock, AES_BLOCK_SIZE);
-
-    offset += AES_BLOCK_SIZE;
-  }
-
-  return 0;
-}
-
-int CP_AesCbcDecrypt(AesCbcContext *Context, void const *InBuffer, void *OutBuffer, uint32_t Size)
-{
-
-  uint32_t numBlocks = Size / AES_BLOCK_SIZE;
-  uint32_t offset = 0;
-  uint32_t i;
-  uint8_t previousCipherBlock[AES_BLOCK_SIZE];
-
-  if (0 != Size % AES_BLOCK_SIZE)
-  {
-    // Size not a multiple of AES block size (16 bytes).
-    return -1;
-  }
-
-  for (i = 0; i < numBlocks; i++)
-  {
-    // Copy previous cipher block and place current one in context
-    memcpy(previousCipherBlock, Context->PreviousCipherBlock, AES_BLOCK_SIZE);
-    memcpy(Context->PreviousCipherBlock, (uint8_t *)InBuffer + offset, AES_BLOCK_SIZE);
-
-    // Decrypt cipher block
-    API_CP_AesDecrypt(&Context->Aes, Context->PreviousCipherBlock, (uint8_t *)OutBuffer + offset);
-
-    // XOR on previous cipher block
-    CP_XorAesBlock((uint8_t *)OutBuffer + offset, previousCipherBlock);
-
-    offset += AES_BLOCK_SIZE;
-  }
-
-  return 0;
-}
-
-int API_AESCBC_encrypt(unsigned char *plaintext, size_t *len, unsigned char *key, unsigned int AES_KEY_SIZE, unsigned char *iv, unsigned char *ciphertext)
-{
-	CP_AesCbcInitializeWithKey(&AES_CBC_ctx, key, AES_KEY_SIZE, iv);
-	CP_AesCbcEncrypt(&AES_CBC_ctx, plaintext, ciphertext, *len);
-
-	return 1;
-}
-
-int API_AESCBC_decrypt(unsigned char *ciphertext, size_t *len, unsigned char *key, unsigned int AES_KEY_SIZE, unsigned char *iv, unsigned char *plaintext)
-{
-	CP_AesCbcInitializeWithKey(&AES_CBC_ctx, key, AES_KEY_SIZE, iv);
-	CP_AesCbcDecrypt(&AES_CBC_ctx, ciphertext, plaintext, *len);
-
-	return 1;
-}
-
-
-// Función que añade padding PKCS#7 para AES
 void CP_addPaddingAes(unsigned char *message, size_t *length, unsigned char *padded_message)
 {
-    // Cálculo de cuántos bytes de padding se necesitan
-    // AES_BLOCK_SIZE es el tamaño de bloque de AES, usualmente 16 bytes
-    // El padding es la cantidad de bytes necesarios para completar un bloque
-    int PadNumber = AES_BLOCK_SIZE - (*length % AES_BLOCK_SIZE);
+  // Calculate the number of padding bytes needed
+  // AES_BLOCK_SIZE is the block size of AES, usually 16 bytes
+  // The padding is the number of bytes needed to complete a block
+  int PadNumber = AES_BLOCK_SIZE - (*length % AES_BLOCK_SIZE);
 
-    // Actualiza la longitud del mensaje original con la nueva longitud (incluyendo el padding)
-    *length = *length + PadNumber;
+  // Update the original message length with the new length (including padding)
+  *length = *length + PadNumber;
 
-    // Añade el padding al mensaje
-    // Se hace un bucle para rellenar con el valor de PadNumber (PKCS#7 padding)
-    // PKCS#7 dice que cada byte añadido debe ser igual al número de bytes de padding
-    for (int i = 0; i < PadNumber; i++)
+  // Add the padding to the message
+  // Loop to fill with the value of PadNumber (PKCS#7 padding)
+  // PKCS#7 states that each added byte should be equal to the number of padding bytes
+  for (int i = 0; i < PadNumber; i++)
+  {
+    // Insert the value of PadNumber in the final positions of the message
+    // (*length - PadNumber) is the index where padding starts
+    message[(*length - PadNumber) + i] = PadNumber;
+  }
+}
+
+int CP_getPaddingLength(const unsigned char *padded_message, size_t length)
+{
+  if (length == 0)
+  {
+    return -1; // No message to check
+  }
+  unsigned char lastByte = padded_message[length - 1]; // Get the last byte, which indicates the padding
+  if (lastByte > AES_BLOCK_SIZE || lastByte == 0)
+  {
+    return -1; // Invalid padding, as it cannot be greater than the block size or zero
+  }
+
+  // Check that all padding bytes are equal to the last byte
+  for (int i = 0; i < lastByte; i++)
+  {
+    if (padded_message[length - 1 - i] != lastByte)
     {
-        // Inserta el valor de PadNumber en las posiciones finales del mensaje
-        // (*length - PadNumber) es el índice donde empieza el padding
-        message[(*length - PadNumber) + i] = PadNumber;
+      return -1; // Invalid padding if any byte doesn't match
     }
+  }
+
+  return lastByte; // Return the length of the padding, which is the value of the last byte
+}
+
+// XOR two AES blocks and store the result
+void CP_XorAesBlock(uint8_t *Block1, uint8_t const *Block2, uint8_t *result)
+{
+  for (uint32_t i = 0; i < AES_BLOCK_SIZE; i++)
+    result[i] = Block1[i] ^ Block2[i];
+}
+
+// Encrypt data using AES-CBC mode
+int API_AESCBC_encrypt(unsigned char *plaintext, size_t len, unsigned char *key, unsigned int AES_KEY_SIZE, unsigned char *iv, unsigned char *ciphertext)
+{
+  // Initialize AES context with the provided key
+  API_CP_AesInitialize(&AES_CBC_ctx, key, AES_KEY_SIZE);
+
+  // Ensure the plaintext length is a multiple of 16 bytes
+  if (len % 16 != 0)
+    return 0;
+
+  // Encrypt each block of plaintext
+  for (size_t num_rounds = 0; num_rounds < len / 16; num_rounds++){
+    if(num_rounds == 0){
+      CP_XorAesBlock(plaintext, iv, ciphertext); // XOR with IV for the first block
+    }
+    else{
+      CP_XorAesBlock(plaintext + (num_rounds * 16), ciphertext + ((num_rounds - 1) * 16), ciphertext + (num_rounds * 16)); // XOR with previous ciphertext block
+    }
+    API_CP_AesEncrypt(&AES_CBC_ctx, ciphertext + (num_rounds * 16), ciphertext + (num_rounds * 16)); // Encrypt the XORed block
+  }
+  return 1;
+}
+
+// Decrypt data using AES-CBC mode
+int API_AESCBC_decrypt(unsigned char *ciphertext, size_t len, unsigned char *key, unsigned int AES_KEY_SIZE, unsigned char *iv, unsigned char *plaintext)
+{
+  // Initialize AES context with the provided key
+  API_CP_AesInitialize(&AES_CBC_ctx, key, AES_KEY_SIZE);
+
+  // Ensure the ciphertext length is a multiple of 16 bytes
+  if (len % 16 != 0)
+    return 0;
+
+  // Decrypt each block of ciphertext
+  for (size_t num_rounds = 0; num_rounds < len / 16; num_rounds++){
+    API_CP_AesDecrypt(&AES_CBC_ctx, ciphertext + (num_rounds * 16), plaintext + (num_rounds * 16)); // Decrypt the block
+    if(num_rounds == 0){
+      CP_XorAesBlock(plaintext, iv, plaintext); // XOR with IV for the first block
+    }
+    else{
+      CP_XorAesBlock(plaintext + (num_rounds * 16), ciphertext + ((num_rounds - 1) * 16), plaintext + (num_rounds * 16)); // XOR with previous ciphertext block
+    }
+  }
+  return 1;
 }
 
 
-int CP_getPaddingLength(const unsigned char *padded_message, size_t length) {
-    if (length == 0) {
-        return -1; // No hay mensaje para revisar
-    }
-    unsigned char lastByte = padded_message[length - 1]; // Obtiene el último byte, que indica el padding
-    if (lastByte > AES_BLOCK_SIZE || lastByte == 0) {
-        return -1; // Padding no válido, ya que no puede ser mayor que el tamaño de bloque ni cero
-    }
-
-    // Verifica que todos los bytes de padding son iguales al último byte
-    for (int i = 0; i < lastByte; i++) {
-        if (padded_message[length - 1 - i] != lastByte) {
-            return -1; // Padding no válido si algún byte no coincide
-        }
-    }
-
-    return lastByte; // Retorna la longitud del padding, que es el valor del último byte
-}

@@ -23,7 +23,7 @@ void AES_OFB_EncryptDecrypt(const uint8_t *input, size_t length, const uint8_t *
     for (i = 0; i < length; i += AES_BLOCK_SIZE) {
 
         // Encrypt the IV or the last encrypted block
-        CP_AesEncrypt(&AESOFB_CTX, AESOFB_ivEnc, AESOFB_outputBlock);
+        API_CP_AesEncrypt(&AESOFB_CTX, AESOFB_ivEnc, AESOFB_outputBlock);
 
         // Update AESOFB_ivEnc for the next round
         memcpy(AESOFB_ivEnc, AESOFB_outputBlock, AES_BLOCK_SIZE);

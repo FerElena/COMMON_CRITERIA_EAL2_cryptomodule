@@ -113,7 +113,7 @@ int API_CP_AesInitialize (AesContext* Context, void const* Key, uint32_t KeySize
  * @param Input Input for the function AES to be encrypted
  * @param Output AES output encrypted
  */
-void CP_AesEncrypt(AesContext const* Context, uint8_t const Input [AES_BLOCK_SIZE], uint8_t Output [AES_BLOCK_SIZE]);
+void API_CP_AesEncrypt(AesContext const* Context, uint8_t const Input [AES_BLOCK_SIZE], uint8_t Output [AES_BLOCK_SIZE]);
 
 /**
  * @brief Performs an AES decryption of one block (128 bits) with an AES context
@@ -125,13 +125,5 @@ void CP_AesEncrypt(AesContext const* Context, uint8_t const Input [AES_BLOCK_SIZ
  */
 void API_CP_AesDecrypt(AesContext const* Context, uint8_t const Input [AES_BLOCK_SIZE], uint8_t Output [AES_BLOCK_SIZE]);
 
-/**
- * @brief Performs an AES encryption of one block (128 bits) with an AES context in the same memory block
- * 
- * 
- * @param Context AES context
- * @param Block AES block to be encrypted
- */
-void API_CP_AesEncryptInPlace (AesContext const* Context, uint8_t Block [AES_BLOCK_SIZE]);
 
 #endif

@@ -766,7 +766,7 @@ int API_CP_AesInitialize (AesContext* Context, void const* Key, uint32_t KeySize
 }
 
 
-void CP_AesEncrypt(AesContext const* Context, uint8_t const Input [AES_BLOCK_SIZE], uint8_t Output [AES_BLOCK_SIZE]) {
+void API_CP_AesEncrypt(AesContext const* Context, uint8_t const Input [AES_BLOCK_SIZE], uint8_t Output [AES_BLOCK_SIZE]) {
 
     uint32_t        s0;
     uint32_t        s1;
@@ -889,10 +889,5 @@ void API_CP_AesDecrypt(AesContext const* Context, uint8_t const Input [AES_BLOCK
     STORE32H( s1, Output + 4 );
     STORE32H( s2, Output + 8 );
     STORE32H( s3, Output + 12 );
-}
-
-
-void API_CP_AesEncryptInPlace (AesContext const* Context, uint8_t Block [AES_BLOCK_SIZE]) {
-    CP_AesEncrypt( Context, Block, Block );
 }
 

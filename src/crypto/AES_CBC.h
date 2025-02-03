@@ -32,12 +32,8 @@
 /**
  * @brief AES_CBC context struct
  */
-typedef struct AesCbcContext {
-    AesContext      Aes; /*Actual AES context block*/
-    uint8_t         PreviousCipherBlock [AES_BLOCK_SIZE]; /*Previous AES cipher block*/
-} AesCbcContext;
 
-extern AesCbcContext AES_CBC_ctx; //auxiliar ctx to store derives key, CSP!
+extern AesContext AES_CBC_ctx; //auxiliar ctx to store derives key, CSP!
 
 /* Macros............................................................ */
 
@@ -58,111 +54,6 @@ extern AesCbcContext AES_CBC_ctx; //auxiliar ctx to store derives key, CSP!
 /****************************************************************************************************************
  * Function definition zone
  ****************************************************************************************************************/
-
-/**
- * @brief Performs XOR between two AES blocks.
- * 
- * This function performs an XOR operation between two blocks of data of size AES_BLOCK_SIZE.
- *
- * @param[in,out] Block1  The first block of data. The result is stored in this block.
- * @param[in] Block2      The second block of data to XOR with Block1.
- */
-
-void CP_XorAesBlock(uint8_t *Block1, uint8_t const *Block2);
-
-/**
- * @brief Initializes an AES-CBC context with a key and initialization vector (IV).
- *
- * This function initializes the AES context with the given key, then sets up the AES-CBC context with the IV.
- *
- * @param[out] Context   The AES-CBC context to initialize.
- * @param[in]  Key       The encryption key to initialize the AES context.
- * @param[in]  KeySize   The size of the encryption key.
- * @param[in]  IV        The initialization vector for CBC mode.
- * 
- * @return 0 on success, -1 on failure.
- */
-
-void CP_AesCbcInitialize(AesCbcContext* Context, AesContext const* InitializedAesContext, uint8_t const IV [AES_BLOCK_SIZE]);
-
-/**
- * @brief Encrypts data using AES-CBC mode.
- *
- * This function encrypts the input buffer and writes the result to the output buffer using AES-CBC mode.
- *
- * @param[in]  Context   The AES-CBC context to use for encryption.
- * @param[in]  InBuffer  The buffer containing the plaintext to encrypt.
- * @param[out] OutBuffer The buffer to store the encrypted ciphertext.
- * @param[in]  Size      The size of the input buffer. Must be a multiple of AES_BLOCK_SIZE.
- * 
- * @return 0 on success, -1 if the size is not a multiple of AES_BLOCK_SIZE.
- */
-
-int CP_AesCbcInitializeWithKey(AesCbcContext* Context, uint8_t const* Key, uint32_t KeySize, uint8_t const IV [AES_BLOCK_SIZE]);
-
-/**
- * @brief Encrypts data using AES-CBC mode.
- *
- * This function encrypts the input buffer and writes the result to the output buffer using AES-CBC mode.
- *
- * @param[in]  Context   The AES-CBC context to use for encryption.
- * @param[in]  InBuffer  The buffer containing the plaintext to encrypt.
- * @param[out] OutBuffer The buffer to store the encrypted ciphertext.
- * @param[in]  Size      The size of the input buffer. Must be a multiple of AES_BLOCK_SIZE.
- * 
- * @return 0 on success, -1 if the size is not a multiple of AES_BLOCK_SIZE.
- */
-
-int CP_AesCbcEncrypt(AesCbcContext* Context, void const* InBuffer, void* OutBuffer, uint32_t Size);
-
-/**
- * @brief Decrypts data using AES-CBC mode.
- *
- * This function decrypts the input buffer and writes the result to the output buffer using AES-CBC mode.
- *
- * @param[in]  Context   The AES-CBC context to use for decryption.
- * @param[in]  InBuffer  The buffer containing the ciphertext to decrypt.
- * @param[out] OutBuffer The buffer to store the decrypted plaintext.
- * @param[in]  Size      The size of the input buffer. Must be a multiple of AES_BLOCK_SIZE.
- * 
- * @return 0 on success, -1 if the size is not a multiple of AES_BLOCK_SIZE.
- */
-
-int CP_AesCbcDecrypt(AesCbcContext* Context, void const* InBuffer, void* OutBuffer, uint32_t Size);
-
-/**
- * @brief Encrypts plaintext using AES-CBC mode.
- *
- * This function initializes the AES-CBC context with the provided key and IV, and then encrypts the plaintext.
- *
- * @param[in]  plaintext  The buffer containing the plaintext to encrypt.
- * @param[in,out] len     The length of the plaintext buffer. Updated to the length of the ciphertext.
- * @param[in]  key        The encryption key.
- * @param[in]  AES_KEY_SIZE The size of the encryption key.
- * @param[in]  iv         The initialization vector for CBC mode.
- * @param[out] ciphertext The buffer to store the encrypted ciphertext.
- * 
- * @return 1 on success, 0 on failure.
- */
-
-int API_AESCBC_encrypt(unsigned char *plaintext, size_t *len, unsigned char *key, unsigned int AES_KEY_SIZE, unsigned char *iv, unsigned char *ciphertext);
-
-/**
- * @brief Decrypts ciphertext using AES-CBC mode.
- *
- * This function initializes the AES-CBC context with the provided key and IV, and then decrypts the ciphertext.
- *
- * @param[in]  ciphertext The buffer containing the ciphertext to decrypt.
- * @param[in,out] len      The length of the ciphertext buffer. Updated to the length of the plaintext.
- * @param[in]  key         The encryption key.
- * @param[in]  AES_KEY_SIZE The size of the encryption key.
- * @param[in]  iv          The initialization vector for CBC mode.
- * @param[out] plaintext   The buffer to store the decrypted plaintext.
- * 
- * @return 1 on success, 0 on failure.
- */
-
-int API_AESCBC_decrypt(unsigned char *ciphertext, size_t *len, unsigned char *key, unsigned int AES_KEY_SIZE, unsigned char *iv, unsigned char *plaintext);
 
 /**
  * @brief Adds PKCS#7 padding to a message for AES encryption.
@@ -193,6 +84,53 @@ void CP_addPaddingAes(unsigned char *message, size_t *length, unsigned char *pad
  */
 
 int CP_getPaddingLength(const unsigned char *padded_message, size_t length);
+
+/**
+ * @brief Performs XOR between two AES blocks.
+ * 
+ * This function performs an XOR operation between two blocks of data of size AES_BLOCK_SIZE.
+ *
+ * @param[in] Block1  The first block of data. The result is stored in this block.
+ * @param[in] Block2  The second block of data to XOR with Block1.
+ * @param[out] result Result of the XOR block operation
+ */
+
+void CP_XorAesBlock(uint8_t *Block1, uint8_t const *Block2, uint8_t *result);
+
+
+/**
+ * @brief Encrypts plaintext using AES-CBC mode.
+ *
+ * This function initializes the AES-CBC context with the provided key and IV, and then encrypts the plaintext.
+ *
+ * @param[in]  plaintext  The buffer containing the plaintext to encrypt.
+ * @param[in,out] len     The length of the plaintext buffer. Updated to the length of the ciphertext.
+ * @param[in]  key        The encryption key.
+ * @param[in]  AES_KEY_SIZE The size of the encryption key.
+ * @param[in]  iv         The initialization vector for CBC mode.
+ * @param[out] ciphertext The buffer to store the encrypted ciphertext.
+ * 
+ * @return 1 on success, 0 on failure.
+ */
+
+int API_AESCBC_encrypt(unsigned char *plaintext, size_t len, unsigned char *key, unsigned int AES_KEY_SIZE, unsigned char *iv, unsigned char *ciphertext);
+
+/**
+ * @brief Decrypts ciphertext using AES-CBC mode.
+ *
+ * This function initializes the AES-CBC context with the provided key and IV, and then decrypts the ciphertext.
+ *
+ * @param[in]  ciphertext The buffer containing the ciphertext to decrypt.
+ * @param[in,out] len      The length of the ciphertext buffer. Updated to the length of the plaintext.
+ * @param[in]  key         The encryption key.
+ * @param[in]  AES_KEY_SIZE The size of the encryption key.
+ * @param[in]  iv          The initialization vector for CBC mode.
+ * @param[out] plaintext   The buffer to store the decrypted plaintext.
+ * 
+ * @return 1 on success, 0 on failure.
+ */
+
+int API_AESCBC_decrypt(unsigned char *ciphertext, size_t len, unsigned char *key, unsigned int AES_KEY_SIZE, unsigned char *iv, unsigned char *plaintext);
 
 
 #endif 
