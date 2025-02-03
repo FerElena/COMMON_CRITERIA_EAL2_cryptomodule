@@ -268,6 +268,9 @@ int API_INIT_initialize_module(unsigned char *KEK_CERTIFICATE_file, unsigned cha
         API_SM_State_Change(SM_ERROR);
         return SM_ERROR_STATE;
     }
+    //Check if AES-NI is avaiable in this microprocesor
+    API_AES_checkHWsupport();
+    
     int return_value;
     int result1 = Memory_tracking_initialization(); // Initialize memory tracking
     // Check if memory tracking initialized correctly
@@ -304,6 +307,6 @@ int API_INIT_initialize_module(unsigned char *KEK_CERTIFICATE_file, unsigned cha
         {
             return INIT_TRACER_INIT_ERROR;  // Return error code if tracer could not be initialized
         }
-        
+    
     return return_value; // Return success code if all initializations succeeded
 }

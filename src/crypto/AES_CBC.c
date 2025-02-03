@@ -70,7 +70,7 @@ void CP_XorAesBlock(uint8_t *Block1, uint8_t const *Block2, uint8_t *result)
 int API_AESCBC_encrypt(unsigned char *plaintext, size_t len, unsigned char *key, unsigned int AES_KEY_SIZE, unsigned char *iv, unsigned char *ciphertext)
 {
   // Initialize AES context with the provided key
-  API_CP_AesInitialize(&AES_CBC_ctx, key, AES_KEY_SIZE);
+  API_AES_initkey(&AES_CBC_ctx, key, AES_KEY_SIZE);
 
   // Ensure the plaintext length is a multiple of 16 bytes
   if (len % 16 != 0)
@@ -84,7 +84,7 @@ int API_AESCBC_encrypt(unsigned char *plaintext, size_t len, unsigned char *key,
     else{
       CP_XorAesBlock(plaintext + (num_rounds * 16), ciphertext + ((num_rounds - 1) * 16), ciphertext + (num_rounds * 16)); // XOR with previous ciphertext block
     }
-    API_CP_AesEncrypt(&AES_CBC_ctx, ciphertext + (num_rounds * 16), ciphertext + (num_rounds * 16)); // Encrypt the XORed block
+    API_AES_encrypt_block(&AES_CBC_ctx, ciphertext + (num_rounds * 16), ciphertext + (num_rounds * 16)); // Encrypt the XORed block
   }
   return 1;
 }
@@ -93,7 +93,7 @@ int API_AESCBC_encrypt(unsigned char *plaintext, size_t len, unsigned char *key,
 int API_AESCBC_decrypt(unsigned char *ciphertext, size_t len, unsigned char *key, unsigned int AES_KEY_SIZE, unsigned char *iv, unsigned char *plaintext)
 {
   // Initialize AES context with the provided key
-  API_CP_AesInitialize(&AES_CBC_ctx, key, AES_KEY_SIZE);
+  API_AES_initkey(&AES_CBC_ctx, key, AES_KEY_SIZE);
 
   // Ensure the ciphertext length is a multiple of 16 bytes
   if (len % 16 != 0)
@@ -101,7 +101,7 @@ int API_AESCBC_decrypt(unsigned char *ciphertext, size_t len, unsigned char *key
 
   // Decrypt each block of ciphertext
   for (size_t num_rounds = 0; num_rounds < len / 16; num_rounds++){
-    API_CP_AesDecrypt(&AES_CBC_ctx, ciphertext + (num_rounds * 16), plaintext + (num_rounds * 16)); // Decrypt the block
+    API_AES_decrypt_block(&AES_CBC_ctx, ciphertext + (num_rounds * 16), plaintext + (num_rounds * 16)); // Decrypt the block
     if(num_rounds == 0){
       CP_XorAesBlock(plaintext, iv, plaintext); // XOR with IV for the first block
     }

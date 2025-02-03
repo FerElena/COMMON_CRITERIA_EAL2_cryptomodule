@@ -29,6 +29,7 @@
 #include "../library_tracer/log_manager.h"
 #include "../crypto/AES_CBC.h"
 #include "../crypto/AES_OFB.h"
+#include "../crypto/AES_CORE.h"
 #include "../crypto/ECDSA_256.h"
 #include "../crypto/SHA256.h"
 

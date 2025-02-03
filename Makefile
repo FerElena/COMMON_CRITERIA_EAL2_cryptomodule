@@ -15,7 +15,7 @@ all: testing_cryptomodule
 testing_cryptomodule: $(SRC) Code_testing.c
 	@echo "($(ts)) Compiling project..."; \
 	echo "Fuentes:" $(SRC); \
-	gcc -pthread $^ -g -o $@; \
+	gcc -pthread $^ -g -maes -o $@; \
 	echo "($(ts)) Compilation finished\n"; \
 	echo "($(ts)) Running key_cert_generator for executable..."; \
 	cd utils/certificate_manager && ./key_cert_generator -cg ecdsa_keypair ../../testing_cryptomodule testing_cert; \

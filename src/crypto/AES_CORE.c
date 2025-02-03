@@ -11,8 +11,9 @@
 /****************************************************************************************************************
  * Global variables definition
  ****************************************************************************************************************/
+static AES_implementation AES_implement = still_to_check;
 
-// These are the tables used for the AES_CBC to optimized the result search
+////////////////////////////////////////////SOFTWARE TABLE BASED IMPLEMENTATION TABLES//////////////////////////////////////////
 
 static const uint32_t TE0[256] =
 {
@@ -640,14 +641,285 @@ static const uint32_t rcon[] =
  * Function definition zone
  ****************************************************************************************************************/
 
-int API_CP_AesInitialize (AesContext* Context, void const* Key, uint32_t KeySize){
+// function to check if AES-NI assembly instructions are supported in this machine core
+int supportsAESNI() {
+    unsigned int eax, ebx, ecx, edx;
+    __cpuid(1, eax, ebx, ecx, edx);
+    return (ecx & (1 << 25)) != 0;
+}
 
+//////////////////////////////////////////// HARDWARE CONSTANT TIME AES-NI IMPLEMENTATION //////////////////////////////////////////
+
+/**
+ * @brief Expand AES-128 key using AES-NI instructions
+ *
+ * This macro performs AES-128 key expansion for hardware-based AES-NI implementation.
+ * It uses the _mm_aeskeygenassist_si128 intrinsic to assist in the key expansion and
+ * performs several XOR and shift operations to generate the next round key.
+ *
+ * @param round_const The round constant for the current key expansion step
+ * @param ks The key schedule array where the expanded keys are stored
+ * @param idx The index in the key schedule array where the next key will be stored
+ */
+#define AES128_AESNI_KEY_EXPAND(round_const, ks, idx)                               \
+    do                                                                        \
+    {                                                                         \
+        __m128i temp = _mm_aeskeygenassist_si128(ks[idx - 1], round_const);   \
+        temp = _mm_shuffle_epi32(temp, 0xff);                                 \
+        ks[idx] = _mm_xor_si128(ks[idx - 1], _mm_slli_si128(ks[idx - 1], 4)); \
+        ks[idx] = _mm_xor_si128(ks[idx], _mm_slli_si128(ks[idx], 8));         \
+        ks[idx] = _mm_xor_si128(ks[idx], temp);                               \
+    } while (0)
+
+/**
+ * @brief Expand AES-192 key using AES-NI instructions
+ *
+ * This macro performs AES-192 key expansion for hardware-based AES-NI implementation.
+ * It uses the _mm_aeskeygenassist_si128 intrinsic and other SSE instructions to generate
+ * the next round keys and store them in the output key schedule array.
+ *
+ * @param K1 Pointer to the first part of the expanded key
+ * @param K2 Pointer to the second part of the expanded key
+ * @param KEY2_WITH_RCON Round constant combined with the second part of the key
+ * @param OUT The output key schedule array
+ * @param OFFSET The offset in the output key schedule array where the next key will be stored
+ */
+#define AES192_AESNI_KEY_EXPAND(K1, K2, KEY2_WITH_RCON, OUT, OFFSET)                        \
+    do                                                                                    \
+    {                                                                                     \
+        __m128i key1 = *(K1);                                                             \
+        __m128i key2 = *(K2);                                                             \
+        __m128i rcon = _mm_shuffle_epi32(KEY2_WITH_RCON, _MM_SHUFFLE(1, 1, 1, 1));        \
+        key1 = _mm_xor_si128(key1, _mm_slli_si128(key1, 4));                              \
+        key1 = _mm_xor_si128(key1, _mm_slli_si128(key1, 4));                              \
+        key1 = _mm_xor_si128(key1, _mm_slli_si128(key1, 4));                              \
+        key1 = _mm_xor_si128(key1, rcon);                                                 \
+        *(K1) = key1;                                                                     \
+        _mm_storeu_si128((__m128i *)&(OUT)[OFFSET], key1);                                \
+        if (OFFSET != 48)                                                                 \
+        {                                                                                 \
+            key2 = _mm_xor_si128(key2, _mm_slli_si128(key2, 4));                          \
+            key2 = _mm_xor_si128(key2, _mm_shuffle_epi32(key1, _MM_SHUFFLE(3, 3, 3, 3))); \
+            *(K2) = key2;                                                                 \
+            (OUT)[OFFSET + 4] = _mm_cvtsi128_si32(key2);                                  \
+            (OUT)[OFFSET + 5] = _mm_cvtsi128_si32(_mm_srli_si128(key2, 4));               \
+        }                                                                                 \
+    } while (0)
+
+/**
+ * @brief Expand AES-256 key using AES-NI instructions
+ *
+ * This macro performs AES-256 key expansion for hardware-based AES-NI implementation.
+ * It uses the _mm_aeskeygenassist_si128 intrinsic and other SSE instructions to generate
+ * the next round keys and store them in the key schedule array.
+ *
+ * @param round_const The round constant for the current key expansion step
+ * @param ks The key schedule array where the expanded keys are stored
+ * @param idx The index in the key schedule array where the next key will be stored
+ */
+#define AES256_AESNI_KEY_EXPAND(round_const, ks, idx)                      \
+    do                                                               \
+    {                                                                \
+        __m128i temp1, temp2;                                        \
+        temp2 = _mm_aeskeygenassist_si128(ks[idx - 1], round_const); \
+        temp2 = _mm_shuffle_epi32(temp2, 0xff);                      \
+        temp1 = ks[idx - 2];                                         \
+        temp1 = _mm_xor_si128(temp1, _mm_slli_si128(temp1, 4));      \
+        temp1 = _mm_xor_si128(temp1, _mm_slli_si128(temp1, 8));      \
+        temp1 = _mm_xor_si128(temp1, temp2);                         \
+        ks[idx] = temp1;                                             \
+                                                                     \
+        if (idx + 1 < 15)                                            \
+        { /* last round does not need another expansion*/            \
+            temp2 = _mm_aeskeygenassist_si128(ks[idx], 0x00);        \
+            temp2 = _mm_shuffle_epi32(temp2, 0xaa);                  \
+            temp1 = ks[idx - 1];                                     \
+            temp1 = _mm_xor_si128(temp1, _mm_slli_si128(temp1, 4));  \
+            temp1 = _mm_xor_si128(temp1, _mm_slli_si128(temp1, 8));  \
+            temp1 = _mm_xor_si128(temp1, temp2);                     \
+            ks[idx + 1] = temp1;                                     \
+        }                                                            \
+    } while (0)
+
+
+void aes128_aesni_key_expansion(const uint8_t *key, __m128i *ks)
+{
+    ks[0] = _mm_loadu_si128((const __m128i *)key);
+    // Encryption keys
+    AES128_AESNI_KEY_EXPAND(0x01, ks, 1);
+    AES128_AESNI_KEY_EXPAND(0x02, ks, 2);
+    AES128_AESNI_KEY_EXPAND(0x04, ks, 3);
+    AES128_AESNI_KEY_EXPAND(0x08, ks, 4);
+    AES128_AESNI_KEY_EXPAND(0x10, ks, 5);
+    AES128_AESNI_KEY_EXPAND(0x20, ks, 6);
+    AES128_AESNI_KEY_EXPAND(0x40, ks, 7);
+    AES128_AESNI_KEY_EXPAND(0x80, ks, 8);
+    AES128_AESNI_KEY_EXPAND(0x1B, ks, 9);
+    AES128_AESNI_KEY_EXPAND(0x36, ks, 10);
+    // decryption keys (ks[10] and ks[0] is shared between encryption and decryption)
+    ks[11] = _mm_aesimc_si128(ks[9]);
+    ks[12] = _mm_aesimc_si128(ks[8]);
+    ks[13] = _mm_aesimc_si128(ks[7]);
+    ks[14] = _mm_aesimc_si128(ks[6]);
+    ks[15] = _mm_aesimc_si128(ks[5]);
+    ks[16] = _mm_aesimc_si128(ks[4]);
+    ks[17] = _mm_aesimc_si128(ks[3]);
+    ks[18] = _mm_aesimc_si128(ks[2]);
+    ks[19] = _mm_aesimc_si128(ks[1]);
+}
+
+void aes192_aesni_key_expansion(const uint8_t *key, __m128i *ks)
+{
+    __m128i K0 = _mm_loadu_si128((const __m128i *)key);
+    __m128i K1 = _mm_loadu_si128((const __m128i *)(key + 8));
+    K1 = _mm_srli_si128(K1, 8);
+
+    memcpy(ks, key, 24);
+    uint32_t *iterator_key = (uint32_t *)ks;
+    // encryption keys
+    AES192_AESNI_KEY_EXPAND(&K0, &K1, _mm_aeskeygenassist_si128(K1, 0x01), iterator_key, 6);
+    AES192_AESNI_KEY_EXPAND(&K0, &K1, _mm_aeskeygenassist_si128(K1, 0x02), iterator_key, 12);
+    AES192_AESNI_KEY_EXPAND(&K0, &K1, _mm_aeskeygenassist_si128(K1, 0x04), iterator_key, 18);
+    AES192_AESNI_KEY_EXPAND(&K0, &K1, _mm_aeskeygenassist_si128(K1, 0x08), iterator_key, 24);
+    AES192_AESNI_KEY_EXPAND(&K0, &K1, _mm_aeskeygenassist_si128(K1, 0x10), iterator_key, 30);
+    AES192_AESNI_KEY_EXPAND(&K0, &K1, _mm_aeskeygenassist_si128(K1, 0x20), iterator_key, 36);
+    AES192_AESNI_KEY_EXPAND(&K0, &K1, _mm_aeskeygenassist_si128(K1, 0x40), iterator_key, 42);
+    AES192_AESNI_KEY_EXPAND(&K0, &K1, _mm_aeskeygenassist_si128(K1, 0x80), iterator_key, 48);
+
+    // decryption keys
+    ks[13] = _mm_aesimc_si128(ks[11]);
+    ks[14] = _mm_aesimc_si128(ks[10]);
+    ks[15] = _mm_aesimc_si128(ks[9]);
+    ks[16] = _mm_aesimc_si128(ks[8]);
+    ks[17] = _mm_aesimc_si128(ks[7]);
+    ks[18] = _mm_aesimc_si128(ks[6]);
+    ks[19] = _mm_aesimc_si128(ks[5]);
+    ks[20] = _mm_aesimc_si128(ks[4]);
+    ks[21] = _mm_aesimc_si128(ks[3]);
+    ks[22] = _mm_aesimc_si128(ks[2]);
+    ks[23] = _mm_aesimc_si128(ks[1]);
+}
+
+void aes256_aesni_key_expansion(const uint8_t *key, __m128i *ks)
+{
+    ks[0] = _mm_loadu_si128((const __m128i *)key);
+    ks[1] = _mm_loadu_si128((const __m128i *)(key + 16));
+    // Encryption keys
+    AES256_AESNI_KEY_EXPAND(0x01, ks, 2);
+    AES256_AESNI_KEY_EXPAND(0x02, ks, 4);
+    AES256_AESNI_KEY_EXPAND(0x04, ks, 6);
+    AES256_AESNI_KEY_EXPAND(0x08, ks, 8);
+    AES256_AESNI_KEY_EXPAND(0x10, ks, 10);
+    AES256_AESNI_KEY_EXPAND(0x20, ks, 12);
+    AES256_AESNI_KEY_EXPAND(0x40, ks, 14);
+    // decryption keys (ks[0] and ks[14] is shared between encryption and decryption)
+    ks[15] = _mm_aesimc_si128(ks[13]);
+    ks[16] = _mm_aesimc_si128(ks[12]);
+    ks[17] = _mm_aesimc_si128(ks[11]);
+    ks[18] = _mm_aesimc_si128(ks[10]);
+    ks[19] = _mm_aesimc_si128(ks[9]);
+    ks[20] = _mm_aesimc_si128(ks[8]);
+    ks[21] = _mm_aesimc_si128(ks[7]);
+    ks[22] = _mm_aesimc_si128(ks[6]);
+    ks[23] = _mm_aesimc_si128(ks[5]);
+    ks[24] = _mm_aesimc_si128(ks[4]);
+    ks[25] = _mm_aesimc_si128(ks[3]);
+    ks[26] = _mm_aesimc_si128(ks[2]);
+    ks[27] = _mm_aesimc_si128(ks[1]);
+}
+
+void aes_ni_keyexpansion(AesContext* Context, void const* Key, uint32_t KeySize){
+    Context->Nr = 10 + ((KeySize/8)-2)*2;
+
+    if( AES_KEY_SIZE_128 == KeySize )
+    {
+        aes128_aesni_key_expansion(Key,Context->HK);
+    }
+    else if( AES_KEY_SIZE_192 == KeySize )
+    {
+        aes192_aesni_key_expansion(Key,Context->HK);
+    }
+    else if( AES_KEY_SIZE_256 == KeySize )
+    {
+        aes256_aesni_key_expansion(Key,Context->HK);
+    }
+}
+
+
+/**
+ * @brief Encrypt state using AES-NI instructions
+ *
+ * This macro performs AES encryption on the given state using the provided
+ * key schedule and number of rounds. It uses AES-NI instructions to accelerate
+ * the encryption process.
+ *
+ * @param ks Key schedule array
+ * @param rounds Number of encryption rounds
+ * @param state State to be encrypted
+ */
+#define AES_AESNI_ENCRYPT(ks, rounds, state)                   \
+    do                                                   \
+    {                                                    \
+        state = _mm_xor_si128(state, ks[0]);             \
+        for (int i = 1; i < rounds; ++i)                 \
+            state = _mm_aesenc_si128(state, ks[i]);      \
+        state = _mm_aesenclast_si128(state, ks[rounds]); \
+    } while (0)
+
+/**
+ * @brief Decrypt state using AES-NI instructions
+ *
+ * This macro performs AES decryption on the given state using the provided
+ * key schedule and number of rounds. It uses AES-NI instructions to accelerate
+ * the decryption process.
+ *
+ * @param ks Key schedule array
+ * @param rounds Number of decryption rounds
+ * @param state State to be decrypted
+ */
+#define AES_AESNI_DECRYPT(ks, rounds, state)                       \
+    do                                                       \
+    {                                                        \
+        state = _mm_xor_si128(state, ks[rounds]);            \
+        for (int i = 1; i < rounds; ++i)                     \
+            state = _mm_aesdec_si128(state, ks[i + rounds]); \
+        state = _mm_aesdeclast_si128(state, ks[0]);          \
+    } while (0)
+
+
+void aes_aesni_encrypt(const __m128i *ks, int rounds, const uint8_t *plaintext, uint8_t *ciphertext)
+{
+    __m128i state = _mm_loadu_si128((const __m128i *)plaintext);
+    AES_AESNI_ENCRYPT(ks, rounds, state);
+    _mm_storeu_si128((__m128i *)ciphertext, state);
+}
+
+void aes_aesni_decrypt(const __m128i *ks, int rounds, const uint8_t *ciphertext, uint8_t *plaintext)
+{
+    __m128i state = _mm_loadu_si128((const __m128i *)ciphertext);
+    AES_AESNI_DECRYPT(ks, rounds, state);
+    _mm_storeu_si128((__m128i *)plaintext, state);
+}
+
+
+//////////////////////////////////////////// SOFTWARE TABLE-BASED IMPLEMENTATION //////////////////////////////////////////
+
+void aes_table_key_expansion(AesContext* Context, void const* Key, uint32_t KeySize){
     uint8_t const*  key = Key;
     uint_fast32_t   i;
     uint32_t        temp;
     uint32_t*       rk;
     uint32_t*       rrk;
 
+    /**
+     * @brief Macro to perform the MixColumn transformation during key expansion
+     *
+     * This macro uses predefined tables to perform the MixColumn transformation
+     * on a 32-bit value during the key expansion process.
+     *
+     * @param Value The 32-bit value to be transformed
+     * @return The transformed 32-bit value
+     */
     #define SETUP_MIX( Value ) \
         ( (Te4_3[BYTE(Value, 2)]) ^ (Te4_2[BYTE(Value, 1)]) ^ (Te4_1[BYTE(Value, 0)]) ^ (Te4_0[BYTE(Value, 3)]) )
 
@@ -726,10 +998,6 @@ int API_CP_AesInitialize (AesContext* Context, void const* Key, uint32_t KeySize
             rk += 8;
         }
     }
-    else
-    {
-        return -1;
-    }
 
     // Setup the inverse key now
     rk  = Context->dK;
@@ -761,13 +1029,10 @@ int API_CP_AesInitialize (AesContext* Context, void const* Key, uint32_t KeySize
     *rk++ = *rrk++;
     *rk   = *rrk;
 
-    #undef SETUP_MIX
-    return 0;
+    #undef SETUP_MIX 
 }
 
-
-void API_CP_AesEncrypt(AesContext const* Context, uint8_t const Input [AES_BLOCK_SIZE], uint8_t Output [AES_BLOCK_SIZE]) {
-
+void aes_table_encrypt(AesContext const* Context, uint8_t const Input [AES_BLOCK_SIZE], uint8_t Output [AES_BLOCK_SIZE]){
     uint32_t        s0;
     uint32_t        s1;
     uint32_t        s2;
@@ -826,9 +1091,7 @@ void API_CP_AesEncrypt(AesContext const* Context, uint8_t const Input [AES_BLOCK
     STORE32H( s3, Output + 12);
 }
 
-
-void API_CP_AesDecrypt(AesContext const* Context, uint8_t const Input [AES_BLOCK_SIZE], uint8_t Output [AES_BLOCK_SIZE]) {
-
+void aes_table_decrypt(AesContext const* Context, uint8_t const Input [AES_BLOCK_SIZE], uint8_t Output [AES_BLOCK_SIZE]){
     uint32_t        s0;
     uint32_t        s1;
     uint32_t        s2;
@@ -889,5 +1152,41 @@ void API_CP_AesDecrypt(AesContext const* Context, uint8_t const Input [AES_BLOCK
     STORE32H( s1, Output + 4 );
     STORE32H( s2, Output + 8 );
     STORE32H( s3, Output + 12 );
+}
+
+//////////////////////////////////////////// AES API IMPLEMENTATION //////////////////////////////////////////
+int API_AES_checkHWsupport(){
+    AES_implement = supportsAESNI()? hardware_AES_NI : software_table_based_aes;
+    return AES_implement;
+}
+
+int API_AES_initkey (AesContext* Context, void const* Key, uint32_t KeySize){
+    if(AES_implement == hardware_AES_NI){
+        aes_ni_keyexpansion(Context,Key,KeySize);
+    }
+    else{
+        aes_table_key_expansion(Context,Key,KeySize);
+    }
+    return 0;
+}
+
+
+void API_AES_encrypt_block(AesContext const* Context, uint8_t const Input [AES_BLOCK_SIZE], uint8_t Output [AES_BLOCK_SIZE]) {
+    if(AES_implement = hardware_AES_NI){
+        aes_aesni_encrypt(Context->HK,Context->Nr,Input,Output);
+    }
+    else{
+        aes_table_encrypt(Context,Input,Output);
+    }
+}
+
+
+void API_AES_decrypt_block(AesContext const* Context, uint8_t const Input [AES_BLOCK_SIZE], uint8_t Output [AES_BLOCK_SIZE]) {
+    if(AES_implement = hardware_AES_NI){
+        aes_aesni_decrypt(Context->HK,Context->Nr,Input,Output);
+    }
+    else{
+        aes_table_decrypt(Context,Input,Output);
+    }
 }
 

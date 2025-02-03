@@ -14,7 +14,7 @@ void AES_OFB_EncryptDecrypt(const uint8_t *input, size_t length, const uint8_t *
     size_t i;
 
     // Initialize the AES context with the provided key
-    API_CP_AesInitialize(&AESOFB_CTX, key, keySize);
+    API_AES_initkey(&AESOFB_CTX, key, keySize);
 
     // Copy the IV to AESOFB_ivEnc
     memcpy(AESOFB_ivEnc, iv, AES_BLOCK_SIZE);
@@ -23,7 +23,7 @@ void AES_OFB_EncryptDecrypt(const uint8_t *input, size_t length, const uint8_t *
     for (i = 0; i < length; i += AES_BLOCK_SIZE) {
 
         // Encrypt the IV or the last encrypted block
-        API_CP_AesEncrypt(&AESOFB_CTX, AESOFB_ivEnc, AESOFB_outputBlock);
+        API_AES_encrypt_block(&AESOFB_CTX, AESOFB_ivEnc, AESOFB_outputBlock);
 
         // Update AESOFB_ivEnc for the next round
         memcpy(AESOFB_ivEnc, AESOFB_outputBlock, AES_BLOCK_SIZE);
