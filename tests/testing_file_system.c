@@ -71,7 +71,6 @@ void FS_testing()
 
     API_FS_setup_cipher(CIPHER_MODE, key);
     // testing if file_system size is according to MAX_FILESYSTEM_SIZE
-
     f = fopen(file_system_rpath, "rb");
     fseek(f, 0, SEEK_END);
     size_t size = ftell(f);

@@ -7,3 +7,10 @@ cryptodata_test
 #testing_certificate
 utils/certificate_manager/static_cert
 utils/certificate_manager/testing_cert
+
+#vscode
+.vscode/
+
+#unitary tests
+unitary_test
+

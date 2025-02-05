@@ -392,11 +392,11 @@ int API_FS_update_file_data(unsigned char *filename, size_t filename_length,unsi
 int API_FS_zeroize_file_system();
 
 /**
- * @brief Write traces into the traces filename in the file system
- * The purpose of this function is to write the system traces into the traces file.
+ * @brief Write a buffer into a file, in a determined position, not suitable for CSPs
+ * 
  *
  *
- * @param filename Traces file
+ * @param filename file name string
  * @param buffer Buffer where is the information to be written
  * @param buffer_size Buffer size
  * @param position Position where the information will be written
@@ -411,11 +411,11 @@ int API_FS_zeroize_file_system();
 int API_FS_write_buffer_to_file(unsigned char *filename,size_t filename_length, unsigned char *buffer_in, size_t buffer_size, size_t position);
 
 /**
- * @brief read a size of the file_system, and stores it in a buffer, buffer must be correct size, or there will be a seg fault, not recomended for CSP
+ * @brief read a size of the file_system, and stores it in a buffer, buffer must be correct size, or there will be a seg fault, not suitable for CSPs
  * 
  *
  *
- * @param filename Traces file
+ * @param filename file name string
  * @param buffer Buffer where is the information to be read
  * @param read_size Information size to be read
  * @param position Position where the information will be read

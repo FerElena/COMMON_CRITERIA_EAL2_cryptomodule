@@ -25,7 +25,7 @@ testing_cryptomodule: $(SRC) Code_testing.c
 static_lib:  src/crypto-selftests/*.c src/crypto/*.c src/state_machine/*.c src/library_tracer/*.c src/secure_memory_management/*.c src/prng/*.c src/cryptomodule_core/*.c src/API_core.c
 	@mkdir -p XLibrary_crypto  # Crear el directorio si no existe
 	@echo "($(ts)) Compiling static library..."; \
-	gcc -pthread -c $^; \
+	gcc -pthread -maes -c $^; \
 	ar rcs XLibrary_crypto/libcryptomodule.a *.o; \
 	rm -f *.o; \
 	echo "($(ts)) Static library XLibrary_crypto/libcryptomodule.a created\n"; \
@@ -34,12 +34,12 @@ static_lib:  src/crypto-selftests/*.c src/crypto/*.c src/state_machine/*.c src/l
 	echo "($(ts)) key_cert_generator executed successfully for static library\n";
 	cp src/API_core.h XLibrary_crypto/
 
-# Unitary testing of the submodules
+# Unitary testing of the submodules (checklib must be instaled in order to work)
 unitary_test: $(SRC) $(TEST_SRC)
 	@echo "($(ts)) Compiling unitary testing..."; \
 	echo "Fuentes:" $(SRC); \
 	echo "Fuentes de Test:" $(TEST_SRC); \
-	gcc -I/usr/include/check -I. $(SRC) $(TEST_SRC) -o $@ -g -lcheck -lm -lpthread -lrt -lsubunit -pthread ;
+	gcc -I/usr/include/check -I. $(SRC) $(TEST_SRC) -o $@ -g -lcheck -lm -lpthread -lrt -lsubunit -pthread -maes ;
 
 # Clean generated files
 clean:

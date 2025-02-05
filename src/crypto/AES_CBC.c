@@ -8,7 +8,7 @@
  ****************************************************************************************************************/
 #include "AES_CBC.h"
 
-AesContext AES_CBC_ctx; // auxiliar ctx to store derives key, CSP!
+AesContext AES_CBC_ctx; // auxiliar ctx to store derived key, CSP!
 
 /****************************************************************************************************************
  * Function definition zone

@@ -1172,7 +1172,7 @@ int API_AES_initkey (AesContext* Context, void const* Key, uint32_t KeySize){
 
 
 void API_AES_encrypt_block(AesContext const* Context, uint8_t const Input [AES_BLOCK_SIZE], uint8_t Output [AES_BLOCK_SIZE]) {
-    if(AES_implement = hardware_AES_NI){
+    if(AES_implement == hardware_AES_NI){
         aes_aesni_encrypt(Context->HK,Context->Nr,Input,Output);
     }
     else{
@@ -1182,7 +1182,7 @@ void API_AES_encrypt_block(AesContext const* Context, uint8_t const Input [AES_B
 
 
 void API_AES_decrypt_block(AesContext const* Context, uint8_t const Input [AES_BLOCK_SIZE], uint8_t Output [AES_BLOCK_SIZE]) {
-    if(AES_implement = hardware_AES_NI){
+    if(AES_implement == hardware_AES_NI){
         aes_aesni_decrypt(Context->HK,Context->Nr,Input,Output);
     }
     else{
