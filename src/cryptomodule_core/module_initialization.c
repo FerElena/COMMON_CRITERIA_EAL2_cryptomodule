@@ -268,8 +268,10 @@ int API_INIT_initialize_module(unsigned char *KEK_CERTIFICATE_file, unsigned cha
         API_SM_State_Change(SM_ERROR);
         return SM_ERROR_STATE;
     }
-    //Check if AES-NI is avaiable in this microprocesor
+    //Check AES Hardware support
     API_AES_checkHWsupport();
+    //Check PRNG Hardware support
+    check_rdrand();
     
     int return_value;
     int result1 = Memory_tracking_initialization(); // Initialize memory tracking

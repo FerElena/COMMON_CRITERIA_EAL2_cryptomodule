@@ -32,6 +32,7 @@
 #include "../crypto/AES_CORE.h"
 #include "../crypto/ECDSA_256.h"
 #include "../crypto/SHA256.h"
+#include "../prng/random_number.h"
 
 /****************************************************************************************************************
  * Global variables/constants definition

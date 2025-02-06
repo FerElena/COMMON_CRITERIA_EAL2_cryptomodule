@@ -37,7 +37,7 @@ extern AesContext AES_CBC_ctx; //auxiliar ctx to store derives key, CSP!
 
 /* Macros............................................................ */
 
-#define MIN(x, y) (((x) < (y)) ? (x) : (y))
+#define MIN(x, y) (((x) < (y)// SHA256 selftests starts) ? (x) : (y))
 
 #define STORE64H(x, y)                     \
   {                                        \

@@ -110,7 +110,7 @@ const char* API_EM_get_error_message(int error_code) {
         [MM_MEMORY_DEALLOCATION_FAILED + 2010] = "Memory deallocation failed",
         [KM_PARAMETERS_ERROR + 2010] = "Incorrect key parameters!",
         [KM_KEY_NOT_LOADED + 2010] = "No Key loaded in RAM at the moment!",
-        [RNG_RANDOM_GENERATION_FAILED + 2010] = "Random generation failed",
+        [PRNG_GENERATION_FAILED + 2010] = "Random generation failed",
         [LT_TRACER_ERROR + 2010] = "Tracer error",
         [SFT_SELFTEST_FAILED + 2010] = "Self-testS FAILED",
         [SFT_SHA256_SELFTEST_FAILED + 2010] = "SHA256 Self-test FAILED",

@@ -190,7 +190,7 @@ int API_MC_fill_buffer_random(unsigned char *buffer, size_t size){ // wrapper of
     if (buffer == NULL || size > 4 * 1024 * 1024) // max random is 4MB
     {
         API_LT_traceWrite("Error:", API_EM_get_error_message(KM_PARAMETERS_ERROR), NULL);
-        return RNG_RANDOM_GENERATION_FAILED;
+        return PRNG_GENERATION_FAILED;
     }
 
     int result = API_RNG_fill_buffer_random(buffer,size);
@@ -253,9 +253,9 @@ int API_MC_Sing_Cipher_Packet(unsigned char *data_in, size_t data_size, unsigned
         API_SM_State_Change(STATE_OPERATIONAL);
         return SM_ERROR_STATE;
     }
-    else if(Operation_result == RNG_RANDOM_GENERATION_FAILED){
+    else if(Operation_result == PRNG_GENERATION_FAILED){
         API_SM_State_Change(STATE_OPERATIONAL);
-        return RNG_RANDOM_GENERATION_FAILED;
+        return PRNG_GENERATION_FAILED;
     }
     // Copy the signed and encrypted data to the output buffer
     memcpy(packet_out, out_data, out_length);

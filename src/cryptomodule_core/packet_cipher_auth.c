@@ -52,11 +52,11 @@ int API_PCA_sign_encrypt_packet(unsigned char *data_in, size_t data_in_length, u
 	}
 	// Generate IV for AES encryption.
 	int result1 = API_RNG_fill_buffer_random(AES_IV, 16);
-	if(result1 == RNG_RANDOM_GENERATION_FAILED){
+	if(result1 == PRNG_GENERATION_FAILED){
 		if(allocated_memory == ALLOCATED_MEMORY){
 			API_MM_freeMem(out_buffer_pointer,ROOT);
 		}
-		return RNG_RANDOM_GENERATION_FAILED;
+		return PRNG_GENERATION_FAILED;
 	}
 
 	// Encrypt the data and signature using AES in CBC mode.

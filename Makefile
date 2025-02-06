@@ -15,7 +15,7 @@ all: testing_cryptomodule
 testing_cryptomodule: $(SRC) Code_testing.c
 	@echo "($(ts)) Compiling project..."; \
 	echo "Fuentes:" $(SRC); \
-	gcc -pthread $^ -g -maes -o $@; \
+	gcc -pthread $^ -g -maes -march=native -o $@; \
 	echo "($(ts)) Compilation finished\n"; \
 	echo "($(ts)) Running key_cert_generator for executable..."; \
 	cd utils/certificate_manager && ./key_cert_generator -cg ecdsa_keypair ../../testing_cryptomodule testing_cert; \
@@ -25,7 +25,7 @@ testing_cryptomodule: $(SRC) Code_testing.c
 static_lib:  src/crypto-selftests/*.c src/crypto/*.c src/state_machine/*.c src/library_tracer/*.c src/secure_memory_management/*.c src/prng/*.c src/cryptomodule_core/*.c src/API_core.c
 	@mkdir -p XLibrary_crypto  # Crear el directorio si no existe
 	@echo "($(ts)) Compiling static library..."; \
-	gcc -pthread -maes -c $^; \
+	gcc -pthread -maes -march=native -c $^; \
 	ar rcs XLibrary_crypto/libcryptomodule.a *.o; \
 	rm -f *.o; \
 	echo "($(ts)) Static library XLibrary_crypto/libcryptomodule.a created\n"; \
@@ -39,7 +39,7 @@ unitary_test: $(SRC) $(TEST_SRC)
 	@echo "($(ts)) Compiling unitary testing..."; \
 	echo "Fuentes:" $(SRC); \
 	echo "Fuentes de Test:" $(TEST_SRC); \
-	gcc -I/usr/include/check -I. $(SRC) $(TEST_SRC) -o $@ -g -lcheck -lm -lpthread -lrt -lsubunit -pthread -maes ;
+	gcc -march=native -I/usr/include/check -I. $(SRC) $(TEST_SRC) -o $@ -g -lcheck -lm -lpthread -lrt -lsubunit -pthread -maes ;
 
 # Clean generated files
 clean:

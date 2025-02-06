@@ -78,7 +78,7 @@ Structure of the encrypted packet; the size, iv and HMAC signature are in plaint
  * @param out_data Pointer to the output buffer that will contain the encrypted data.
  * @param out_data_length Pointer to a size_t that will be set to the length of the encrypted data.
  * 
- * @return Returns 1 on NOT ALLOCATED MEMORY, 2 on ALLOCATED_MEMORY, RNG_RANDOM_GENERATION_FAILED if not enough entropy is avaiable in the system
+ * @return Returns 1 on NOT ALLOCATED MEMORY, 2 on ALLOCATED_MEMORY, PRNG_GENERATION_FAILED if not enough entropy is avaiable in the system
  * , potentially different values on failure to indicate the type of error.
  */
 int API_PCA_sign_encrypt_packet(unsigned char *data_in, size_t data_in_length, unsigned char *key_AES, unsigned char *key_HMAC, unsigned char **out_data, size_t *out_data_length);

@@ -156,7 +156,7 @@ int API_MC_Delete_Key(unsigned char *Key_id, size_t Key_id_length);
  *
  * @return int Returns `RANDOM_OK` if `/dev/random` was successfully used.
  * Returns `PSEUDORANDOM_OK` if `/dev/urandom` was used instead.
- * Returns `RNG_RANDOM_GENERATION_FAILED` if neither secure source was available
+ * Returns `PRNG_GENERATION_FAILED` if neither secure source was available
  * and pseudo-random data was generated.
  */
 
