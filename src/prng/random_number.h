@@ -50,7 +50,7 @@ void check_rdrand(void);
  * @param buffer Pointer to the buffer that will be filled with random bytes.
  * @param size Size of the buffer, i.e., the number of random bytes to generate.
  *
- * @return int Returns `RANDOM_OK` if RDRAND or `/dev/urandom` was successfully used.
+ * @return int Returns `RANDOM_OK` if intel RDRAND  was successfully used.
  * Returns `PSEUDORANDOM_OK` if `/dev/urandom` was used instead of RDRAND.
  * Returns `PRNG_GENERATION_FAILED` if neither secure source was available
  * and pseudo-random data was generated.

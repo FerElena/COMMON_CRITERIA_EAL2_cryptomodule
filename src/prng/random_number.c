@@ -21,33 +21,41 @@ int API_RNG_fill_buffer_random(unsigned char *buffer, size_t size) {
     int fd;
     ssize_t result;
 
-    // Check if Intel RDRAND is available and fill the buffer with RDRAND
     if (rand_hw_support) {
-        for (size_t i = 0; i < size; ++i) {
-            uint32_t random_number;
+        size_t i = 0;
+        uint32_t random_number;
+
+        // Fill the buffer in 4-byte chunks when possible
+        for (; i + 3 < size; i += 4) {
             while (_rdrand32_step(&random_number) == 0);
-            buffer[i] = (unsigned char)(random_number & 0xFF);
+            *(uint32_t *)(buffer + i) = random_number;
+        }
+
+        // Handle any remaining bytes without wasting entropy
+        if (i < size) {
+            while (_rdrand32_step(&random_number) == 0);
+            for (size_t j = 0; i < size; ++i, ++j) {
+                buffer[i] = (unsigned char)(random_number >> (j * 8));
+            }
         }
         return RANDOM_OK;
     }
 
-    // Attempt to fill the buffer using /dev/urandom
+    // Attempt to read random data from /dev/urandom
     fd = open("/dev/urandom", O_RDONLY);
     if (fd >= 0) {
         result = read(fd, buffer, size);
+        close(fd);
         if (result == (ssize_t)size) {
-            close(fd);
             return PSEUDORANDOM_OK;
         }
-        close(fd);
     }
 
-    // If both options fail, generate pseudo-random data as a last resort
+    // Fallback: Generate pseudo-random data (not cryptographically secure)
     srand(time(NULL) ^ getpid());
     for (size_t i = 0; i < size; i++) {
-        buffer[i] = rand() % 256;  // Generate a pseudo-random byte
+        buffer[i] = rand() % 256;
     }
 
-    return PRNG_GENERATION_FAILED;  // Return an error indicating that no secure source was utilized
-
+    return PRNG_GENERATION_FAILED;
 }
