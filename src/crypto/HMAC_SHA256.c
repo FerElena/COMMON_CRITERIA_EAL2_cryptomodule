@@ -59,7 +59,7 @@ unsigned char *API_hmac_sha256(unsigned char *key, int keylen, unsigned char *da
 
 int API_verify_HMAC(unsigned char *msg, unsigned char *key, unsigned char *sign, size_t length_msg, size_t length_key, size_t length_sign)
 {
-	int rc = MAC_NOT_VERIFIED; // Returns value variable
+	int rc = 0; // Returns value variable
 	if (!msg || !key || !sign )
 	{
 		return rc;
@@ -70,10 +70,12 @@ int API_verify_HMAC(unsigned char *msg, unsigned char *key, unsigned char *sign,
 	}
 	unsigned char *out ;
 	out = API_hmac_sha256(key, length_key, msg, length_msg);
-	if (memcmp(sign, out, length_sign) != 0)// Match the HMAC signatures
+    for(int i = 0 ; i < length_sign ; i++)
+        rc = sign[i] == out[i]? rc:rc++;
+	if (rc)//if not verified
 		return MAC_NOT_VERIFIED;
-	else
-		return MAC_VERIFIED; // Returns true
+	else //if verified
+		return MAC_VERIFIED;
 }
 
 static void sha256_HMAC(unsigned char *key,size_t key_length,unsigned char *msg, int length_msg ,unsigned char *out)
