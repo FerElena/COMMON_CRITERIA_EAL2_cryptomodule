@@ -2,7 +2,7 @@
  * @file AESTests.c
  * @brief File containing all the neccesary code to perform the AES tests.
  */
-#include "AESTests.h"
+#include "AES256_CBC_Tests.h"
 
 
 
@@ -32393,7 +32393,7 @@ int SFT_katTests(){
 	return verified;
 }
 
-int API_SFT_AESTests(){
+int API_SFT_AES256_CBC_Tests(){
     int verified = 1;
 
     if(SFT_katTests()==0){

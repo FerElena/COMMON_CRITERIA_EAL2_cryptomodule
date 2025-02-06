@@ -47,6 +47,6 @@ int SFT_ECDSA256_verify_test(unsigned char *Qx, size_t Qx_length, unsigned char 
  * 
  * @return Returns 1 if the test is passed, 0 if not
 */
-int API_SFT_ECDSA256Tests();
+int API_SFT_ECDSA256_SHA256_Tests();
 
 #endif

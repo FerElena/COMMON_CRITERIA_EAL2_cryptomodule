@@ -45,6 +45,6 @@ int SFT_HMAC_Compare(unsigned char *key, int lenKey, unsigned char *msg, int len
  * 
  * @return Returns 1 if the test is passed, 0 if not
 */
-int API_SFT_HMACTest();
+int API_SFT_HMAC256_SHA256_Test();
 
 #endif

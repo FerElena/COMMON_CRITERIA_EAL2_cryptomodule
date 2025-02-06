@@ -37,7 +37,7 @@ int SFT_ECDSA256_verify_test(unsigned char *Qx, size_t Qx_length, unsigned char 
 	return result;
 }
 
-int API_SFT_ECDSA256Tests()
+int API_SFT_ECDSA256_SHA256_Tests()
 {
     int verified = 1;
 

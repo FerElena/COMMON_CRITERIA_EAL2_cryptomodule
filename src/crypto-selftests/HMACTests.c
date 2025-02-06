@@ -4,7 +4,7 @@
  */
 #include "HMACTests.h"
 
-int API_SFT_HMACTest(){
+int API_SFT_HMAC256_SHA256_Test(){
 	int verified = 1;
 	//Testing HMAC number 0
 	int kLen0 = 40;

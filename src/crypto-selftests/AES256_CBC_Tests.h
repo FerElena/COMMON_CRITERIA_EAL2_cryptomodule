@@ -40,7 +40,7 @@ int SFT_katTests();
 
 int SFT_mcTests();
 
-int API_SFT_AESTests();
+int API_SFT_AES256_CBC_Tests();
 
 
 #endif

@@ -6,7 +6,7 @@ SRC = src/crypto/*.c src/crypto-selftests/*.c src/state_machine/*.c src/library_
 src/prng/*.c src/cryptomodule_core/*.c src/API_core.c
 
 # Test source code
-TEST_SRC = tests/unit_testing/secure_memory_management_utests/*.c tests/unit_testing/utests_main.c
+TEST_SRC = tests/unit_testing/secure_memory_management_utests/*.c tests/unit_testing/SFT_utest/* tests/unit_testing/utests_main.c 
 
 # Default target
 all: testing_cryptomodule

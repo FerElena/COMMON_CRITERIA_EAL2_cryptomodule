@@ -26,15 +26,15 @@ int API_SFT_initSelfTests() // FALTA POR IMPLEMENTAR EL TEST DE INTEGRIDAD, HACE
     {
         return SFT_SHA256_SELFTEST_FAILED;
     }
-    if (!API_SFT_HMACTest()) // HMAC selftests starts
+    if (!API_SFT_HMAC256_SHA256_Test()) // HMAC selftests starts
     {
         return SFT_HMAC_SHA256_SELFTEST_FAILED;
     }
-    if (!API_SFT_ECDSA256Tests()) // ECDSA256 selftests starts
+    if (!API_SFT_ECDSA256_SHA256_Tests()) // ECDSA256 selftests starts
     {
         return SFT_ECDSAP256_SELFTEST_FAILED;
     }
-    if(!API_SFT_AESTests()) // COPERNICUS256 selftests starts
+    if(!API_SFT_AES256_CBC_Tests()) // COPERNICUS256 selftests starts
     {
         return SFT_AES256_CBC_SELFTEST_FAILED;
     }

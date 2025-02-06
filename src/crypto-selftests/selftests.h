@@ -21,7 +21,7 @@
 #include "SHA256Tests.h"
 #include "HMACTests.h"
 #include "ECDSA256Tests.h"
-#include "AESTests.h"
+#include "AES256_CBC_Tests.h"
 #include "Integrity_test.h"
 #include "../secure_memory_management/file_system.h"
 #include "../library_tracer/log_manager.h"
