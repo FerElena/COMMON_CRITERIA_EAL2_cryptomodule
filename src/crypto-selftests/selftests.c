@@ -34,7 +34,7 @@ int API_SFT_initSelfTests() // FALTA POR IMPLEMENTAR EL TEST DE INTEGRIDAD, HACE
     {
         return SFT_ECDSAP256_SELFTEST_FAILED;
     }
-    if(!API_SFT_AES256_CBC_Tests()) // COPERNICUS256 selftests starts
+    if(!API_SFT_AES256_CBC_Tests()) // AESCBC256 selftests starts
     {
         return SFT_AES256_CBC_SELFTEST_FAILED;
     }
