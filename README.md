@@ -1,4 +1,4 @@
-# Common Cryptographic Library
+# Certifiable Cryptographic Module
 
 ## Name
 Development of a certifiable EAL2 cryptographic module following the design guidelines of the FIPS standards (This does not mean that the module is certified, nor that it has any guarantee, as I do not have the time or the money to go through this certification.).
