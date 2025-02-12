@@ -307,7 +307,7 @@ int API_FS_create_file_data(unsigned char *filename, size_t filename_length, uns
     if (isCSP && MetadataBlock.cipher_mode == CIPHER_ON)
     {
         API_RNG_fill_buffer_random(MetadataBlock.allocations[new_allocation_index].IV, AES_BLOCK_SIZE);
-        AES_OFB_EncryptDecrypt(data, data_size, FS_cipher_key, AES_KEY_SIZE_256, MetadataBlock.allocations[new_allocation_index].IV, FS_data_buffer);
+        API_AES_OFB_EncryptDecrypt(data, data_size, FS_cipher_key, AES_KEY_SIZE_256, MetadataBlock.allocations[new_allocation_index].IV, FS_data_buffer);
         fseek(MetadataBlock.FS_data_descriptor, offset + sizeof(MetadataBlock), SEEK_SET);
         write_bytes = fwrite(FS_data_buffer, 1, data_size, MetadataBlock.FS_data_descriptor);
     }
@@ -386,7 +386,7 @@ int API_FS_zeroize_file(unsigned char *filename, size_t filename_length)
         // Decrypt the data if encryption is enabled
         if (MetadataBlock.cipher_mode == CIPHER_ON)
         {
-            AES_OFB_EncryptDecrypt(FS_data_buffer, MetadataBlock.allocations[index].size, FS_cipher_key, AES_KEY_SIZE_256, MetadataBlock.allocations[index].IV, FS_data_buffer);
+            API_AES_OFB_EncryptDecrypt(FS_data_buffer, MetadataBlock.allocations[index].size, FS_cipher_key, AES_KEY_SIZE_256, MetadataBlock.allocations[index].IV, FS_data_buffer);
         }
         // Verify data integrity via CRC32
         unsigned int New_CRC32 = crc_32(FS_data_buffer, MetadataBlock.allocations[index].size);
@@ -454,7 +454,7 @@ int API_FS_delete_file(unsigned char *filename, size_t filename_length)
         }
         // if cipher mode, decipher it
         if (MetadataBlock.allocations[index].isCSP && MetadataBlock.cipher_mode == CIPHER_ON)
-            AES_OFB_EncryptDecrypt(FS_data_buffer, MetadataBlock.allocations[index].size, FS_cipher_key, AES_KEY_SIZE_256, MetadataBlock.allocations[index].IV, FS_data_buffer);
+            API_AES_OFB_EncryptDecrypt(FS_data_buffer, MetadataBlock.allocations[index].size, FS_cipher_key, AES_KEY_SIZE_256, MetadataBlock.allocations[index].IV, FS_data_buffer);
 
         unsigned int New_CRC32 = crc_32(FS_data_buffer, MetadataBlock.allocations[index].size);
         corrupted_data = (New_CRC32 == MetadataBlock.allocations[index].CRC_32_checksum) ? 0 : 1;
@@ -519,7 +519,7 @@ int API_FS_read_file_data(unsigned char *filename, size_t filename_length, unsig
         }
         // if setup to cipher mode, we decipher it
         if (MetadataBlock.allocations[index].isCSP && MetadataBlock.cipher_mode == CIPHER_ON)
-            AES_OFB_EncryptDecrypt(FS_data_buffer, MetadataBlock.allocations[index].size, FS_cipher_key, AES_KEY_SIZE_256, MetadataBlock.allocations[index].IV, FS_data_buffer);
+            API_AES_OFB_EncryptDecrypt(FS_data_buffer, MetadataBlock.allocations[index].size, FS_cipher_key, AES_KEY_SIZE_256, MetadataBlock.allocations[index].IV, FS_data_buffer);
 
         *buffer_out = FS_data_buffer;                         // assign input parameter pointer, to the global data buffer
         *data_length = MetadataBlock.allocations[index].size; // assign input length pointer to the size of the file
@@ -611,7 +611,7 @@ int API_FS_update_file_data(unsigned char *filename, size_t filename_length, uns
         }
         if (MetadataBlock.cipher_mode == CIPHER_ON)
         {
-            AES_OFB_EncryptDecrypt(FS_data_buffer, MetadataBlock.allocations[index].size, FS_cipher_key, AES_KEY_SIZE_256, MetadataBlock.allocations[index].IV, FS_data_buffer);
+            API_AES_OFB_EncryptDecrypt(FS_data_buffer, MetadataBlock.allocations[index].size, FS_cipher_key, AES_KEY_SIZE_256, MetadataBlock.allocations[index].IV, FS_data_buffer);
         }
         int New_CRC32 = crc_32(FS_data_buffer, MetadataBlock.allocations[index].size);
         corrupted_data = (New_CRC32 == MetadataBlock.allocations[index].CRC_32_checksum) ? 0 : 1;
@@ -627,7 +627,7 @@ int API_FS_update_file_data(unsigned char *filename, size_t filename_length, uns
         // cipher the new data in case is csp, and cipher mode is on:
         if (MetadataBlock.allocations[index].isCSP && MetadataBlock.cipher_mode == CIPHER_ON)
         {
-            AES_OFB_EncryptDecrypt(data, data_size, FS_cipher_key, AES_KEY_SIZE_256, MetadataBlock.allocations[index].IV, FS_data_buffer);
+            API_AES_OFB_EncryptDecrypt(data, data_size, FS_cipher_key, AES_KEY_SIZE_256, MetadataBlock.allocations[index].IV, FS_data_buffer);
             fseek(MetadataBlock.FS_data_descriptor, current_offset + sizeof(MetadataBlock), SEEK_SET);
             bytes_trafic = fwrite(FS_data_buffer, 1, data_size, MetadataBlock.FS_data_descriptor);
         }
@@ -683,7 +683,7 @@ int API_FS_update_file_data(unsigned char *filename, size_t filename_length, uns
         // if is csp and CIPHER mode is activated, cipher it before write:
         if (MetadataBlock.allocations[index].isCSP && MetadataBlock.cipher_mode == CIPHER_ON)
         {
-            AES_OFB_EncryptDecrypt(data, data_size, FS_cipher_key, AES_KEY_SIZE_256, MetadataBlock.allocations[index].IV, FS_data_buffer);
+            API_AES_OFB_EncryptDecrypt(data, data_size, FS_cipher_key, AES_KEY_SIZE_256, MetadataBlock.allocations[index].IV, FS_data_buffer);
             fseek(MetadataBlock.FS_data_descriptor, new_offset + sizeof(MetadataBlock), SEEK_SET);
             bytes_trafic = fwrite(FS_data_buffer, 1, data_size, MetadataBlock.FS_data_descriptor);
         }

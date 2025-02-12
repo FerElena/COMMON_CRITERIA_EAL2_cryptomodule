@@ -1,9 +1,9 @@
 /**
- * @file AESTests.h
+ * @file AESCBCTests.h
  * @brief File which contains the necessary functions to perform the tests required to validate our AES algorithm according to the NIST test vectors.
  */
-#ifndef AESTESTS_H
-#define AESTESTS_H
+#ifndef AESCBCTESTS_H
+#define AESCBCTESTS_H
 #pragma once
 
 
@@ -34,11 +34,11 @@ int SFT_AESCBC_256_decryptCompareMC(unsigned char *ciphertext, int *len, unsigne
 
 int SFT_AESCBC_256_encryptCompareMC(unsigned char *plaintext, int *len, unsigned char* expected_output, int lenExpected, unsigned char* key, unsigned char *iv);
 
-int SFT_mmtTests();
+int SFT_AES256CBC_mmtTests();
 
-int SFT_katTests();
+int SFT_AES256CBC_katTests();
 
-int SFT_mcTests();
+int SFT_AES256CBC_mcTests();
 
 int API_SFT_AES256_CBC_Tests();
 

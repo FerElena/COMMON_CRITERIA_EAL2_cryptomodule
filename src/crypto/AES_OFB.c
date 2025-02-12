@@ -7,10 +7,10 @@
 
 uint8_t AESOFB_outputBlock[AES_BLOCK_SIZE]; //Buffer to store momentary output block, CSP
 uint8_t AESOFB_ivEnc[AES_BLOCK_SIZE];       // Buffer to store encrypted IV, CSP
-AesContext AESOFB_CTX;                      // AES AESOFB_CTX to store the derived AES-256 key
+AesContext AESOFB_CTX;                      // AES AESOFB_CTX to store the round keys of AES-256 OFB
 
 
-void AES_OFB_EncryptDecrypt(const uint8_t *input, size_t length, const uint8_t *key, size_t keySize, uint8_t *iv, uint8_t *output) {
+void API_AES_OFB_EncryptDecrypt(const uint8_t *input, size_t length, const uint8_t *key, size_t keySize, uint8_t *iv, uint8_t *output) {
     size_t i;
 
     // Initialize the AES context with the provided key

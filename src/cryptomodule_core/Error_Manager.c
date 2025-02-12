@@ -117,6 +117,7 @@ const char* API_EM_get_error_message(int error_code) {
         [SFT_HMAC_SHA256_SELFTEST_FAILED + 2010] = "HMAC-SHA256 Self-test FAILED",
         [SFT_ECDSAP256_SELFTEST_FAILED + 2010] = "ECDSAP256 Self-test FAILED",
         [SFT_AES256_CBC_SELFTEST_FAILED + 2010] = "AES256CBC Self-test FAILED",
+        [SFT_AES256_OFB_SELFTEST_FAILED + 2010] = "AES256OFB Self-test FAILED",
         [SFT_MODULE_INTEGRITY_SELFTEST_FAILED + 2010] = "MODULE INTEGRITY Self-test FAILED",
         [INIT_INCORRECT_TRACKER_INIT + 2010] = "Incorrect tracker initialization",
         [INIT_INCORRECT_KEYFILE_PATH + 2010] = "Incorrect keyfile path",

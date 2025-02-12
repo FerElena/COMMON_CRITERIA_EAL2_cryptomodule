@@ -33,7 +33,7 @@
  * @brief AES_CBC context struct
  */
 
-extern AesContext AES_CBC_ctx; //auxiliar ctx to store derives key, CSP!
+extern AesContext AES_CBC_ctx; //auxiliar ctx to store round keys, CSP!
 
 /* Macros............................................................ */
 

@@ -55,6 +55,6 @@ extern AesContext AESOFB_CTX;                      // AES AESOFB_CTX to store th
  * @warning Ensure that the output buffer is large enough to hold the result (same size 
  *          as the input data).
  */
-void AES_OFB_EncryptDecrypt(const uint8_t *input, size_t length, const uint8_t *key, size_t keySize, uint8_t *iv, uint8_t *output);
+void API_AES_OFB_EncryptDecrypt(const uint8_t *input, size_t length, const uint8_t *key, size_t keySize, uint8_t *iv, uint8_t *output);
 
 #endif
