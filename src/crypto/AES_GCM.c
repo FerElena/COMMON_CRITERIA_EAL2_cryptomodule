@@ -1,523 +1,567 @@
 #include "AES_GCM.h"
 
-#define EXTRACT_UINT32_BE(var, buf, idx)                                                                                                   \
-    {                                                                                                                                      \
+#define EXTRACT_UINT32_BE(var, buf, idx)                                                                                                                \
+    {                                                                                                                                                   \
         (var) = ((uint32_t)(buf)[(idx)] << 24) | ((uint32_t)(buf)[(idx) + 1] << 16) | ((uint32_t)(buf)[(idx) + 2] << 8) | ((uint32_t)(buf)[(idx) + 3]); \
     }
 
-#define INSERT_UINT32_BE(var, buf, idx)                      \
-    {                                                        \
-        (buf)[(idx)] = (unsigned char)((var) >> 24);         \
-        (buf)[(idx) + 1] = (unsigned char)((var) >> 16);     \
-        (buf)[(idx) + 2] = (unsigned char)((var) >> 8);      \
-        (buf)[(idx) + 3] = (unsigned char)((var));           \
+#define INSERT_UINT32_BE(var, buf, idx)                  \
+    {                                                    \
+        (buf)[(idx)] = (unsigned char)((var) >> 24);     \
+        (buf)[(idx) + 1] = (unsigned char)((var) >> 16); \
+        (buf)[(idx) + 2] = (unsigned char)((var) >> 8);  \
+        (buf)[(idx) + 3] = (unsigned char)((var));       \
     }
 
-
-static int gcm_gen_table(GCM_ctx *ctx)
+int generate_gcm_table(GCM_ctx *context)
 {
-    int ret, i, j;
-    uint64_t hi, lo;
-    uint64_t vl, vh;
-    unsigned char h[16];
-    unsigned char aux[16];
-    size_t olen = 0;
+    int i, j;
+    uint64_t high_part, low_part;
+    uint64_t val_high, val_low;
+    unsigned char hash_block[16];
+    unsigned char zero_block[16];
 
-    memset(aux, 0, 16);
-    API_AES_encrypt_block(&(ctx->cipher_ctx), aux, h); // habria que inicializar el contexto con la clave primero!!!!!!!!!!!!!!!!!!!
-    /* pack h as two 64-bits ints, big-endian */
-    EXTRACT_UINT32_BE(hi, h, 0);
-    EXTRACT_UINT32_BE(lo, h, 4);
-    vh = (uint64_t)hi << 32 | lo;
+    memset(zero_block, 0, 16);
+    API_AES_encrypt_block(&(context->cipher_ctx), zero_block, hash_block); // Ensure cipher context is initialized with the key first!
 
-    EXTRACT_UINT32_BE(hi, h, 8);
-    EXTRACT_UINT32_BE(lo, h, 12);
-    vl = (uint64_t)hi << 32 | lo;
+    /* Extract 128-bit value as two 64-bit integers, big-endian format */
+    EXTRACT_UINT32_BE(high_part, hash_block, 0);
+    EXTRACT_UINT32_BE(low_part, hash_block, 4);
+    val_high = ((uint64_t)high_part << 32) | low_part;
 
-    /* 8 = 1000 corresponds to 1 in GF(2^128) */
-    ctx->HL[8] = vl;
-    ctx->HH[8] = vh;
+    EXTRACT_UINT32_BE(high_part, hash_block, 8);
+    EXTRACT_UINT32_BE(low_part, hash_block, 12);
+    val_low = ((uint64_t)high_part << 32) | low_part;
 
+    /* Position 8 (1000 in binary) corresponds to 1 in GF(2^128) */
+    context->HL[8] = val_low;
+    context->HH[8] = val_high;
 
-    if (API_AES_checkHWsupport() == hardware_AES_NI ) // we dont need generate more tables in sace we are usign hardware AES-NI instructions
-        return (0);
+    /* If AES-NI hardware acceleration is available, skip table generation */
+    if (API_AES_checkHWsupport() == hardware_AES_NI)
+        return 0;
 
-    /* 0 corresponds to 0 in GF(2^128) */
-    ctx->HH[0] = 0;
-    ctx->HL[0] = 0;
+    /* Position 0 corresponds to 0 in GF(2^128) */
+    context->HH[0] = 0;
+    context->HL[0] = 0;
 
     for (i = 4; i > 0; i >>= 1)
     {
-        uint32_t T = (vl & 1) * 0xe1000000U;
-        vl = (vh << 63) | (vl >> 1);
-        vh = (vh >> 1) ^ ((uint64_t)T << 32);
+        uint32_t tmp = (val_low & 1) * 0xe1000000U;
+        val_low = (val_high << 63) | (val_low >> 1);
+        val_high = (val_high >> 1) ^ ((uint64_t)tmp << 32);
 
-        ctx->HL[i] = vl;
-        ctx->HH[i] = vh;
+        context->HL[i] = val_low;
+        context->HH[i] = val_high;
     }
 
     for (i = 2; i <= 8; i *= 2)
     {
-        uint64_t *HiL = ctx->HL + i, *HiH = ctx->HH + i;
-        vh = *HiH;
-        vl = *HiL;
+        uint64_t *high_table = context->HH + i;
+        uint64_t *low_table = context->HL + i;
+        val_high = *high_table;
+        val_low = *low_table;
         for (j = 1; j < i; j++)
         {
-            HiH[j] = vh ^ ctx->HH[j];
-            HiL[j] = vl ^ ctx->HL[j];
+            high_table[j] = val_high ^ context->HH[j];
+            low_table[j] = val_low ^ context->HL[j];
         }
     }
 
-    return (0);
+    return 0;
 }
 
-int mbedtls_gcm_setkey(GCM_ctx *ctx,
-                       const unsigned char *key,
-                       unsigned int keybits)
+int set_gcm_key(GCM_ctx *context, const unsigned char *key, unsigned int key_bits)
 {
-    int ret;
+    int result;
 
-    if ((ret = gcm_gen_table(ctx)) != 0)
-        return (ret);
+    if ((result = generate_gcm_table(context)) != 0)
+        return result;
 
-    return (0);
+    return 0;
 }
 
 /*
  * Shoup's method for multiplication use this table with
- *      last4[x] = x times P^128
- * where x and last4[x] are seen as elements of GF(2^128) as in [MGV]
+ *      gf128_mult_table_last4[x] = x times P^128
+ * where x and gf128_mult_table_last4[x] are seen as elements of GF(2^128) as in [MGV]
  */
-static const uint64_t last4[16] =
+static const uint64_t gf128_mult_table_last4[16] =
     {
         0x0000, 0x1c20, 0x3840, 0x2460,
         0x7080, 0x6ca0, 0x48c0, 0x54e0,
         0xe100, 0xfd20, 0xd940, 0xc560,
         0x9180, 0x8da0, 0xa9c0, 0xb5e0};
 
+// Define PCLMULQDQ instruction as a byte sequence for inline assembly
 #define PCLMULQDQ ".byte 0x66,0x0F,0x3A,0x44,"
-#define xmm0_xmm0   "0xC0"
-#define xmm0_xmm1   "0xC8"
-#define xmm0_xmm2   "0xD0"
-#define xmm0_xmm3   "0xD8"
-#define xmm0_xmm4   "0xE0"
-#define xmm1_xmm0   "0xC1"
-#define xmm1_xmm2   "0xD1"
 
-void mbedtls_aesni_gcm_mult(unsigned char c[16], const unsigned char a[16], const unsigned char b[16])
+// Define PCLMULQDQ instruction as a byte sequence for inline assembly
+#define PCLMULQDQ ".byte 0x66,0x0F,0x3A,0x44,"
+
+// Define operand combinations for PCLMULQDQ instruction
+#define XMM0_XMM0 "0xC0" // xmm0 * xmm0
+#define XMM0_XMM1 "0xC8" // xmm0 * xmm1
+#define XMM0_XMM2 "0xD0" // xmm0 * xmm2
+#define XMM0_XMM3 "0xD8" // xmm0 * xmm3
+#define XMM0_XMM4 "0xE0" // xmm0 * xmm4
+#define XMM1_XMM0 "0xC1" // xmm1 * xmm0
+#define XMM1_XMM2 "0xD1" // xmm1 * xmm2
+
+/**
+ * Performs GCM (Galois/Counter Mode) multiplication using AES-NI and PCLMULQDQ instructions.
+ * This function multiplies two 128-bit operands in the finite field GF(2^128) modulo the
+ * GCM polynomial x^128 + x^7 + x^2 + x + 1.
+ *
+ * @param result          Output buffer to store the result (16 bytes).
+ * @param operand_a       First input operand (16 bytes).
+ * @param operand_b       Second input operand (16 bytes).
+ */
+void aesni_gcm_multiply(unsigned char result[16], const unsigned char operand_a[16], const unsigned char operand_b[16])
 {
-    unsigned char aa[16], bb[16], cc[16];
-    size_t i;
+    unsigned char reversed_a[16], reversed_b[16], reversed_result[16];
+    size_t index;
 
-    /* The inputs are in big-endian order, so byte-reverse them */
-    for (i = 0; i < 16; i++)
+    /**
+     * Reverse the byte order of the input operands.
+     * This is necessary because the inputs are in big-endian format, but the
+     * PCLMULQDQ instruction expects little-endian format.
+     */
+    for (index = 0; index < 16; index++)
     {
-        aa[i] = a[15 - i];
-        bb[i] = b[15 - i];
+        reversed_a[index] = operand_a[15 - index]; // Reverse operand_a
+        reversed_b[index] = operand_b[15 - index]; // Reverse operand_b
     }
 
-    asm("movdqu (%0), %%xmm0               \n\t" // a1:a0
-        "movdqu (%1), %%xmm1               \n\t" // b1:b0
+    /**
+     * Inline assembly block to perform the GCM multiplication.
+     * This block uses the PCLMULQDQ instruction to perform carryless multiplication
+     * and reduces the result modulo the GCM polynomial.
+     */
+    asm(
+        "movdqu (%0), %%xmm0               \n\t" /** Load reversed_a into xmm0 (a1:a0). */
+        "movdqu (%1), %%xmm1               \n\t" /** Load reversed_b into xmm1 (b1:b0). */
 
-        /*
-         * Caryless multiplication xmm2:xmm1 = xmm0 * xmm1
-         * using [CLMUL-WP] algorithm 1 (p. 13).
+        /**
+         * Perform carryless multiplication of xmm0 and xmm1 using the [CLMUL-WP] algorithm.
+         * The result is stored in xmm2:xmm1.
          */
-        "movdqa %%xmm1, %%xmm2             \n\t" // copy of b1:b0
-        "movdqa %%xmm1, %%xmm3             \n\t" // same
-        "movdqa %%xmm1, %%xmm4             \n\t" // same
-        PCLMULQDQ xmm0_xmm1 ",0x00         \n\t" // a0*b0 = c1:c0
-        PCLMULQDQ xmm0_xmm2 ",0x11         \n\t" // a1*b1 = d1:d0
-        PCLMULQDQ xmm0_xmm3 ",0x10         \n\t" // a0*b1 = e1:e0
-        PCLMULQDQ xmm0_xmm4 ",0x01         \n\t" // a1*b0 = f1:f0
-        "pxor %%xmm3, %%xmm4               \n\t" // e1+f1:e0+f0
-        "movdqa %%xmm4, %%xmm3             \n\t" // same
-        "psrldq $8, %%xmm4                 \n\t" // 0:e1+f1
-        "pslldq $8, %%xmm3                 \n\t" // e0+f0:0
-        "pxor %%xmm4, %%xmm2               \n\t" // d1:d0+e1+f1
-        "pxor %%xmm3, %%xmm1               \n\t" // c1+e0+f1:c0
+        "movdqa %%xmm1, %%xmm2             \n\t" /** Copy b1:b0 to xmm2. */
+        "movdqa %%xmm1, %%xmm3             \n\t" /** Copy b1:b0 to xmm3. */
+        "movdqa %%xmm1, %%xmm4             \n\t" /** Copy b1:b0 to xmm4. */
+        PCLMULQDQ XMM0_XMM1 ",0x00         \n\t" /** Compute a0 * b0 = c1:c0. */
+        PCLMULQDQ XMM0_XMM2 ",0x11         \n\t" /** Compute a1 * b1 = d1:d0. */
+        PCLMULQDQ XMM0_XMM3 ",0x10         \n\t" /** Compute a0 * b1 = e1:e0. */
+        PCLMULQDQ XMM0_XMM4 ",0x01         \n\t" /** Compute a1 * b0 = f1:f0. */
+        "pxor %%xmm3, %%xmm4               \n\t" /** XOR e1:e0 and f1:f0. */
+        "movdqa %%xmm4, %%xmm3             \n\t" /** Copy result to xmm3. */
+        "psrldq $8, %%xmm4                 \n\t" /** Shift right by 8 bytes. */
+        "pslldq $8, %%xmm3                 \n\t" /** Shift left by 8 bytes. */
+        "pxor %%xmm4, %%xmm2               \n\t" /** XOR with d1:d0. */
+        "pxor %%xmm3, %%xmm1               \n\t" /** XOR with c1:c0. */
 
-        /*
-         * Now shift the result one bit to the left,
-         * taking advantage of [CLMUL-WP] eq 27 (p. 20)
+        /**
+         * Shift the result one bit to the left.
+         * This is part of the reduction process and uses [CLMUL-WP] equation 27.
          */
-        "movdqa %%xmm1, %%xmm3             \n\t" // r1:r0
-        "movdqa %%xmm2, %%xmm4             \n\t" // r3:r2
-        "psllq $1, %%xmm1                  \n\t" // r1<<1:r0<<1
-        "psllq $1, %%xmm2                  \n\t" // r3<<1:r2<<1
-        "psrlq $63, %%xmm3                 \n\t" // r1>>63:r0>>63
-        "psrlq $63, %%xmm4                 \n\t" // r3>>63:r2>>63
-        "movdqa %%xmm3, %%xmm5             \n\t" // r1>>63:r0>>63
-        "pslldq $8, %%xmm3                 \n\t" // r0>>63:0
-        "pslldq $8, %%xmm4                 \n\t" // r2>>63:0
-        "psrldq $8, %%xmm5                 \n\t" // 0:r1>>63
-        "por %%xmm3, %%xmm1                \n\t" // r1<<1|r0>>63:r0<<1
-        "por %%xmm4, %%xmm2                \n\t" // r3<<1|r2>>62:r2<<1
-        "por %%xmm5, %%xmm2                \n\t" // r3<<1|r2>>62:r2<<1|r1>>63
+        "movdqa %%xmm1, %%xmm3             \n\t" /** Copy xmm1 to xmm3. */
+        "movdqa %%xmm2, %%xmm4             \n\t" /** Copy xmm2 to xmm4. */
+        "psllq $1, %%xmm1                  \n\t" /** Shift xmm1 left by 1 bit. */
+        "psllq $1, %%xmm2                  \n\t" /** Shift xmm2 left by 1 bit. */
+        "psrlq $63, %%xmm3                 \n\t" /** Shift xmm3 right by 63 bits. */
+        "psrlq $63, %%xmm4                 \n\t" /** Shift xmm4 right by 63 bits. */
+        "movdqa %%xmm3, %%xmm5             \n\t" /** Copy xmm3 to xmm5. */
+        "pslldq $8, %%xmm3                 \n\t" /** Shift xmm3 left by 8 bytes. */
+        "pslldq $8, %%xmm4                 \n\t" /** Shift xmm4 left by 8 bytes. */
+        "psrldq $8, %%xmm5                 \n\t" /** Shift xmm5 right by 8 bytes. */
+        "por %%xmm3, %%xmm1                \n\t" /** OR xmm1 with xmm3. */
+        "por %%xmm4, %%xmm2                \n\t" /** OR xmm2 with xmm4. */
+        "por %%xmm5, %%xmm2                \n\t" /** OR xmm2 with xmm5. */
 
-        /*
-         * Now reduce modulo the GCM polynomial x^128 + x^7 + x^2 + x + 1
-         * using [CLMUL-WP] algorithm 5 (p. 20).
-         * Currently xmm2:xmm1 holds x3:x2:x1:x0 (already shifted).
+        /**
+         * Reduce the result modulo the GCM polynomial x^128 + x^7 + x^2 + x + 1.
+         * This uses [CLMUL-WP] algorithm 5.
          */
         /* Step 2 (1) */
-        "movdqa %%xmm1, %%xmm3             \n\t" // x1:x0
-        "movdqa %%xmm1, %%xmm4             \n\t" // same
-        "movdqa %%xmm1, %%xmm5             \n\t" // same
-        "psllq $63, %%xmm3                 \n\t" // x1<<63:x0<<63 = stuff:a
-        "psllq $62, %%xmm4                 \n\t" // x1<<62:x0<<62 = stuff:b
-        "psllq $57, %%xmm5                 \n\t" // x1<<57:x0<<57 = stuff:c
+        "movdqa %%xmm1, %%xmm3             \n\t" /** Copy xmm1 to xmm3. */
+        "movdqa %%xmm1, %%xmm4             \n\t" /** Copy xmm1 to xmm4. */
+        "movdqa %%xmm1, %%xmm5             \n\t" /** Copy xmm1 to xmm5. */
+        "psllq $63, %%xmm3                 \n\t" /** Shift xmm3 left by 63 bits. */
+        "psllq $62, %%xmm4                 \n\t" /** Shift xmm4 left by 62 bits. */
+        "psllq $57, %%xmm5                 \n\t" /** Shift xmm5 left by 57 bits. */
 
         /* Step 2 (2) */
-        "pxor %%xmm4, %%xmm3               \n\t" // stuff:a+b
-        "pxor %%xmm5, %%xmm3               \n\t" // stuff:a+b+c
-        "pslldq $8, %%xmm3                 \n\t" // a+b+c:0
-        "pxor %%xmm3, %%xmm1               \n\t" // x1+a+b+c:x0 = d:x0
+        "pxor %%xmm4, %%xmm3               \n\t" /** XOR xmm3 with xmm4. */
+        "pxor %%xmm5, %%xmm3               \n\t" /** XOR xmm3 with xmm5. */
+        "pslldq $8, %%xmm3                 \n\t" /** Shift xmm3 left by 8 bytes. */
+        "pxor %%xmm3, %%xmm1               \n\t" /** XOR xmm1 with xmm3. */
 
         /* Steps 3 and 4 */
-        "movdqa %%xmm1,%%xmm0              \n\t" // d:x0
-        "movdqa %%xmm1,%%xmm4              \n\t" // same
-        "movdqa %%xmm1,%%xmm5              \n\t" // same
-        "psrlq $1, %%xmm0                  \n\t" // e1:x0>>1 = e1:e0'
-        "psrlq $2, %%xmm4                  \n\t" // f1:x0>>2 = f1:f0'
-        "psrlq $7, %%xmm5                  \n\t" // g1:x0>>7 = g1:g0'
-        "pxor %%xmm4, %%xmm0               \n\t" // e1+f1:e0'+f0'
-        "pxor %%xmm5, %%xmm0               \n\t" // e1+f1+g1:e0'+f0'+g0'
-        // e0'+f0'+g0' is almost e0+f0+g0, ex\tcept for some missing
-        // bits carried from d. Now get those\t bits back in.
-        "movdqa %%xmm1,%%xmm3              \n\t" // d:x0
-        "movdqa %%xmm1,%%xmm4              \n\t" // same
-        "movdqa %%xmm1,%%xmm5              \n\t" // same
-        "psllq $63, %%xmm3                 \n\t" // d<<63:stuff
-        "psllq $62, %%xmm4                 \n\t" // d<<62:stuff
-        "psllq $57, %%xmm5                 \n\t" // d<<57:stuff
-        "pxor %%xmm4, %%xmm3               \n\t" // d<<63+d<<62:stuff
-        "pxor %%xmm5, %%xmm3               \n\t" // missing bits of d:stuff
-        "psrldq $8, %%xmm3                 \n\t" // 0:missing bits of d
-        "pxor %%xmm3, %%xmm0               \n\t" // e1+f1+g1:e0+f0+g0
-        "pxor %%xmm1, %%xmm0               \n\t" // h1:h0
-        "pxor %%xmm2, %%xmm0               \n\t" // x3+h1:x2+h0
+        "movdqa %%xmm1, %%xmm0             \n\t" /** Copy xmm1 to xmm0. */
+        "movdqa %%xmm1, %%xmm4             \n\t" /** Copy xmm1 to xmm4. */
+        "movdqa %%xmm1, %%xmm5             \n\t" /** Copy xmm1 to xmm5. */
+        "psrlq $1, %%xmm0                  \n\t" /** Shift xmm0 right by 1 bit. */
+        "psrlq $2, %%xmm4                  \n\t" /** Shift xmm4 right by 2 bits. */
+        "psrlq $7, %%xmm5                  \n\t" /** Shift xmm5 right by 7 bits. */
+        "pxor %%xmm4, %%xmm0               \n\t" /** XOR xmm0 with xmm4. */
+        "pxor %%xmm5, %%xmm0               \n\t" /** XOR xmm0 with xmm5. */
+        "movdqa %%xmm1, %%xmm3             \n\t" /** Copy xmm1 to xmm3. */
+        "movdqa %%xmm1, %%xmm4             \n\t" /** Copy xmm1 to xmm4. */
+        "movdqa %%xmm1, %%xmm5             \n\t" /** Copy xmm1 to xmm5. */
+        "psllq $63, %%xmm3                 \n\t" /** Shift xmm3 left by 63 bits. */
+        "psllq $62, %%xmm4                 \n\t" /** Shift xmm4 left by 62 bits. */
+        "psllq $57, %%xmm5                 \n\t" /** Shift xmm5 left by 57 bits. */
+        "pxor %%xmm4, %%xmm3               \n\t" /** XOR xmm3 with xmm4. */
+        "pxor %%xmm5, %%xmm3               \n\t" /** XOR xmm3 with xmm5. */
+        "psrldq $8, %%xmm3                 \n\t" /** Shift xmm3 right by 8 bytes. */
+        "pxor %%xmm3, %%xmm0               \n\t" /** XOR xmm0 with xmm3. */
+        "pxor %%xmm1, %%xmm0               \n\t" /** XOR xmm0 with xmm1. */
+        "pxor %%xmm2, %%xmm0               \n\t" /** XOR xmm0 with xmm2. */
 
-        "movdqu %%xmm0, (%2)               \n\t" // done
+        "movdqu %%xmm0, (%2)               \n\t" /** Store the result in reversed_result. */
         :
-        : "r"(aa), "r"(bb), "r"(cc)
+        : "r"(reversed_a), "r"(reversed_b), "r"(reversed_result)
         : "memory", "cc", "xmm0", "xmm1", "xmm2", "xmm3", "xmm4", "xmm5");
 
-    /* Now byte-reverse the outputs */
-    for (i = 0; i < 16; i++)
-        c[i] = cc[15 - i];
+    /**
+     * Reverse the byte order of the result to convert it back to big-endian format.
+     */
+    for (index = 0; index < 16; index++)
+        result[index] = reversed_result[15 - index];
 
     return;
 }
 
-#define MBEDTLS_AESNI_C
-#define MBEDTLS_HAVE_X86_64
-/*
- * Sets output to x times H using the precomputed tables.
- * x and output are seen as elements of GF(2^128) as in [MGV].
+/**
+ * Multiplies x by H in GF(2^128) using precomputed tables.
+ * Used in GCM for authenticated encryption.
+ *
+ * @param gcm_context     GCM context with precomputed tables.
+ * @param input_block     Input element (16 bytes).
+ * @param result_block    Output buffer (16 bytes).
  */
-static void gcm_mult(GCM_ctx *ctx, const unsigned char x[16],
-                     unsigned char output[16])
+static void gcm_multiply_by_hash_key(GCM_ctx *gcm_context, const unsigned char input_block[16], unsigned char result_block[16])
 {
-    int i = 0;
-    unsigned char lo, hi, rem;
-    uint64_t zh, zl;
-    if(API_AES_checkHWsupport() == hardware_AES_NI){ // we can use AES-NI and 128 bits registers to perform 
-        unsigned char h[16];
+    int byte_index = 0;
+    unsigned char lower_nibble, upper_nibble, remainder;
+    uint64_t high_bits, low_bits;
 
-            INSERT_UINT32_BE(ctx->HH[8] >> 32, h, 0);
-            INSERT_UINT32_BE(ctx->HH[8], h, 4);
-            INSERT_UINT32_BE(ctx->HL[8] >> 32, h, 8);
-            INSERT_UINT32_BE(ctx->HL[8], h, 12);
+    // Use AES-NI if available for faster computation.
+    if (API_AES_checkHWsupport() == hardware_AES_NI)
+    {
+        unsigned char precomputed_h[16];
 
-            mbedtls_aesni_gcm_mult(output, x, h);
-            return;
+        // Prepare H from precomputed tables.
+        INSERT_UINT32_BE(gcm_context->HH[8] >> 32, precomputed_h, 0);
+        INSERT_UINT32_BE(gcm_context->HH[8], precomputed_h, 4);
+        INSERT_UINT32_BE(gcm_context->HL[8] >> 32, precomputed_h, 8);
+        INSERT_UINT32_BE(gcm_context->HL[8], precomputed_h, 12);
+
+        // Multiply using AES-NI.
+        aesni_gcm_multiply(result_block, input_block, precomputed_h);
+        return;
     }
 
-    lo = x[15] & 0xf;
+    // Fallback to software implementation.
+    lower_nibble = input_block[15] & 0xf;
+    high_bits = gcm_context->HH[lower_nibble];
+    low_bits = gcm_context->HL[lower_nibble];
 
-    zh = ctx->HH[lo];
-    zl = ctx->HL[lo];
-
-    for (i = 15; i >= 0; i--)
+    // Process each byte of the input block, starting from the end.
+    for (byte_index = 15; byte_index >= 0; byte_index--)
     {
-        lo = x[i] & 0xf;
-        hi = x[i] >> 4;
+        lower_nibble = input_block[byte_index] & 0xf;
+        upper_nibble = input_block[byte_index] >> 4;
 
-        if (i != 15)
+        // Reduction step for all bytes except the last.
+        if (byte_index != 15)
         {
-            rem = (unsigned char)zl & 0xf;
-            zl = (zh << 60) | (zl >> 4);
-            zh = (zh >> 4);
-            zh ^= (uint64_t)last4[rem] << 48;
-            zh ^= ctx->HH[lo];
-            zl ^= ctx->HL[lo];
+            remainder = (unsigned char)low_bits & 0xf;
+            low_bits = (high_bits << 60) | (low_bits >> 4);
+            high_bits = (high_bits >> 4);
+            high_bits ^= (uint64_t)gf128_mult_table_last4[remainder] << 48;
+            high_bits ^= gcm_context->HH[lower_nibble];
+            low_bits ^= gcm_context->HL[lower_nibble];
         }
 
-        rem = (unsigned char)zl & 0xf;
-        zl = (zh << 60) | (zl >> 4);
-        zh = (zh >> 4);
-        zh ^= (uint64_t)last4[rem] << 48;
-        zh ^= ctx->HH[hi];
-        zl ^= ctx->HL[hi];
+        // Process the upper 4 bits of the current byte.
+        remainder = (unsigned char)low_bits & 0xf;
+        low_bits = (high_bits << 60) | (low_bits >> 4);
+        high_bits = (high_bits >> 4);
+        high_bits ^= (uint64_t)gf128_mult_table_last4[remainder] << 48;
+        high_bits ^= gcm_context->HH[upper_nibble];
+        low_bits ^= gcm_context->HL[upper_nibble];
     }
 
-    INSERT_UINT32_BE(zh >> 32, output, 0);
-    INSERT_UINT32_BE(zh, output, 4);
-    INSERT_UINT32_BE(zl >> 32, output, 8);
-    INSERT_UINT32_BE(zl, output, 12);
+    // Store the final result in the output buffer.
+    INSERT_UINT32_BE(high_bits >> 32, result_block, 0);
+    INSERT_UINT32_BE(high_bits, result_block, 4);
+    INSERT_UINT32_BE(low_bits >> 32, result_block, 8);
+    INSERT_UINT32_BE(low_bits, result_block, 12);
 }
 
-int mbedtls_gcm_starts(GCM_ctx *ctx,
-                       int mode,
-                       const unsigned char *iv,
-                       size_t iv_len,
-                       const unsigned char *add,
-                       size_t add_len)
+int gcm_initialize_operation(GCM_ctx *gcm_context, int operation_mode, const unsigned char *iv, size_t iv_length, const unsigned char *aad, size_t aad_length)
 {
     int ret;
-    unsigned char work_buf[16];
+    unsigned char iv_work_buffer[16]; // Temporary buffer for IV processing.
     size_t i;
-    const unsigned char *p;
-    size_t use_len, olen = 0;
+    const unsigned char *current_position;
+    size_t chunk_length, output_length = 0;
 
-    /* IV and AD are limited to 2^64 bits, so 2^61 bytes */
-    if (((uint64_t)iv_len) >> 61 != 0 ||
-        ((uint64_t)add_len) >> 61 != 0)
+    /* Ensure IV and AAD lengths are within the allowed limit (2^64 bits). */
+    if (((uint64_t)iv_length) >> 61 != 0 ||
+        ((uint64_t)aad_length) >> 61 != 0)
     {
-        printf("bad input\n");
+        printf("Invalid input: IV or AAD length exceeds the allowed limit.\n");
         return -1;
     }
 
-    memset(ctx->y, 0x00, sizeof(ctx->y));
-    memset(ctx->buf, 0x00, sizeof(ctx->buf));
+    // Initialize GCM context fields.
+    memset(gcm_context->y, 0x00, sizeof(gcm_context->y));
+    memset(gcm_context->buf, 0x00, sizeof(gcm_context->buf));
 
-    ctx->mode = mode;
-    ctx->len = 0;
-    ctx->add_len = 0;
+    gcm_context->mode = operation_mode;
+    gcm_context->len = 0;
+    gcm_context->add_len = 0;
 
-    if (iv_len == 12)
+    // Process the IV based on its length.
+    if (iv_length == 12)
     {
-        memcpy(ctx->y, iv, iv_len);
-        ctx->y[15] = 1;
+        // For a 12-byte IV, copy it directly and set the counter to 1.
+        memcpy(gcm_context->y, iv, iv_length);
+        gcm_context->y[15] = 1;
     }
     else
     {
-        memset(work_buf, 0x00, 16);
-        INSERT_UINT32_BE(iv_len * 8, work_buf, 12);
+        // For IVs of other lengths, use the GHASH function to process them.
+        memset(iv_work_buffer, 0x00, 16);
+        INSERT_UINT32_BE(iv_length * 8, iv_work_buffer, 12); // Encode IV length in bits.
 
-        p = iv;
-        while (iv_len > 0)
+        current_position = iv;
+        while (iv_length > 0)
         {
-            use_len = (iv_len < 16) ? iv_len : 16;
+            chunk_length = (iv_length < 16) ? iv_length : 16; // Process in 16-byte chunks.
 
-            for (i = 0; i < use_len; i++)
-                ctx->y[i] ^= p[i];
+            // XOR the IV chunk into the GCM context.
+            for (i = 0; i < chunk_length; i++)
+                gcm_context->y[i] ^= current_position[i];
 
-            gcm_mult(ctx, ctx->y, ctx->y);
+            // Multiply by the hash key (H) in GF(2^128).
+            gcm_multiply_by_hash_key(gcm_context, gcm_context->y, gcm_context->y);
 
-            iv_len -= use_len;
-            p += use_len;
+            iv_length -= chunk_length;
+            current_position += chunk_length;
         }
 
+        // XOR the encoded IV length into the GCM context.
         for (i = 0; i < 16; i++)
-            ctx->y[i] ^= work_buf[i];
+            gcm_context->y[i] ^= iv_work_buffer[i];
 
-        gcm_mult(ctx, ctx->y, ctx->y);
+        // Multiply by the hash key (H) in GF(2^128).
+        gcm_multiply_by_hash_key(gcm_context, gcm_context->y, gcm_context->y);
     }
 
-    /*
-    if ((ret = mbedtls_cipher_update(&ctx->cipher_ctx, ctx->y, 16, ctx->base_ectr,
-                                     &olen)) != 0)
+    // Encrypt the processed IV to generate the base ECTR (counter mode) value.
+    API_AES_encrypt_block(&(gcm_context->cipher_ctx), gcm_context->y, gcm_context->base_ectr);
+
+    // Process the Additional Authenticated Data (AAD).
+    gcm_context->add_len = aad_length;
+    current_position = aad;
+    while (aad_length > 0)
     {
-        printf("close\n");
-        return (ret);
-    }
-    */
+        chunk_length = (aad_length < 16) ? aad_length : 16; // Process in 16-byte chunks.
 
-    API_AES_encrypt_block(&(ctx->cipher_ctx), ctx->y, ctx->base_ectr);
+        // XOR the AAD chunk into the GCM context.
+        for (i = 0; i < chunk_length; i++)
+            gcm_context->buf[i] ^= current_position[i];
 
-    ctx->add_len = add_len;
-    p = add;
-    while (add_len > 0)
-    {
-        use_len = (add_len < 16) ? add_len : 16;
+        // Multiply by the hash key (H) in GF(2^128).
+        gcm_multiply_by_hash_key(gcm_context, gcm_context->buf, gcm_context->buf);
 
-        for (i = 0; i < use_len; i++)
-            ctx->buf[i] ^= p[i];
-
-        gcm_mult(ctx, ctx->buf, ctx->buf);
-
-        add_len -= use_len;
-        p += use_len;
+        aad_length -= chunk_length;
+        current_position += chunk_length;
     }
 
-    return (0);
+    return 0; // Success.
 }
 
-int mbedtls_gcm_update(GCM_ctx *ctx,
-                       size_t length,
-                       const unsigned char *input,
-                       unsigned char *output)
+int gcm_process_data(GCM_ctx *gcm_context, size_t data_length, const unsigned char *input_data, unsigned char *output_data)
 {
     int ret;
-    unsigned char ectr[16];
+    unsigned char encrypted_counter[16]; // Buffer for the encrypted counter.
     size_t i;
-    const unsigned char *p;
-    unsigned char *out_p = output;
-    size_t use_len, olen = 0;
+    const unsigned char *input_ptr;
+    unsigned char *output_ptr = output_data;
+    size_t chunk_length, output_len = 0;
 
-    if (output > input && (size_t)(output - input) < length)
-        return (-1);
-
-    /* Total length is restricted to 2^39 - 256 bits, ie 2^36 - 2^5 bytes
-     * Also check for possible overflow */
-    if (ctx->len + length < ctx->len ||
-        (uint64_t)ctx->len + length > 0xFFFFFFFE0ull)
+    // Check for overlapping input and output buffers.
+    if (output_data > input_data && (size_t)(output_data - input_data) < data_length)
     {
-        return (-1);
+        return -1; // Error: overlapping buffers.
     }
 
-    ctx->len += length;
-
-    p = input;
-    while (length > 0)
+    /* Ensure the total length of processed data does not exceed the GCM limit (2^36 - 2^5 bytes).
+     * Also, check for potential overflow. */
+    if (gcm_context->len + data_length < gcm_context->len ||
+        (uint64_t)gcm_context->len + data_length > 0xFFFFFFFE0ull)
     {
-        use_len = (length < 16) ? length : 16;
+        return -1; // Error: data length exceeds the allowed limit.
+    }
 
+    // Update the total length of processed data.
+    gcm_context->len += data_length;
+
+    // Process the input data in chunks of 16 bytes (or less for the last chunk).
+    input_ptr = input_data;
+    while (data_length > 0)
+    {
+        chunk_length = (data_length < 16) ? data_length : 16; // Determine the chunk size.
+
+        // Increment the counter (y) for the next block.
         for (i = 16; i > 12; i--)
-            if (++ctx->y[i - 1] != 0)
-                break;
-        /*
-                if ((ret = mbedtls_cipher_update(&ctx->cipher_ctx, ctx->y, 16, ectr,
-                                                 &olen)) != 0)
-                {
-                    return (ret);
-                }
-        */
-        API_AES_encrypt_block(&ctx->cipher_ctx, ctx->y, ectr);
-
-        for (i = 0; i < use_len; i++)
         {
-            if (ctx->mode == 2) // 2 es desencriptar, recuerdalo también bro
-                ctx->buf[i] ^= p[i];
-            out_p[i] = ectr[i] ^ p[i];
-            if (ctx->mode == 1) // 1 es encryptar, recuerdalo para ponerlo después
-                ctx->buf[i] ^= out_p[i];
+            if (++gcm_context->y[i - 1] != 0)
+                break; // Stop if there is no carryover.
         }
 
-        gcm_mult(ctx, ctx->buf, ctx->buf);
+        // Encrypt the counter to produce the ECTR (Encrypted Counter) value.
+        API_AES_encrypt_block(&gcm_context->cipher_ctx, gcm_context->y, encrypted_counter);
 
-        length -= use_len;
-        p += use_len;
-        out_p += use_len;
+        // Process each byte in the chunk.
+        for (i = 0; i < chunk_length; i++)
+        {
+            if (gcm_context->mode == 2) // 2 es descifrar, recuerdalo también bro
+            {
+                gcm_context->buf[i] ^= input_ptr[i]; // XOR input with the GHASH buffer.
+            }
+
+            // XOR the encrypted counter with the input to produce the output.
+            output_ptr[i] = encrypted_counter[i] ^ input_ptr[i];
+
+            if (gcm_context->mode == 1) // es cifrar, recuerdalo para ponerlo después
+            {
+                gcm_context->buf[i] ^= output_ptr[i]; // XOR output with the GHASH buffer.
+            }
+        }
+
+        // Multiply the GHASH buffer by the hash key (H) in GF(2^128).
+        gcm_multiply_by_hash_key(gcm_context, gcm_context->buf, gcm_context->buf);
+
+        // Move to the next chunk.
+        data_length -= chunk_length;
+        input_ptr += chunk_length;
+        output_ptr += chunk_length;
     }
 
-    return (0);
+    return 0; // Success.
 }
 
-int mbedtls_gcm_finish(GCM_ctx *ctx,
-                       unsigned char *tag,
-                       size_t tag_len)
+int gcm_finalize_operation(GCM_ctx *gcm_context,
+                           unsigned char *auth_tag,
+                           size_t auth_tag_length)
 {
-    unsigned char work_buf[16];
+    unsigned char final_buffer[16]; // Temporary buffer for final computations.
     size_t i;
-    uint64_t orig_len = ctx->len * 8;
-    uint64_t orig_add_len = ctx->add_len * 8;
+    uint64_t total_data_length_bits = gcm_context->len * 8;    // Total data length in bits.
+    uint64_t total_aad_length_bits = gcm_context->add_len * 8; // Total AAD length in bits.
 
-    if (tag_len > 16 || tag_len < 4)
-        return (-1);
-
-    if (tag_len != 0)
-        memcpy(tag, ctx->base_ectr, tag_len);
-
-    if (orig_len || orig_add_len)
+    // Validate the authentication tag length.
+    if (auth_tag_length > 16 || auth_tag_length < 4)
     {
-        memset(work_buf, 0x00, 16);
+        return -1; // Error: invalid tag length.
+    }
 
-        INSERT_UINT32_BE((orig_add_len >> 32), work_buf, 0);
-        INSERT_UINT32_BE((orig_add_len), work_buf, 4);
-        INSERT_UINT32_BE((orig_len >> 32), work_buf, 8);
-        INSERT_UINT32_BE((orig_len), work_buf, 12);
+    // Copy the base ECTR (Encrypted Counter) to the tag if a tag buffer is provided.
+    if (auth_tag_length != 0)
+    {
+        memcpy(auth_tag, gcm_context->base_ectr, auth_tag_length);
+    }
 
+    // If there is any data or AAD processed, compute the final tag.
+    if (total_data_length_bits || total_aad_length_bits)
+    {
+        // Prepare the final buffer with the lengths of the data and AAD.
+        memset(final_buffer, 0x00, 16);
+        INSERT_UINT32_BE((total_aad_length_bits >> 32), final_buffer, 0);
+        INSERT_UINT32_BE((total_aad_length_bits), final_buffer, 4);
+        INSERT_UINT32_BE((total_data_length_bits >> 32), final_buffer, 8);
+        INSERT_UINT32_BE((total_data_length_bits), final_buffer, 12);
+
+        // XOR the lengths into the GHASH buffer.
         for (i = 0; i < 16; i++)
-            ctx->buf[i] ^= work_buf[i];
+        {
+            gcm_context->buf[i] ^= final_buffer[i];
+        }
 
-        gcm_mult(ctx, ctx->buf, ctx->buf);
+        // Multiply the GHASH buffer by the hash key (H) in GF(2^128).
+        gcm_multiply_by_hash_key(gcm_context, gcm_context->buf, gcm_context->buf);
 
-        for (i = 0; i < tag_len; i++)
-            tag[i] ^= ctx->buf[i];
+        // XOR the GHASH buffer with the base ECTR to produce the final tag.
+        for (i = 0; i < auth_tag_length; i++)
+        {
+            auth_tag[i] ^= gcm_context->buf[i];
+        }
     }
 
-    return (0);
+    return 0; // Success.
 }
 
-int mbedtls_gcm_crypt_and_tag(GCM_ctx *ctx,
-                              int mode,
-                              size_t length,
-                              const unsigned char *iv,
-                              size_t iv_len,
-                              const unsigned char *add,
-                              size_t add_len,
-                              const unsigned char *input,
-                              unsigned char *output,
-                              size_t tag_len,
-                              unsigned char *tag)
+int gcm_encrypt_decrypt_and_tag(GCM_ctx *gcm_context, int operation_mode, size_t data_length, const unsigned char *iv, size_t iv_length, const unsigned char *aad,
+                                size_t aad_length, const unsigned char *input_data, unsigned char *output_data, size_t tag_length, unsigned char *auth_tag)
 {
     int ret;
 
-    if ((ret = mbedtls_gcm_starts(ctx, mode, iv, iv_len, add, add_len)) != 0)
+    // Initialize the GCM operation.
+    if ((ret = gcm_initialize_operation(gcm_context, operation_mode, iv, iv_length, aad, aad_length)) != 0)
     {
-        printf("one\n");
-        return (ret);
+        printf("Error: Failed to initialize GCM operation.\n");
+        return ret;
     }
 
-    if ((ret = mbedtls_gcm_update(ctx, length, input, output)) != 0)
+    // Process the input data.
+    if ((ret = gcm_process_data(gcm_context, data_length, input_data, output_data)) != 0)
     {
-        printf("two\n");
-        return (ret);
+        printf("Error: Failed to process data in GCM mode.\n");
+        return ret;
     }
 
-    if ((ret = mbedtls_gcm_finish(ctx, tag, tag_len)) != 0)
+    // Finalize the operation and generate the authentication tag.
+    if ((ret = gcm_finalize_operation(gcm_context, auth_tag, tag_length)) != 0)
     {
-        printf("three\n");
-        return (ret);
+        printf("Error: Failed to finalize GCM operation and generate tag.\n");
+        return ret;
     }
 
-    return (0);
+    return 0; // Success.
 }
 
-int mbedtls_gcm_auth_decrypt(GCM_ctx *ctx,
-                             size_t length,
-                             const unsigned char *iv,
-                             size_t iv_len,
-                             const unsigned char *add,
-                             size_t add_len,
-                             const unsigned char *tag,
-                             size_t tag_len,
-                             const unsigned char *input,
-                             unsigned char *output)
+int gcm_authenticate_and_decrypt(GCM_ctx *gcm_context,size_t data_length,const unsigned char *iv,size_t iv_length,const unsigned char *aad,
+                                 size_t aad_length,const unsigned char *auth_tag,size_t tag_length,const unsigned char *input_data,unsigned char *output_data)
 {
     int ret;
-    unsigned char check_tag[16];
+    unsigned char computed_tag[16]; // Buffer to store the computed authentication tag.
     size_t i;
-    int diff;
+    int tag_mismatch = 0;
 
-    if ((ret = mbedtls_gcm_crypt_and_tag(ctx, 2, length,
-                                         iv, iv_len, add, add_len,
-                                         input, output, tag_len, check_tag)) != 0)
+    // Decrypt the data and compute the authentication tag.
+    if ((ret = gcm_encrypt_decrypt_and_tag(gcm_context, 2, data_length,
+                                           iv, iv_length, aad, aad_length,
+                                           input_data, output_data, tag_length, computed_tag)) != 0)
     {
-        return (ret);
+        return ret; // Return the error if decryption fails.
     }
 
-    /* Check tag in "constant-time" */
-    for (diff = 0, i = 0; i < tag_len; i++)
-        diff |= tag[i] ^ check_tag[i];
-
-    if (diff != 0)
+    // Verify the computed tag against the expected tag in constant time.
+    for (i = 0; i < tag_length; i++)
     {
-        return (-1);
+        tag_mismatch |= auth_tag[i] ^ computed_tag[i];
     }
 
-    return (0);
+    // If the tags do not match, return an error.
+    if (tag_mismatch != 0)
+    {
+        return -1; // Error: authentication tag mismatch.
+    }
+
+    return 0; // Success.
 }

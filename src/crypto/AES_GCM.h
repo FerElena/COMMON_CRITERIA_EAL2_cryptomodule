@@ -37,12 +37,12 @@ typedef struct
 } GCM_ctx;
 
 static int gcm_gen_table(GCM_ctx *ctx);
-int mbedtls_gcm_setkey(GCM_ctx *ctx,const unsigned char *key,unsigned int keybits);
-static void gcm_mult(GCM_ctx *ctx, const unsigned char x[16],unsigned char output[16]);
-int mbedtls_gcm_starts(GCM_ctx *ctx,int mode,const unsigned char *iv,size_t iv_len,const unsigned char *add,size_t add_len);
-int mbedtls_gcm_update(GCM_ctx *ctx,size_t length,const unsigned char *input,unsigned char *output);
-int mbedtls_gcm_finish(GCM_ctx *ctx,unsigned char *tag,size_t tag_len);
-int mbedtls_gcm_crypt_and_tag(GCM_ctx *ctx,int mode,size_t length,const unsigned char *iv,size_t iv_len,const unsigned char *add,size_t add_len,const unsigned char *input,unsigned char *output,size_t tag_len,unsigned char *tag);
-int mbedtls_gcm_auth_decrypt(GCM_ctx *ctx,size_t length,const unsigned char *iv,size_t iv_len,const unsigned char *add,size_t add_len,const unsigned char *tag,size_t tag_len,const unsigned char *input,unsigned char *output);
+int set_gcm_key(GCM_ctx *ctx,const unsigned char *key,unsigned int keybits);
+static void gcm_multiply_by_hash_key(GCM_ctx *ctx, const unsigned char x[16],unsigned char output[16]);
+int gcm_initialize_operation(GCM_ctx *ctx,int mode,const unsigned char *iv,size_t iv_len,const unsigned char *add,size_t add_len);
+int gcm_process_data(GCM_ctx *ctx,size_t length,const unsigned char *input,unsigned char *output);
+int gcm_finalize_operation(GCM_ctx *ctx,unsigned char *tag,size_t tag_len);
+int gcm_encrypt_decrypt_and_tag(GCM_ctx *ctx,int mode,size_t length,const unsigned char *iv,size_t iv_len,const unsigned char *add,size_t add_len,const unsigned char *input,unsigned char *output,size_t tag_len,unsigned char *tag);
+int gcm_authenticate_and_decrypt(GCM_ctx *ctx,size_t length,const unsigned char *iv,size_t iv_len,const unsigned char *add,size_t add_len,const unsigned char *tag,size_t tag_len,const unsigned char *input,unsigned char *output);
 
  #endif

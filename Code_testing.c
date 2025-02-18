@@ -107,9 +107,9 @@ int main()
     memset(&ctx, 0, sizeof(GCM_ctx)); // !!!!!!!!!!!!!!!!!!!!!!!!!!! importante hacer esto en el crypto.c
     // 128 bits, not bytes!
     API_AES_initkey(&(ctx.cipher_ctx), key, AES_KEY_SIZE_256); // !!!!!!!!!!!!!!!!!!!!!!!!!1 hay que inicializar la clave antes del setkey y el crypt and tag
-    ret = mbedtls_gcm_setkey(&ctx, key, 256);
+    ret = set_gcm_key(&ctx, key, 256);
 
-    ret = mbedtls_gcm_crypt_and_tag(&ctx, 1, 64, initial_value, 12, additional, sizeof(additional), plaintext, buf, 16, tag_buf);
+    ret = gcm_encrypt_decrypt_and_tag(&ctx, 1, 64, initial_value, 12, additional, sizeof(additional), plaintext, buf, 16, tag_buf);
     for (int i = 0; i < 16; i++)
     {
         printf("%02x ", tag_buf[i]);
@@ -124,7 +124,7 @@ int main()
     {
         printf("local test failed\n");
     }
-    ret = mbedtls_gcm_auth_decrypt(&ctx, sizeof(buf), initial_value, 12, additional, sizeof(additional), tag_buf, sizeof(tag_buf), buf, result_plaintext);
+    ret = gcm_authenticate_and_decrypt(&ctx, sizeof(buf), initial_value, 12, additional, sizeof(additional), tag_buf, sizeof(tag_buf), buf, result_plaintext);
     if (memcmp(plaintext, result_plaintext, 64) == 0)
     {
         printf("My local test also works decrypt\n");
