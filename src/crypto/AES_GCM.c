@@ -535,33 +535,3 @@ int gcm_encrypt_decrypt_and_tag(GCM_ctx *gcm_context, int operation_mode, size_t
     return 0; // Success.
 }
 
-int gcm_authenticate_and_decrypt(GCM_ctx *gcm_context,size_t data_length,const unsigned char *iv,size_t iv_length,const unsigned char *aad,
-                                 size_t aad_length,const unsigned char *auth_tag,size_t tag_length,const unsigned char *input_data,unsigned char *output_data)
-{
-    int ret;
-    unsigned char computed_tag[16]; // Buffer to store the computed authentication tag.
-    size_t i;
-    int tag_mismatch = 0;
-
-    // Decrypt the data and compute the authentication tag.
-    if ((ret = gcm_encrypt_decrypt_and_tag(gcm_context, 2, data_length,
-                                           iv, iv_length, aad, aad_length,
-                                           input_data, output_data, tag_length, computed_tag)) != 0)
-    {
-        return ret; // Return the error if decryption fails.
-    }
-
-    // Verify the computed tag against the expected tag in constant time.
-    for (i = 0; i < tag_length; i++)
-    {
-        tag_mismatch |= auth_tag[i] ^ computed_tag[i];
-    }
-
-    // If the tags do not match, return an error.
-    if (tag_mismatch != 0)
-    {
-        return -1; // Error: authentication tag mismatch.
-    }
-
-    return 0; // Success.
-}

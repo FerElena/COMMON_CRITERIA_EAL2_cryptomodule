@@ -43,6 +43,4 @@ int gcm_initialize_operation(GCM_ctx *ctx,int mode,const unsigned char *iv,size_
 int gcm_process_data(GCM_ctx *ctx,size_t length,const unsigned char *input,unsigned char *output);
 int gcm_finalize_operation(GCM_ctx *ctx,unsigned char *tag,size_t tag_len);
 int gcm_encrypt_decrypt_and_tag(GCM_ctx *ctx,int mode,size_t length,const unsigned char *iv,size_t iv_len,const unsigned char *add,size_t add_len,const unsigned char *input,unsigned char *output,size_t tag_len,unsigned char *tag);
-int gcm_authenticate_and_decrypt(GCM_ctx *ctx,size_t length,const unsigned char *iv,size_t iv_len,const unsigned char *add,size_t add_len,const unsigned char *tag,size_t tag_len,const unsigned char *input,unsigned char *output);
-
  #endif
