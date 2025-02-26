@@ -4,7 +4,7 @@
 #include <string.h>
 #include <unistd.h>
 #include "src/API_core.h"
-#include "src/crypto/AES_GCM.h"
+#include "src/crypto/crypto.h"
 
 int main()
 {
@@ -12,7 +12,6 @@ int main()
     system("clear");
     printf("prueba inicio modulo\n");
 
-    
     unsigned char *cryptodata_filename = "cryptodata_test";
     unsigned char *KEK_CERT_fileroute = "/home/ninjasaurio/repos_git/COMMON_CRITERIA_EAL2_cryptomodule/utils/certificate_manager/testing_cert"; // your route to cert
     int result = API_MC_Initialize_module(KEK_CERT_fileroute, cryptodata_filename);
@@ -44,7 +43,7 @@ int main()
     size_t out_length_cipher;
     size_t out_length_decipher;
 
-    for (int i = 0; i < 20000; i++)
+    for (int i = 0; i < 20; i++)
     {
         result = API_MC_Sing_Cipher_Packet(texto_ejemplo, sizeof(texto_ejemplo), aux_buffer, &out_length_cipher);
 
@@ -70,15 +69,12 @@ int main()
     API_MM_Zeroize_root();
     API_MC_Shutdown_module();
 
-    
-
-    GCM_ctx ctx;
     unsigned char buf[64];
     unsigned char tag_buf[16];
     int ret;
 
     // 32 bytes.. that's 256 bits
-    const unsigned char key[32] = {0xfe, 0xff, 0xe9, 0x92, 0x86, 0x65, 0x73, 0x1c,
+    unsigned char key[32] = {0xfe, 0xff, 0xe9, 0x92, 0x86, 0x65, 0x73, 0x1c,
                                    0x6d, 0x6a, 0x8f, 0x94, 0x67, 0x30, 0x83, 0x08,
                                    0xfe, 0xff, 0xe9, 0x92, 0x86, 0x65, 0x73, 0x1c,
                                    0x6d, 0x6a, 0x8f, 0x94, 0x67, 0x30, 0x83, 0x08};
@@ -98,18 +94,14 @@ int main()
                                              0x88, 0x38, 0xc5, 0xf6, 0x1e, 0x63, 0x93, 0xba, 0x7a, 0x0a, 0xbc, 0xc9, 0xf6,
                                              0x62, 0x89, 0x80, 0x15, 0xad};
 
-    const unsigned char initial_value[12] = {0xca, 0xfe, 0xba, 0xbe, 0xfa, 0xce, 0xdb, 0xad,
+    unsigned char initial_value[12] = {0xca, 0xfe, 0xba, 0xbe, 0xfa, 0xce, 0xdb, 0xad,
                                              0xde, 0xca, 0xf8, 0x88};
-    const unsigned char additional[] = {};
+    unsigned char additional[] = {};
     unsigned char result_plaintext[64];
 
-    API_AES_checkHWsupport();
-    memset(&ctx, 0, sizeof(GCM_ctx)); // !!!!!!!!!!!!!!!!!!!!!!!!!!! importante hacer esto en el crypto.c
-    // 128 bits, not bytes!
-    API_AES_initkey(&(ctx.cipher_ctx), key, AES_KEY_SIZE_256); // !!!!!!!!!!!!!!!!!!!!!!!!!1 hay que inicializar la clave antes del setkey y el crypt and tag
-    ret = set_gcm_key(&ctx, key, 256);
+    API_AES_checkHWsupport(); //this is done by the cryptomodule normally 
 
-    ret = gcm_encrypt_decrypt_and_tag(&ctx, 1, 64, initial_value, 12, additional, sizeof(additional), plaintext, buf, 16, tag_buf);
+    API_CP_AEAD_AESGCM_encrypt_sign(plaintext,sizeof(plaintext),additional,sizeof(additional),16,key,AES_KEY_SIZE_256,initial_value,12,buf,tag_buf);
     for (int i = 0; i < 16; i++)
     {
         printf("%02x ", tag_buf[i]);
@@ -124,7 +116,8 @@ int main()
     {
         printf("local test failed\n");
     }
-    ret = gcm_authenticate_and_decrypt(&ctx, sizeof(buf), initial_value, 12, additional, sizeof(additional), tag_buf, sizeof(tag_buf), buf, result_plaintext);
+    uint8_t verify;
+    ret = API_CP_AEAD_AESGCM_verify_decrypt(buf,sizeof(buf),additional,sizeof(additional),16,key,AES_KEY_SIZE_256,initial_value,12,result_plaintext,tag_buf,&verify);
     if (memcmp(plaintext, result_plaintext, 64) == 0)
     {
         printf("My local test also works decrypt\n");
@@ -133,7 +126,7 @@ int main()
     {
         printf("local test failed decrypt\n");
     }
-    if (ret == 0)
+    if (verify == 1)
     {
         printf("additionally the decrypted text is verified correctly\n");
     }

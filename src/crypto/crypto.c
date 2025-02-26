@@ -161,7 +161,7 @@ int API_CP_AESOFB_encryptdecrypt(unsigned char *input, size_t in_len, unsigned c
 	API_AES_initkey(&(aesgcm_cryto_ctx.cipher_ctx), key, AES_KEY_SIZE_256);
 	set_gcm_key(&aesgcm_cryto_ctx, key, AES_KEY_SIZE_256 * 8);
 
-	if(ret = gcm_encrypt_decrypt_and_tag(&aesgcm_cryto_ctx,1,ciphertext_len,iv,iv_len,associated_data,associated_data_len,ciphertext,plaintext,tag_len,computed_tag) != 0){
+	if(ret = gcm_encrypt_decrypt_and_tag(&aesgcm_cryto_ctx,2,ciphertext_len,iv,iv_len,associated_data,associated_data_len,ciphertext,plaintext,tag_len,computed_tag) != 0){
 		return ret;
 	}
 
@@ -174,9 +174,10 @@ int API_CP_AESOFB_encryptdecrypt(unsigned char *input, size_t in_len, unsigned c
     // If the tags do not match, return an error.
     if (tag_mismatch != 0)
     {
+		*verify = -1;
         return -1; // Error: authentication tag mismatch.
     }
-
+	*verify = 1;
     return 0; // Success.
 
  }
