@@ -12,9 +12,9 @@ int main()
     system("clear");
     printf("prueba inicio modulo\n");
 
-    /*
+    
     unsigned char *cryptodata_filename = "cryptodata_test";
-    unsigned char *KEK_CERT_fileroute = "/home/ninjahacker/Escritorio/COMMON_CRITERIA_EAL2_cryptomodule/utils/certificate_manager/testing_cert"; // your route to cert
+    unsigned char *KEK_CERT_fileroute = "/home/ninjasaurio/repos_git/COMMON_CRITERIA_EAL2_cryptomodule/utils/certificate_manager/testing_cert"; // your route to cert
     int result = API_MC_Initialize_module(KEK_CERT_fileroute, cryptodata_filename);
     printf("el resultado de la inicialización del modulo es : %d\n", result);
 
@@ -70,7 +70,7 @@ int main()
     API_MM_Zeroize_root();
     API_MC_Shutdown_module();
 
-    */
+    
 
     GCM_ctx ctx;
     unsigned char buf[64];

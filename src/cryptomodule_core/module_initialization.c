@@ -55,10 +55,10 @@ int Memory_tracking_initialization()
     TI_Current_Key_In_Use = API_MT_add_tracker(&Current_key_in_use, sizeof(Current_key_in_use), CSP); // Packet cipher and auth auxiliary buffer
     correct_tracker_init_result[counter++] = (TI_Current_Key_In_Use >= 0) ? 1 : 0;
 
-    TI_AES_CBC_ctx = API_MT_add_tracker(&AES_CBC_ctx, sizeof(AES_CBC_ctx), CSP); // AES-CBC context
+    TI_AES_CBC_ctx = API_MT_add_tracker(&aescbc_crypto_ctx, sizeof(aescbc_crypto_ctx), CSP); // AES-CBC context declared in crypto.h
     correct_tracker_init_result[counter++] = (TI_AES_CBC_ctx >= 0) ? 1 : 0;
 
-    TI_AESOFB_CTX = API_MT_add_tracker(&AESOFB_CTX, sizeof(AESOFB_CTX), CSP); // AES-OFB context
+    TI_AESOFB_CTX = API_MT_add_tracker(&aesofb_crypto_ctx, sizeof(aesofb_crypto_ctx), CSP); // AES-OFB context declared in crypto.h
     correct_tracker_init_result[counter++] = (TI_AESOFB_CTX >= 0) ? 1 : 0;
 
     TI_AESOFB_outputBlock = API_MT_add_tracker(&AESOFB_outputBlock, sizeof(AESOFB_outputBlock), CSP); // AES-OFB output block

@@ -24114,6 +24114,7 @@ int SFT_AES256OFB_katTests(){
 
 int SFT_AESOFB_256_encrypt_decrypt_compareMC(unsigned char *input, int len, unsigned char *iv, unsigned char* key , unsigned char* expected_output ){
 	int verified;
+	AesContext OFB_test_aes_ctx;
     unsigned char ciphertexts[1001][16];
 	unsigned char plaintexts[1001][16];
 	unsigned char ivs[1001][16];
@@ -24124,7 +24125,8 @@ int SFT_AESOFB_256_encrypt_decrypt_compareMC(unsigned char *input, int len, unsi
 		
 	for (int j = 0; j < 1000; j++)
 	{
-		API_AES_OFB_EncryptDecrypt(plaintexts[j], len_size_t, key,AES_KEY_SIZE_256, ivs[j],ciphertexts[j]);
+		API_AES_initkey(&OFB_test_aes_ctx,key,AES_KEY_SIZE_256);
+		API_AES_OFB_EncryptDecrypt(OFB_test_aes_ctx,input, len_size_t, ivs[j],ciphertexts[j]);
 		if(j==0){
 			memcpy(plaintexts[j+1], ivs[j], 16);
     		memcpy(ivs[j+1],ciphertexts[j], 16);
@@ -24148,8 +24150,11 @@ int SFT_AESOFB_256_encrypt_decrypt_compareMC(unsigned char *input, int len, unsi
 
 int SFT_AESOFB_256_encrypt_decrypt_compare(unsigned char *input, int len, unsigned char *iv, unsigned char* key , unsigned char* expected_output){
     unsigned char aux_text[256];
+	AesContext OFB_test_aes_ctx;
     size_t len_size_t = (size_t)(len);  // Convert int to size_t
-    API_AES_OFB_EncryptDecrypt(input, len_size_t, key, AES_KEY_SIZE_256, iv, aux_text);
+
+	API_AES_initkey(&OFB_test_aes_ctx,key,AES_KEY_SIZE_256);
+    API_AES_OFB_EncryptDecrypt(OFB_test_aes_ctx,input, len_size_t, iv,aux_text);
     
     // Compare the encrypted output with the expected output
     if(memcmp(aux_text, expected_output, len_size_t) == 0){

@@ -6216,6 +6216,7 @@ int SFT_AES256CBC_mcTests(){
 int SFT_AESCBC_256_encryptCompareMC(unsigned char *plaintext, int *len, unsigned char* expected_output, int lenExpected, unsigned char *key, unsigned char *iv)
 {
     int verified;
+	AesContext CBC_test_aes_ctx;
     unsigned char ciphertexts[1001][16];
 	unsigned char plaintexts[1001][16];
 	unsigned char ivs[1001][16];
@@ -6226,7 +6227,8 @@ int SFT_AESCBC_256_encryptCompareMC(unsigned char *plaintext, int *len, unsigned
 		
 	for (int j = 0; j < 1000; j++)
 	{
-		API_AESCBC_encrypt(plaintexts[j], len_size_t, key,AES_KEY_SIZE_256, ivs[j],ciphertexts[j]);
+		API_AES_initkey(&CBC_test_aes_ctx,key,AES_KEY_SIZE_256);
+		API_AESCBC_encrypt(CBC_test_aes_ctx,plaintexts[j], len_size_t, ivs[j],ciphertexts[j]);
 		if(j==0){
 			memcpy(plaintexts[j+1], ivs[j], 16);
     		memcpy(ivs[j+1],ciphertexts[j], 16);
@@ -6250,6 +6252,7 @@ int SFT_AESCBC_256_encryptCompareMC(unsigned char *plaintext, int *len, unsigned
 int SFT_AESCBC_256_decryptCompareMC(unsigned char *ciphertext, int *len, unsigned char* expected_output, int lenExpected, unsigned char *key, unsigned char *iv){
 
 	int verified;
+	AesContext CBC_test_aes_ctx;
     unsigned char ciphertexts[1001][16];
 	unsigned char plaintexts[1001][16];
     unsigned char ivs[1001][16];
@@ -6261,7 +6264,8 @@ int SFT_AESCBC_256_decryptCompareMC(unsigned char *ciphertext, int *len, unsigne
 
 	for (int j = 0; j <  1000; j++)
 	{	
-		API_AESCBC_decrypt(ciphertexts[j], len_size_t, key,AES_KEY_SIZE_256, ivs[j],plaintexts[j]);
+		API_AES_initkey(&CBC_test_aes_ctx,key,AES_KEY_SIZE_256);
+		API_AESCBC_decrypt(CBC_test_aes_ctx,ciphertexts[j], len_size_t, ivs[j],plaintexts[j]);
 		if(j==0){
 			memcpy(ciphertexts[j+1],ivs[j],16);
 			memcpy(ivs[j+1],ciphertexts[j],16);
@@ -32399,12 +32403,14 @@ int API_SFT_AES256_CBC_Tests(){
     return verified;
 }
 
-
 // Encrypt and compare the output with the expected result
 int SFT_AESCBC_256_encryptCompare(unsigned char *plaintext, int *len, unsigned char* expected_output, int lenExpected, unsigned char *key, unsigned char* iv){
     unsigned char ciphertext[256];
+	AesContext CBC_test_aes_ctx;
     size_t len_size_t = (size_t)(*len);  // Convert int to size_t
-    API_AESCBC_encrypt(plaintext, len_size_t, key, AES_KEY_SIZE_256, iv, ciphertext);
+
+	API_AES_initkey(&CBC_test_aes_ctx,key,AES_KEY_SIZE_256);
+    API_AESCBC_encrypt(CBC_test_aes_ctx,plaintext, len_size_t,iv, ciphertext);
     
     // Compare the encrypted output with the expected output
     if(memcmp(ciphertext, expected_output, lenExpected) == 0){
@@ -32416,8 +32422,11 @@ int SFT_AESCBC_256_encryptCompare(unsigned char *plaintext, int *len, unsigned c
 // Decrypt and compare the output with the expected result
 int SFT_AESCBC_256_decryptCompare(unsigned char *ciphertext, int *len, unsigned char* expected_output, int lenExpected, unsigned char *key, unsigned char* iv) {
     unsigned char plaintext[256];
+	AesContext CBC_test_aes_ctx;
     size_t len_size_t = (size_t)(*len);  // Convert int to size_t
-    API_AESCBC_decrypt(ciphertext, len_size_t, key, AES_KEY_SIZE_256, iv, plaintext);
+
+	API_AES_initkey(&CBC_test_aes_ctx,key,AES_KEY_SIZE_256);
+    API_AESCBC_decrypt(CBC_test_aes_ctx,ciphertext, len_size_t, iv, plaintext);
     
     // Compare the decrypted output with the expected output
     if (memcmp(plaintext, expected_output, lenExpected) == 0) {

@@ -1157,7 +1157,7 @@ void aes_table_decrypt(AesContext const* Context, uint8_t const Input [AES_BLOCK
 //////////////////////////////////////////// AES API IMPLEMENTATION //////////////////////////////////////////
 int API_AES_checkHWsupport(){
     AES_implement = supportsAESNI()? hardware_AES_NI : software_table_based_aes;
-    return AES_implement;
+    return software_table_based_aes;
 }
 
 int API_AES_initkey (AesContext* Context, void const* Key, uint32_t KeySize){

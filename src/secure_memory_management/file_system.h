@@ -30,7 +30,7 @@
  ****************************************************************************************************************/
 
 #include "../crypto/CRC_Galileo.h"
-#include "../crypto/AES_OFB.h"
+#include "../crypto/crypto.h"
 #include "../crypto/AES_CORE.h"
 #include "../prng/random_number.h"
 

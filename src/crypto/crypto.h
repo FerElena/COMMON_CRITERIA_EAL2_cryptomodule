@@ -17,6 +17,7 @@
 #include "CRC_Galileo.h"
 #include "AES_CORE.h"
 #include "AES_CBC.h"
+#include "AES_OFB.h"
 #include "../library_tracer/log_manager.h"
 
 /****************************************************************************************************************
@@ -35,6 +36,12 @@ typedef enum type_CRC {
  * Defines the size of a SHA-256 hash digest.
  */
 #define HASH_SIZE 32
+
+
+
+extern AesContext aescbc_crypto_ctx;                      // AES AESCBC_CTX to store the derived AES key,CSP
+extern AesContext aesofb_crypto_ctx;                      // AES AESOFB_CTX to store the derived AES key,CSP
+
 
 /****************************************************************************************************************
  * Function definition zone
@@ -152,5 +159,7 @@ int API_CP_AESCBC_encrypt(unsigned char *plaintext, size_t *len, unsigned char *
  * @return 0 on success, non-zero on failure.
  */
 int API_CP_AESCBC_decrypt(unsigned char *ciphertext, size_t *len, unsigned char *key, unsigned int AES_KEY_SIZE, unsigned char *iv, unsigned char *plaintext);
+
+int API_CP_AESOFB_encryptdecrypt(unsigned char *input, size_t in_len, unsigned char *key, unsigned int AES_KEY_SIZE, unsigned char *iv, unsigned char *output);
 
 #endif

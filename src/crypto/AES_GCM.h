@@ -1,6 +1,6 @@
 /**
  * @file AES_GCM.h
- * @brief File containing all the function headers of the AES_OFB.
+ * @brief File containing all the function headers of the AES_GCM.
  */
 
  #ifndef AESGCM_H

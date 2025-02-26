@@ -29,12 +29,6 @@
  * Global variables/constants definition
  ****************************************************************************************************************/
 
-/**
- * @brief AES_CBC context struct
- */
-
-extern AesContext AES_CBC_ctx; //auxiliar ctx to store round keys, CSP!
-
 /* Macros............................................................ */
 
 #define MIN(x, y) (((x) < (y)// SHA256 selftests starts) ? (x) : (y))
@@ -95,7 +89,7 @@ int CP_getPaddingLength(const unsigned char *padded_message, size_t length);
  * @param[out] result Result of the XOR block operation
  */
 
-void CP_XorAesBlock(uint8_t *Block1, uint8_t const *Block2, uint8_t *result);
+void CBC_XorAesBlock(uint8_t *Block1, uint8_t const *Block2, uint8_t *result);
 
 
 /**
@@ -103,34 +97,32 @@ void CP_XorAesBlock(uint8_t *Block1, uint8_t const *Block2, uint8_t *result);
  *
  * This function initializes the AES-CBC context with the provided key and IV, and then encrypts the plaintext.
  *
+ * @param[in]  aescbc_ctx The AES context with the expanded key.
  * @param[in]  plaintext  The buffer containing the plaintext to encrypt.
  * @param[in,out] len     The length of the plaintext buffer. Updated to the length of the ciphertext.
- * @param[in]  key        The encryption key.
- * @param[in]  AES_KEY_SIZE The size of the encryption key.
  * @param[in]  iv         The initialization vector for CBC mode.
  * @param[out] ciphertext The buffer to store the encrypted ciphertext.
  * 
  * @return 1 on success, 0 on failure.
  */
 
-int API_AESCBC_encrypt(unsigned char *plaintext, size_t len, unsigned char *key, unsigned int AES_KEY_SIZE, unsigned char *iv, unsigned char *ciphertext);
+ int API_AESCBC_encrypt(AesContext aescbc_ctx,unsigned char *plaintext, size_t len, unsigned char *iv, unsigned char *ciphertext);
 
 /**
  * @brief Decrypts ciphertext using AES-CBC mode.
  *
  * This function initializes the AES-CBC context with the provided key and IV, and then decrypts the ciphertext.
  *
+ * @param[in]  aescbc_ctx The AES context with the expanded key.
  * @param[in]  ciphertext The buffer containing the ciphertext to decrypt.
  * @param[in,out] len      The length of the ciphertext buffer. Updated to the length of the plaintext.
- * @param[in]  key         The encryption key.
- * @param[in]  AES_KEY_SIZE The size of the encryption key.
  * @param[in]  iv          The initialization vector for CBC mode.
  * @param[out] plaintext   The buffer to store the decrypted plaintext.
  * 
  * @return 1 on success, 0 on failure.
  */
 
-int API_AESCBC_decrypt(unsigned char *ciphertext, size_t len, unsigned char *key, unsigned int AES_KEY_SIZE, unsigned char *iv, unsigned char *plaintext);
+ int API_AESCBC_decrypt(AesContext aescbc_ctx,unsigned char *ciphertext, size_t len, unsigned char *iv, unsigned char *plaintext);
 
 
 #endif 

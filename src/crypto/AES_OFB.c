@@ -7,14 +7,10 @@
 
 uint8_t AESOFB_outputBlock[AES_BLOCK_SIZE]; //Buffer to store momentary output block, CSP
 uint8_t AESOFB_ivEnc[AES_BLOCK_SIZE];       // Buffer to store encrypted IV, CSP
-AesContext AESOFB_CTX;                      // AES AESOFB_CTX to store the round keys of AES-256 OFB
 
 
-void API_AES_OFB_EncryptDecrypt(const uint8_t *input, size_t length, const uint8_t *key, size_t keySize, uint8_t *iv, uint8_t *output) {
+void API_AES_OFB_EncryptDecrypt(const AesContext aesofb_ctx,uint8_t *input, size_t length, uint8_t *iv, uint8_t *output) {
     size_t i;
-
-    // Initialize the AES context with the provided key
-    API_AES_initkey(&AESOFB_CTX, key, keySize);
 
     // Copy the IV to AESOFB_ivEnc
     memcpy(AESOFB_ivEnc, iv, AES_BLOCK_SIZE);
@@ -23,7 +19,7 @@ void API_AES_OFB_EncryptDecrypt(const uint8_t *input, size_t length, const uint8
     for (i = 0; i < length; i += AES_BLOCK_SIZE) {
 
         // Encrypt the IV or the last encrypted block
-        API_AES_encrypt_block(&AESOFB_CTX, AESOFB_ivEnc, AESOFB_outputBlock);
+        API_AES_encrypt_block(&aesofb_ctx, AESOFB_ivEnc, AESOFB_outputBlock);
 
         // Update AESOFB_ivEnc for the next round
         memcpy(AESOFB_ivEnc, AESOFB_outputBlock, AES_BLOCK_SIZE);
