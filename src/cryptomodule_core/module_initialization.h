@@ -66,9 +66,10 @@ extern int TI_Current_Key_In_Use;      /**< Current key in use for cipher and au
 
 // AES CSPs parameters
 extern int TI_AES_CBC_ctx;	  /**< AES-CBC context tracker index */
-extern int TI_AESOFB_CTX;	  /**< AES-OFB context tracker index */
+extern int TI_AESOFB_ctx;	  /**< AES-OFB context tracker index */
 extern int TI_AESOFB_outputBlock; /**< AES-OFB output block tracker index */
 extern int TI_AESOFB_ivEnc;	  /**< AES-OFB initialization vector encryption tracker index */
+extern int TI_AESGCM_ctx;     /**< AES-GCM context tracker index */
 
 // ECDSA-256 operation parameters with private keys
 extern int TI_ECDSA_curve_p; /**< ECDSA curve parameter p tracker index */

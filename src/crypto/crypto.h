@@ -18,6 +18,7 @@
 #include "AES_CORE.h"
 #include "AES_CBC.h"
 #include "AES_OFB.h"
+#include "AES_GCM.h"
 #include "../library_tracer/log_manager.h"
 
 /****************************************************************************************************************
@@ -37,10 +38,9 @@ typedef enum type_CRC {
  */
 #define HASH_SIZE 32
 
-
-
 extern AesContext aescbc_crypto_ctx;                      // AES AESCBC_CTX to store the derived AES key,CSP
 extern AesContext aesofb_crypto_ctx;                      // AES AESOFB_CTX to store the derived AES key,CSP
+extern GCM_ctx aesgcm_cryto_ctx;						  // AES AESGCM_CTX to store the derived AES key CSP
 
 
 /****************************************************************************************************************
@@ -161,5 +161,13 @@ int API_CP_AESCBC_encrypt(unsigned char *plaintext, size_t *len, unsigned char *
 int API_CP_AESCBC_decrypt(unsigned char *ciphertext, size_t *len, unsigned char *key, unsigned int AES_KEY_SIZE, unsigned char *iv, unsigned char *plaintext);
 
 int API_CP_AESOFB_encryptdecrypt(unsigned char *input, size_t in_len, unsigned char *key, unsigned int AES_KEY_SIZE, unsigned char *iv, unsigned char *output);
+
+int API_CP_AEAD_AESGCM_encrypt_sign(unsigned char *plaintext, size_t plaintext_len,unsigned char *associated_data, size_t associated_data_len,size_t tag_len,unsigned char *key,
+    unsigned int AES_KEY_SIZE,unsigned char *iv, unsigned int iv_len,unsigned char *ciphertext,unsigned char *tag);
+
+int API_CP_AEAD_AESGCM_verify_decrypt(unsigned char *ciphertext,size_t ciphertext_len,unsigned char *associated_data, size_t associated_data_len,size_t tag_len,unsigned char *key,
+    unsigned int AES_KEY_SIZE,unsigned char *iv, unsigned int iv_len,unsigned char *plaintext,unsigned char *tag,uint8_t *verify);
+
+
 
 #endif

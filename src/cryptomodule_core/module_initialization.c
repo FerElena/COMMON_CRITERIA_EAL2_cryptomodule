@@ -11,9 +11,10 @@ int TI_FS_data_buffer;
 int TI_PCA_data_buffer_sed;
 int TI_Current_Key_In_Use;
 int TI_AES_CBC_ctx;
-int TI_AESOFB_CTX;
+int TI_AESOFB_ctx;
 int TI_AESOFB_outputBlock;
 int TI_AESOFB_ivEnc;
+int TI_AESGCM_ctx;
 int TI_ECDSA_curve_p;
 int TI_ECDSA_curve_B;
 int TI_ECDSA_curve_G;
@@ -58,13 +59,16 @@ int Memory_tracking_initialization()
     TI_AES_CBC_ctx = API_MT_add_tracker(&aescbc_crypto_ctx, sizeof(aescbc_crypto_ctx), CSP); // AES-CBC context declared in crypto.h
     correct_tracker_init_result[counter++] = (TI_AES_CBC_ctx >= 0) ? 1 : 0;
 
-    TI_AESOFB_CTX = API_MT_add_tracker(&aesofb_crypto_ctx, sizeof(aesofb_crypto_ctx), CSP); // AES-OFB context declared in crypto.h
-    correct_tracker_init_result[counter++] = (TI_AESOFB_CTX >= 0) ? 1 : 0;
+    TI_AESOFB_ctx = API_MT_add_tracker(&aesofb_crypto_ctx, sizeof(aesofb_crypto_ctx), CSP); // AES-OFB context declared in crypto.h
+    correct_tracker_init_result[counter++] = (TI_AESOFB_ctx >= 0) ? 1 : 0;
 
     TI_AESOFB_outputBlock = API_MT_add_tracker(&AESOFB_outputBlock, sizeof(AESOFB_outputBlock), CSP); // AES-OFB output block
     correct_tracker_init_result[counter++] = (TI_AESOFB_outputBlock >= 0) ? 1 : 0;
 
     TI_AESOFB_ivEnc = API_MT_add_tracker(&AESOFB_ivEnc, sizeof(AESOFB_ivEnc), CSP); // AES-OFB encrypted IV
+    correct_tracker_init_result[counter++] = (TI_AESOFB_ivEnc >= 0) ? 1 : 0;
+
+    TI_AESGCM_ctx = API_MT_add_tracker(&aesgcm_cryto_ctx, sizeof(aesgcm_cryto_ctx), CSP); // AES-GCM context declared in crypto.h
     correct_tracker_init_result[counter++] = (TI_AESOFB_ivEnc >= 0) ? 1 : 0;
 
     TI_ECDSA_curve_p = API_MT_add_tracker(ECDSA_curve_p, sizeof(ECDSA_curve_p), CSP); // ECDSA curve parameter p

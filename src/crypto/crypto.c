@@ -13,7 +13,8 @@
  ****************************************************************************************************************/
 
  AesContext aescbc_crypto_ctx;					   // AES AESCBC_CTX to store the derived AES key CSP
- AesContext aesofb_crypto_ctx;                      // AES AESOFB_CTX to store the derived AES key CSP
+ AesContext aesofb_crypto_ctx;                     // AES AESOFB_CTX to store the derived AES key CSP
+ GCM_ctx aesgcm_cryto_ctx;						   // AES AESGCM_CTX to store the derived AES key CSP
 
 /****************************************************************************************************************
  * Function definition zone
@@ -137,3 +138,45 @@ int API_CP_AESOFB_encryptdecrypt(unsigned char *input, size_t in_len, unsigned c
 /****************************************************************************************************************
  * AEAD algorithms
  ****************************************************************************************************************/
+
+ int API_CP_AEAD_AESGCM_encrypt_sign(unsigned char *plaintext, size_t plaintext_len,unsigned char *associated_data, size_t associated_data_len,size_t tag_len,unsigned char *key,
+									 unsigned int AES_KEY_SIZE,unsigned char *iv, unsigned int iv_len,unsigned char *ciphertext,unsigned char *tag)
+{
+	memset(&aesgcm_cryto_ctx, 0, sizeof(GCM_ctx));
+	//initialize round keys for aes_gcm
+	API_AES_initkey(&(aesgcm_cryto_ctx.cipher_ctx), key, AES_KEY_SIZE_256);
+	set_gcm_key(&aesgcm_cryto_ctx, key, AES_KEY_SIZE_256 * 8);
+	gcm_encrypt_decrypt_and_tag(&aesgcm_cryto_ctx,1,plaintext_len,iv,iv_len,associated_data,associated_data_len,plaintext,ciphertext,tag_len,tag);
+	return 1;
+}
+
+ int API_CP_AEAD_AESGCM_verify_decrypt(unsigned char *ciphertext,size_t ciphertext_len,unsigned char *associated_data, size_t associated_data_len,size_t tag_len,unsigned char *key,
+									   unsigned int AES_KEY_SIZE,unsigned char *iv, unsigned int iv_len,unsigned char *plaintext,unsigned char *tag,uint8_t *verify)
+{
+	int ret;
+	int tag_mismatch = 0;
+	unsigned char computed_tag[16]; // Buffer to store the computed authentication tag.
+	memset(&aesgcm_cryto_ctx, 0, sizeof(GCM_ctx));
+	//initialize round keys for aes_gcm
+	API_AES_initkey(&(aesgcm_cryto_ctx.cipher_ctx), key, AES_KEY_SIZE_256);
+	set_gcm_key(&aesgcm_cryto_ctx, key, AES_KEY_SIZE_256 * 8);
+
+	if(ret = gcm_encrypt_decrypt_and_tag(&aesgcm_cryto_ctx,1,ciphertext_len,iv,iv_len,associated_data,associated_data_len,ciphertext,plaintext,tag_len,computed_tag) != 0){
+		return ret;
+	}
+
+	// Verify the computed tag against the expected tag in constant time.
+    for (int i = 0; i < tag_len; i++)
+    {
+        tag_mismatch |= tag[i] ^ computed_tag[i];
+    }
+
+    // If the tags do not match, return an error.
+    if (tag_mismatch != 0)
+    {
+        return -1; // Error: authentication tag mismatch.
+    }
+
+    return 0; // Success.
+
+ }
