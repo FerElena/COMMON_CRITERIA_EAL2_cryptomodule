@@ -70,8 +70,9 @@ int API_verify_HMAC(unsigned char *msg, unsigned char *key, unsigned char *sign,
 	}
 	unsigned char *out ;
 	out = API_hmac_sha256(key, length_key, msg, length_msg);
-    for(int i = 0 ; i < length_sign ; i++)
-        rc = sign[i] == out[i]? rc:rc++;
+    while(length_sign--)
+        rc|=*out++^*sign++;
+        
 	if (rc)//if not verified
 		return MAC_NOT_VERIFIED;
 	else //if verified
